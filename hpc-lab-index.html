@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPC Lab</title>
+    
+    <!-- CDNs -->
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Instrument+Serif:ital,wght@1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        @layer components {
+            .glass-card {
+                backdrop-filter: blur(12px);
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+            }
+
+            @media (min-width: 768px) {
+                .glass-card {
+                    border-radius: 32px;
+                }
+            }
+
+            .glass-badge {
+                backdrop-filter: blur(16px);
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 9999px;
+            }
+        }
+
+        body {
+            background-color: #050505;
+            color: white;
+            font-family: 'Barlow', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .font-serif {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+
+        .video-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom right, rgba(0,0,0,0.8), transparent, rgba(0,0,0,0.9));
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Barlow', 'sans-serif'],
+                        serif: ['Instrument Serif', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence } = FramerMotion;
+
+        const VIDEO_URL = "https://d8j0ntlcm91z4.cloudfront.net/user_3CbQ7bgJl2DosxuagIbrMDX2u4Q/hf_20260503_204926_23a59427-11bb-4fdd-b5ed-cc8f1b16ea02.mp4";
+        const FADE_MS = 500;
+        const FADE_OUT_LEAD = 0.55;
+
+        function App() {
+            const videoRef1 = useRef(null);
+            const videoRef2 = useRef(null);
+            const [activeVideo, setActiveVideo] = useState(1);
+            const [opacity1, setOpacity1] = useState(1);
+            const [opacity2, setOpacity2] = useState(0);
+
+            useEffect(() => {
+                let animationFrame;
+                let fadeStartTime = null;
+                let isFading = false;
+
+                const crossfade = (timestamp) => {
+                    const vid1 = videoRef1.current;
+                    const vid2 = videoRef2.current;
+                    if (!vid1 || !vid2) return;
+
+                    const currentVid = activeVideo === 1 ? vid1 : vid2;
+                    const nextVid = activeVideo === 1 ? vid2 : vid1;
+
+                    if (!isFading && currentVid.duration > 0 && currentVid.currentTime > currentVid.duration - FADE_OUT_LEAD) {
+                        isFading = true;
+                        fadeStartTime = timestamp;
+                        nextVid.currentTime = 0;
+                        nextVid.play().catch(e => {});
+                    }
+
+                    if (isFading && fadeStartTime !== null) {
+                        const elapsed = timestamp - fadeStartTime;
+                        const progress = Math.min(elapsed / FADE_MS, 1);
+
+                        if (activeVideo === 1) {
+                            setOpacity1(1 - progress);
+                            setOpacity2(progress);
+                        } else {
+                            setOpacity1(progress);
+                            setOpacity2(1 - progress);
+                        }
+
+                        if (progress === 1) {
+                            isFading = false;
+                            fadeStartTime = null;
+                            currentVid.pause();
+                            setActiveVideo(activeVideo === 1 ? 2 : 1);
+                        }
+                    }
+
+                    animationFrame = requestAnimationFrame(crossfade);
+                };
+
+                animationFrame = requestAnimationFrame(crossfade);
+                return () => cancelAnimationFrame(animationFrame);
+            }, [activeVideo]);
+
+            useEffect(() => {
+                const playVideo = async () => {
+                    if (videoRef1.current) {
+                        try {
+                            await videoRef1.current.play();
+                        } catch (e) {
+                            console.log("Play failed", e);
+                        }
+                    }
+                };
+                playVideo();
+            }, []);
+
+            const handleTimeUpdate = () => {};
+            const handleEnded = (e) => {
+                e.target.currentTime = 0;
+                e.target.play().catch(() => {});
+            };
+
+            return (
+                <div className="relative min-h-screen">
+                    <div className="video-container">
+                        <video 
+                            ref={videoRef1} 
+                            src={VIDEO_URL} 
+                            muted 
+                            playsInline 
+                            autoPlay
+                            onTimeUpdate={handleTimeUpdate}
+                            onEnded={handleEnded}
+                            style={{ opacity: opacity1 }} 
+                        />
+                        <video 
+                            ref={videoRef2} 
+                            src={VIDEO_URL} 
+                            muted 
+                            playsInline 
+                            onTimeUpdate={handleTimeUpdate}
+                            onEnded={handleEnded}
+                            style={{ opacity: opacity2 }} 
+                        />
+                        <div className="overlay" />
+                    </div>
+
+                    <nav className="fixed top-0 left-0 w-full p-4 md:p-8 flex justify-between items-center z-50">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full border-2 border-white/40 flex items-center justify-center">
+                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                            <div className="flex flex-col leading-none">
+                                <span className="text-xs font-bold tracking-[0.3em] uppercase">HPC Lab</span>
+                                <span className="mt-1 text-[8px] opacity-40 uppercase tracking-tighter">Tunghai University</span>
+                            </div>
+                        </div>
+                        <div className="hidden md:flex gap-8 text-[10px] tracking-widest uppercase opacity-70">
+                            <a href="#">研究領域</a>
+                            <a href="#">研究成果</a>
+                            <a href="#">成員介紹</a>
+                            <a href="https://hpc.thu.edu.tw/profile/" target="_blank" class="px-3 py-1 bg-white/10 rounded-full hover:bg-white hover:text-black transition-all">指導教授</a>
+                        </div>
+                    </nav>
+
+                    <main className="relative z-10 mx-auto max-w-7xl px-5 pt-28 pb-20 sm:px-8 md:pt-40">
+                        <div className="grid grid-cols-12 gap-y-16 md:gap-12">
+                            <section className="col-span-12 lg:col-span-7 flex flex-col justify-center">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.8 }}
+                                >
+                                    <h1 className="mb-4 text-4xl sm:text-6xl md:text-8xl leading-[1.2]">
+                                        高效能計算<br/>實驗室 (HPC Lab)
+                                    </h1>
+                                    <p className="mb-10 font-serif text-xl sm:text-2xl italic opacity-60 sm:mb-12">
+                                        指導教授：楊朝棟 博士 (Prof. Chao-Tung Yang)
+                                    </p>
+
+                                    <div className="mb-10 flex flex-col items-start gap-8 sm:mb-12 sm:flex-row sm:items-center sm:gap-12">
+                                        <div className="flex flex-col">
+                                            <div className="text-2xl sm:text-3xl font-light mb-1">頂尖研究</div>
+                                            <div className="text-[10px] uppercase tracking-widest opacity-50">學術卓越影響力</div>
+                                        </div>
+                                        <div className="hidden sm:block h-12 w-[1px] bg-white/20"></div>
+                                        <div className="flex flex-col">
+                                            <div className="text-2xl sm:text-3xl font-light mb-1">前瞻架構</div>
+                                            <div className="text-[10px] uppercase tracking-widest opacity-50">產學合作與開發</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-4 opacity-40 transition-all hover:opacity-60 md:gap-6 md:grayscale md:hover:grayscale-0 uppercase tracking-widest text-[10px] font-bold">
+                                        {["LLM Fine-tuning", "K8S Bare Metal", "Multimodal", "CubeCOS", "Jetson Nano"].map(p => (
+                                            <span key={p}>{p}</span>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            </section>
+
+                            <section className="col-span-12 lg:col-span-5 flex flex-col justify-center mt-20 lg:mt-0">
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    className="mb-8"
+                                >
+                                    <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.4em] opacity-60">// 核心研究項目</p>
+                                    <h2 className="text-3xl italic">引領架構革新</h2>
+                                </motion.div>
+
+                                <div className="space-y-4">
+                                    <Card tag="LLM 微調與多模態" desc="專注於大型語言模型 (LLM) 的技術微調 (Fine-tuning) 與多模態 (Multimodal) 研發，提升多維度數據處理能力。" />
+                                    <Card tag="實體機與邊緣 K8S" desc="研究基於 Jetson Nano 與各式伺服器實體機 (Bare Metal) 的 Kubernetes 叢集建構與異質資源調度優化。" />
+                                    <Card tag="CubeCOS 雲端架構" desc="整合 BigStack CubeCOS 雲端系統，致力於現代化容器架構與大規模分散式運算節點的效能提升。" />
+                                </div>
+
+                                <div className="mt-12">
+                                    <a href="#contact" className="inline-block px-10 py-5 rounded-full bg-white text-black text-xs font-bold tracking-widest uppercase hover:bg-opacity-90 transition-all">
+                                        聯絡我們
+                                    </a>
+                                </div>
+                            </section>
+                        </div>
+
+                        {/* Contact Section */}
+                        <section id="contact" className="mt-24 md:mt-40 max-w-2xl mx-auto px-5 sm:px-6">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="glass-card p-8 sm:p-10 md:p-16 text-center"
+                            >
+                                <h2 className="text-3xl sm:text-4xl mb-6">聯絡我們</h2>
+                                <p className="text-sm opacity-60 mb-10 leading-relaxed">
+                                    如果您對我們的研究感興趣，或者有任何技術合作意向，歡迎留言與我們聯繫。
+                                </p>
+                                
+                                <form id="contactForm" className="space-y-6 text-left">
+                                    <div>
+                                        <label className="block text-[10px] uppercase tracking-widest opacity-40 mb-2">姓名</label>
+                                        <input type="text" name="name" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-colors text-white" placeholder="Your Name" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] uppercase tracking-widest opacity-40 mb-2">聯絡電子郵件</label>
+                                        <input type="email" name="email" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-colors text-white" placeholder="email@example.com" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] uppercase tracking-widest opacity-40 mb-2">留言內容</label>
+                                        <textarea name="message" required rows="4" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-colors resize-none text-white" placeholder="How can we help?"></textarea>
+                                    </div>
+                                    <button type="submit" className="w-full py-4 rounded-full bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-opacity-90 transition-all">
+                                        傳送留言
+                                    </button>
+                                </form>
+                                <script dangerouslySetInnerHTML={{ __html: `
+                                    document.getElementById('contactForm')?.addEventListener('submit', async (e) => {
+                                        e.preventDefault();
+                                        const formData = new FormData(e.target);
+                                        const data = Object.fromEntries(formData.entries());
+                                        try {
+                                            const response = await fetch('/api/contact', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify(data)
+                                            });
+                                            if (response.ok) {
+                                                alert('留言已送出！感謝您的聯絡。');
+                                                e.target.reset();
+                                            } else {
+                                                alert('發送失敗，請稍後再試。');
+                                            }
+                                        } catch (error) {
+                                            console.error('Submit error:', error);
+                                            alert('發送出錯，請檢查網路連線。');
+                                        }
+                                    });
+                                ` }} />
+                            </motion.div>
+                        </section>
+                    </main>
+
+                    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 md:bottom-8 md:right-8 md:flex-row md:items-center md:gap-4">
+                        <div className="glass-badge text-[8px] font-bold tracking-widest text-[#9CA3AF]">LOC: THU, TAIWAN</div>
+                        <div className="glass-badge text-[8px] font-bold uppercase tracking-widest text-[#9CA3AF]">HPC & CLOUD INFRASTRUCTURE</div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Card({ tag, desc }) {
+            return (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="glass-card flex w-full flex-col items-start gap-4 overflow-hidden break-words p-5 transition-all hover:bg-white/15 sm:flex-row sm:gap-5 sm:p-6"
+                >
+                    <div className="bg-white/20 rounded-full w-7 h-7 flex items-center justify-center shrink-0 sm:mt-1">
+                        <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <div className="text-sm sm:text-xs font-bold uppercase tracking-wider mb-2 sm:mb-1 text-wrap">{tag}</div>
+                        <p className="text-sm font-light opacity-60 leading-relaxed text-wrap">{desc}</p>
+                    </div>
+                </motion.div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

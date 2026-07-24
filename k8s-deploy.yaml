@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hpc-lab-site
+  labels:
+    app: hpc-lab
+spec:
+  # 改為 1，因為目前使用 SQLite 本機資料庫。
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1       # 更新時最多可以多開 1 個 Pod
+      maxUnavailable: 0 # 更新時確保原本的 Pod 不會先被殺掉，維持 1 個服務中
+  selector:
+    matchLabels:
+      app: hpc-lab
+  template:
+    metadata:
+      labels:
+        app: hpc-lab
+    spec:
+      # 【重要】因為使用 hostPath 存 SQLite，必須釘死在同一台機器，否則更新後 Pod 跑到另一台機器資料就會不見！
+      nodeSelector:
+        kubernetes.io/hostname: pk-master1 
+      containers:
+      - name: landing-site
+        image: pokai516/hpc-lab:latest
+        imagePullPolicy: Always # 每次更新都強制去 Docker Hub 拉最新的程式碼
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        volumeMounts:
+        - name: sqlite-data
+          mountPath: /app/data
+      volumes:
+      - name: sqlite-data
+        hostPath:
+          path: /var/lib/hpc-lab-data # 資料會存在這台機器的這個路徑下
+          type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hpc-lab-service
+spec:
+  type: NodePort
+  selector:
+    app: hpc-lab
+  ports:
+    - port: 80
+      targetPort: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hpc-lab-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/server-alias: "140.128.101.193"
+spec:
+  rules:
+    - host: hpc-lab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hpc-lab-service
+                port:
+                  number: 80

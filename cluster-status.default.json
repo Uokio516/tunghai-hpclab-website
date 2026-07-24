@@ -1,0 +1,133 @@
+{
+  "updatedAt": "2026-07-21",
+  "source": "snapshot",
+  "summary": {
+    "physicalNodes": 10,
+    "cpuThreads": 320,
+    "memoryGB": 1105,
+    "gpus": 2,
+    "gpusPending": 1,
+    "cephTiB": 7.0,
+    "vmsTotal": 23,
+    "vmsRunning": 16,
+    "platforms": 3
+  },
+  "clusters": [
+    {
+      "id": "cubecos",
+      "name": "CubeCOS 超融合雲叢集",
+      "subtitle": "cube-cluster",
+      "accent": "#31c5cf",
+      "stack": "OpenStack 6.2.0 · Ceph 17.2.6 Quincy · K3s 1.26 + Rancher · CentOS Stream 9",
+      "status": "HEALTH_OK",
+      "statusLevel": "good",
+      "quick": [
+        { "v": "3", "l": "節點" },
+        { "v": "96", "l": "CPU 執行緒" },
+        { "v": "501 GiB", "l": "記憶體" },
+        { "v": "2× 2080 Ti", "l": "GPU 直通" },
+        { "v": "18", "l": "Ceph OSD" },
+        { "v": "6 / 8", "l": "VM 運行中" }
+      ],
+      "nodes": [
+        { "name": "cc1", "role": "controller · VIP", "status": "up", "cpu": "i9-10980XE · 36T", "ram": "251 GiB", "gpu": "RTX 2080 Ti", "gpuLevel": "active" },
+        { "name": "cc2", "role": "compute · mgr", "status": "up", "cpu": "i9-9980XE · 36T", "ram": "125 GiB", "gpu": "RTX 2080 Ti", "gpuLevel": "active" },
+        { "name": "cc3", "role": "compute", "status": "up", "cpu": "i9-12900K · 24T", "ram": "125 GiB", "gpu": "RTX 3060 待裝", "gpuLevel": "pending" }
+      ],
+      "meters": [
+        { "label": "Ceph 儲存池使用率", "value": "486 GiB / 7.0 TiB", "pct": 6.8, "level": "accent" },
+        { "label": "OSD 上線", "value": "18 / 18", "pct": 100, "level": "good" },
+        { "label": "PG 健康 (active+clean)", "value": "945 / 945", "pct": 100, "level": "good" }
+      ],
+      "services": [
+        "OpenStack · Nova / Neutron-OVN / Cinder / Glance",
+        "Ceph · RBD / CephFS / RGW S3",
+        "Rancher · K3s 3-master HA",
+        "GPU · Cyborg 加速器直通",
+        "監控 · Prometheus / Grafana",
+        "身分 · Keycloak SSO",
+        "網路 · MetalLB / ingress-nginx"
+      ],
+      "vms": [
+        { "name": "pk-gpu-cc1", "use": "GPU K8s 工作節點 (RTX 2080 Ti 直通)", "node": "cc1", "state": "running" },
+        { "name": "pk-gpu-cc2", "use": "GPU K8s 工作節點 (RTX 2080 Ti 直通)", "node": "cc2", "state": "running" },
+        { "name": "pk-master1", "use": "Rancher K8s 控制平面", "node": "cc3", "state": "running" },
+        { "name": "pk-worker1", "use": "K8s 工作節點", "node": "cc2", "state": "running" },
+        { "name": "pk-worker2", "use": "K8s 工作節點", "node": "cc2", "state": "running" },
+        { "name": "pk", "use": "跳板機 / 管理工具機", "node": "cc3", "state": "running" },
+        { "name": "pk-pico / pk-tinytiny", "use": "測試用機", "node": "cc1", "state": "stopped" }
+      ]
+    },
+    {
+      "id": "proxmox",
+      "name": "Proxmox 虛擬化叢集",
+      "subtitle": "hpccluster",
+      "accent": "#f0932b",
+      "stack": "Proxmox VE 8.4 · 7 節點 quorum · PBS 備份 · 承載實驗室對外服務",
+      "status": "Quorate · 7/7 online",
+      "statusLevel": "good",
+      "quick": [
+        { "v": "7", "l": "節點" },
+        { "v": "224", "l": "CPU 執行緒" },
+        { "v": "604 GB", "l": "記憶體" },
+        { "v": "7 / 17", "l": "VM 運行中" },
+        { "v": "5.7 TB", "l": "PBS 備份池" }
+      ],
+      "nodes": [
+        { "name": "pve1", "role": "", "status": "up", "cpu": "24T", "ram": "67 GB" },
+        { "name": "pve2", "role": "", "status": "up", "cpu": "36T", "ram": "33 GB" },
+        { "name": "pve3", "role": "", "status": "up", "cpu": "32T", "ram": "67 GB" },
+        { "name": "pve4", "role": "最大節點", "status": "up", "cpu": "64T", "ram": "270 GB", "highlight": true },
+        { "name": "pve5", "role": "", "status": "up", "cpu": "20T", "ram": "67 GB" },
+        { "name": "pve6", "role": "", "status": "up", "cpu": "20T", "ram": "67 GB" },
+        { "name": "pve7", "role": "", "status": "up", "cpu": "28T", "ram": "33 GB" }
+      ],
+      "meters": [
+        { "label": "PBS 備份池使用率", "value": "9.3 %", "pct": 9.3, "level": "accent" },
+        { "label": "local-lvm 使用率", "value": "35.5 %", "pct": 35.5, "level": "accent" }
+      ],
+      "vms": [
+        { "name": "skyeye-skyeyes", "use": "AI 影像分析服務", "node": "pve1", "state": "running" },
+        { "name": "k8s-master1", "use": "自建 Kubernetes 控制平面", "node": "pve4", "state": "running" },
+        { "name": "k8s-master2 / master3", "use": "自建 Kubernetes 控制平面", "node": "pve5-6", "state": "stopped" },
+        { "name": "k8s-worker1", "use": "Kubernetes 工作節點", "node": "pve7", "state": "stopped" },
+        { "name": "PK-UbuntuServer", "use": "Grafana · MQTT · MySQL (IoT 監控棧)", "node": "pve4", "state": "running" },
+        { "name": "PK-UbuntuServer2", "use": "Prometheus 監控主機 (GPU 機房監控)", "node": "pve4", "state": "running" },
+        { "name": "KY-UbuntuDesktop", "use": "成員桌面", "node": "pve2", "state": "running" },
+        { "name": "FW-UbuntuDesktop", "use": "成員桌面", "node": "pve2", "state": "running" },
+        { "name": "JC-UbuntuServer", "use": "成員伺服器", "node": "pve3", "state": "running" },
+        { "name": "kebbi", "use": "機器人/實驗用途", "node": "pve5", "state": "running" },
+        { "name": "AQI / INF36PM25", "use": "空品監測網站 · pm25.thu.edu.tw", "node": "pve2", "state": "stopped" },
+        { "name": "icems / icemsdb", "use": "環境監測系統 (由 ESXi 遷移)", "node": "pve4", "state": "stopped" },
+        { "name": "PY-UbuntuDesktop", "use": "舊機器 (學長使用,已停用待清除)", "node": "pve3", "state": "stopped" }
+      ]
+    },
+    {
+      "id": "pbs",
+      "name": "Proxmox 備份伺服器",
+      "subtitle": "PKpve · PBS",
+      "accent": "#8b5cf6",
+      "stack": "Proxmox Backup Server 4.0.11 · Debian 13 (trixie) · ext4 datastore · 每日 GC",
+      "status": "服務正常",
+      "statusLevel": "good",
+      "quick": [
+        { "v": "PBS 4.0.11", "l": "版本" },
+        { "v": "i7-12700", "l": "CPU · 20T" },
+        { "v": "15 GiB", "l": "記憶體" },
+        { "v": "7", "l": "備份來源 VM" },
+        { "v": "8", "l": "備份快照" }
+      ],
+      "nodes": [
+        { "name": "PKpve", "role": "backup server", "status": "up", "cpu": "i7-12700 · 20T", "ram": "15 GiB" }
+      ],
+      "meters": [
+        { "label": "Datastore 使用率 · Buckup_1", "value": "514 GB / 5.4 TB", "pct": 10, "level": "accent" }
+      ],
+      "services": [
+        "備份來源 · Proxmox VM 100 / 101 / 102 / 103 / 105 / 106 / 110",
+        "排程 · 每日垃圾回收 (GC daily)",
+        "儲存 · /datastore · ext4 · 5.4 TB 可用 4.7 TB"
+      ]
+    }
+  ]
+}

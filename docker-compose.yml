@@ -1,0 +1,11 @@
+services:
+  hpc-lab:
+    build: .
+    image: pokai516/hpc-lab:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+    restart: always

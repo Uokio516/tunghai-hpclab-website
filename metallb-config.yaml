@@ -1,0 +1,20 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  # 注意：我猜測您剛剛的留言可能是筆誤 (140.101.128)，
+  # 因為東海大學的網段通常是 140.128.x.x。
+  # 如果真的是 140.101，請在 Import 前手動改掉這裡的 IP！
+  - 140.128.101.193-140.128.101.195
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: default-l2
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - default-pool
