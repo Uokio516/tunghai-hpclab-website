@@ -1,88 +1,113 @@
-# HPC Lab 官網 · hpclab.thu.edu.tw
+# Tunghai HPC Lab — Website
 
-東海大學 資訊工程學系 高效能計算實驗室 (Prof. 楊朝棟) 官方網站，
-含實驗室介紹、聯絡表單，以及 **叢集基礎設施即時監控頁**。
+**高效能計算實驗室 · 東海大學資訊工程學系 (Prof. 楊朝棟 / Chao-Tung Yang)**
 
-- 🌐 首頁：<https://hpclab.thu.edu.tw>
-- 📊 叢集狀態：<https://hpclab.thu.edu.tw/infrastructure>
+An immersive website for the High Performance Computing Laboratory at Tunghai
+University — part public face of the lab, part live window into the real GPU
+and cluster infrastructure we run.
 
-## 技術棧
+🔗 **Live:** <https://hpclab.thu.edu.tw>
 
-| 層 | 技術 |
-|----|------|
-| 前端 | React 19 · Vite 6 · React Router 7 · TailwindCSS 4 · Motion |
-| 後端 | Express (`server.ts`，用 `tsx` 執行) |
-| 資料 | SQLite（聯絡表單留言） |
-| 部署 | Docker → Kubernetes (RKE2, pk-cluster) · ingress-nginx + cert-manager |
+---
 
-## 頁面 / 路由
+## What it is
 
-| 路由 | 說明 |
-|------|------|
-| `/` | 首頁（Hero、研究領域、成果、聯絡表單） |
-| `/infrastructure` | 叢集基礎設施狀態（CubeCOS / Proxmox / PBS） |
-| `/admin` | 留言管理（需管理密碼） |
+The lab studies high-performance / distributed computing, cloud, big data, AI
+and AIoT. Most academic-lab sites are a static page of publications; I wanted
+ours to *show* the systems, not just describe them — so the site pulls real
+data from the monitoring stack running on our own machines, wrapped in an
+interactive 3D experience.
 
-## API
+## Features
 
-| 端點 | 方法 | 說明 |
-|------|------|------|
-| `/api/contact` | POST | 送出聯絡留言（公開） |
-| `/api/messages` | GET/PUT/DELETE | 留言管理（需 `X-Admin-Password` 標頭） |
-| `/api/cluster-status` | GET | 叢集狀態 JSON（唯讀，**不含任何叢集憑證**） |
+### Live, real data
 
-## 本機開發
+- **GPU fleet monitoring** — real-time utilisation, temperature, power and VRAM
+  for the lab's GPU workstations, queried **server-side from a Prometheus
+  instance I set up across the machines**. These are real numbers from real
+  hardware, not placeholders. Internal IPs are never sent to the browser.
 
-需求：Node.js 20+
+### Snapshot (and honestly labelled as such in the UI)
+
+- **Cluster infrastructure overview** — CubeCOS / OpenStack, Proxmox and the
+  backup server. This is a **point-in-time inventory snapshot** (the date is
+  shown on the page), **not** a live feed, because I don't yet have read-only
+  API tokens for those platforms. I won't present a snapshot as if it were
+  live, so the UI says so plainly.
+
+### Experience
+
+- Interactive **3D research network** (React Three Fiber) — colour-coded nodes
+  you can drag to rotate, with a slot-reel banner that rolls to each research
+  area on hover.
+- Immersive intro sequence, route transitions, and a **⌘/Ctrl-K command
+  palette**.
+- **In-browser generative background music** (Web Audio API) — synthesised
+  live, so there are no audio files and no licensing to worry about; the tempo
+  follows the real GPU load.
+- Full **light/dark theming**, **mobile-responsive** across every route, and
+  accessibility throughout (reduced-motion, keyboard navigation, focus states).
+
+## Tech stack
+
+`React 19` · `TypeScript` · `Vite` · `React Router` · `TailwindCSS` ·
+`Three.js / React Three Fiber` · `Framer Motion` · `Express` · `SQLite` ·
+`Docker` · `Kubernetes (RKE2)` · `Prometheus`
+
+## Architecture
+
+- **Frontend** — React + Vite SPA; the heavy Three.js scenes are code-split so
+  they never weigh down the initial load.
+- **Backend** — a small Express server (`server.ts`) that serves the app,
+  handles the contact form (SQLite), and proxies read-only Prometheus queries
+  for `/api/gpus` so no monitoring credentials or internal addresses ever reach
+  the client.
+- **Deployment** — built into a Docker image and deployed to a self-hosted
+  Kubernetes (RKE2) cluster behind a TLS ingress.
+
+## How this was built — honest disclosure
+
+I care a lot about being upfront, so here's the real split.
+
+**Me (the human):**
+
+- I built and operate the **monitoring stack this site reads from** — Prometheus
+  plus node/GPU exporters deployed across the lab's GPU machines — and I work
+  with the clusters it displays (CubeCOS/OpenStack, Proxmox, PBS).
+- I set the product direction, made the design and UX decisions, **verified all
+  factual content** (the professor's real publications, research areas, etc.),
+  drove every iteration, and own the deployment.
+
+**AI-assisted (Claude + GPT):**
+
+- Most of the **application / frontend code** was written in collaboration with
+  **Claude (Anthropic)** and **GPT (OpenAI)** — as pair-programming and design
+  partners that I directed and reviewed.
+- They also helped with debugging, copywriting and content drafting.
+
+This project is **openly AI-assisted**, and I think that's both normal and worth
+being honest about.
+
+## Running locally
 
 ```bash
+cp .env.example .env      # fill in the values (see below)
 npm install
-# 選用：cp .env.example .env 並填入 GEMINI_API_KEY
-npm run dev          # http://localhost:3000
+npm run dev               # Express + Vite on http://localhost:3000
 ```
 
-## 叢集監控頁如何運作
+## Configuration
 
-`/infrastructure` 前端每 30 秒抓 `/api/cluster-status`。後端回傳的資料來源：
+All secrets and environment-specific values are **env-only** — nothing is
+hardcoded and nothing sensitive is committed. See [`.env.example`](.env.example):
 
-1. `data/cluster-status.json`（掛載的 volume，若存在則優先）
-2. `cluster-status.default.json`（打包在 image 內的預設快照）
+| Variable         | Purpose                                                         |
+| ---------------- | -------------------------------------------------------------- |
+| `ADMIN_PASSWORD` | Password for the `/admin` panel (required; fails closed).      |
+| `PROMETHEUS_URL` | Prometheus base URL for `/api/gpus` (required for monitoring). |
+| `GEMINI_API_KEY` | Optional, for Gemini API calls.                                |
 
-> 設計原則：對外網站**不持有**任何叢集管理密碼；狀態只是一份 JSON 快照。
-> 要更新數字時，改 JSON 即可（見下）。未來可由背景收集器定時寫入 `data/cluster-status.json` 變成即時。
+## License
 
-### 更新叢集狀態數據
-
-- **只改數字（免重建 image）**：更新 volume 上的 `data/cluster-status.json`，網站立即生效。
-- **永久保留**：改 `cluster-status.default.json` → 重建 image 重新部署。
-
-## 建置與部署
-
-```bash
-# 建置並推送 image（Docker Hub: pokai516/hpc-lab）
-docker build --platform linux/amd64 --provenance=false -t pokai516/hpc-lab:latest .
-docker push pokai516/hpc-lab:latest
-
-# 於 pk-cluster 滾動更新
-kubectl --context pk-cluster -n default rollout restart deployment hpc-lab-site
-```
-
-部署細節見 [DEPLOY-monitoring.md](DEPLOY-monitoring.md)。K8s 資源定義見 [k8s-deploy.yaml](k8s-deploy.yaml)。
-
-## 專案結構
-
-```
-├── server.ts                    Express 伺服器 + API
-├── src/
-│   ├── App.tsx                  路由與首頁
-│   └── components/
-│       ├── AdminPanel.tsx       留言管理頁
-│       └── Infrastructure.tsx   叢集監控頁
-├── cluster-status.default.json  叢集狀態預設快照
-├── Dockerfile · k8s-deploy.yaml 部署設定
-```
-
-## 備註
-
-- SQLite 資料庫（`database.sqlite`）與 `.env` 已列入 `.gitignore`，不進版控。
-- `ADMIN_PASSWORD` 請以環境變數設定，勿使用程式內建預設值。
+For reference / portfolio use. The lab's real content, branding and data belong
+to the High Performance Computing Laboratory, Tunghai University.
