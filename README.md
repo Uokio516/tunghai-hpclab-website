@@ -8,31 +8,26 @@
 
 ---
 
-## What it is
+## Overview
 
-The website for our lab at Tunghai University. Instead of the usual static
-"here are our publications" page, I wanted it to actually *show* the systems we
-run — so it pulls live data from our own monitoring and wraps it in an
-interactive 3D interface.
-
-The clusters and monitoring behind it are mine: I set up the Prometheus +
-exporter monitoring across the lab's GPU machines, and I build and run the
-CubeCOS (OpenStack) and Proxmox clusters it reports on. So the site is really a
-front-end for infrastructure I put together myself.
+The website for our lab at Tunghai University. Rather than a static list of
+publications, it's designed to *show* the systems the lab works with —
+surfacing live data from our own monitoring through an interactive 3D interface.
 
 ## Features
 
-- **Live GPU monitoring** — real utilisation, temperature, power and VRAM from
-  the lab's GPU machines, via a Prometheus setup I run. Real numbers, not filler
-  (and internal IPs never reach the browser).
-- **Cluster overview** — CubeCOS/OpenStack, Proxmox and the backup server. This
-  one is a dated snapshot (you can see the date in the UI), not live yet — I
-  don't have read-only API tokens for those platforms.
-- A draggable **3D research network**, a slot-reel info panel, a **⌘/Ctrl-K
-  command palette**, an intro sequence, and **generative background music**
-  (Web Audio — no audio files) whose tempo tracks the GPU load.
-- Light/dark themes, responsive on mobile, and keyboard / reduced-motion
-  friendly.
+- **Live GPU monitoring** — real-time utilisation, temperature, power and VRAM
+  for the lab's GPU workstations, served from a Prometheus deployment on the
+  machines. Real figures from real hardware; internal addresses are never
+  exposed to the client.
+- **Cluster overview** — CubeCOS / OpenStack, Proxmox and the backup server.
+  This is a dated inventory snapshot (the date is shown in the UI) rather than a
+  live feed, as read-only API access to those platforms isn't in place yet.
+- An interactive **3D research network**, a slot-reel information panel, a
+  **⌘/Ctrl-K command palette**, an intro sequence, and generative background
+  music (Web Audio) whose tempo follows the GPU load.
+- Light/dark themes, responsive layouts, and accessibility throughout
+  (reduced-motion, keyboard navigation, focus states).
 
 ## Tech
 
@@ -40,12 +35,12 @@ front-end for infrastructure I put together myself.
 `Three.js / React Three Fiber` · `Framer Motion` · `Express` · `SQLite` ·
 `Docker` · `Kubernetes (RKE2)` · `Prometheus`
 
-The frontend is a code-split Vite SPA; a small Express server serves it, handles
-the contact form (SQLite), and proxies read-only Prometheus queries so no
-monitoring credentials touch the client. It ships as a Docker image on a
+The frontend is a code-split Vite SPA. A small Express server serves it, handles
+the contact form (SQLite), and proxies read-only Prometheus queries so that no
+monitoring credentials reach the client. It ships as a Docker image on a
 self-hosted Kubernetes cluster behind a TLS ingress.
 
-## Run it
+## Running locally
 
 ```bash
 cp .env.example .env      # fill in the values
@@ -53,13 +48,13 @@ npm install
 npm run dev               # http://localhost:3000
 ```
 
-Config is env-only (`.env.example`): `ADMIN_PASSWORD`, `PROMETHEUS_URL`,
+Configuration is env-only (`.env.example`): `ADMIN_PASSWORD`, `PROMETHEUS_URL`,
 `GEMINI_API_KEY`.
 
 ## Notes
 
-Built with a lot of help from Claude and GPT. Nothing sensitive is committed —
-passwords and internal addresses live in environment variables only.
+Developed with the assistance of Claude and GPT. Nothing sensitive is committed
+— credentials and internal addresses live only in environment variables.
 
 ---
 
@@ -69,25 +64,22 @@ passwords and internal addresses live in environment variables only.
 
 **[English](#tunghai-hpc-lab--website--東海大學高效能計算實驗室官網)** ｜ **中文**
 
-### 這是什麼
+### 概覽
 
-我們東海大學實驗室的官網。與其做一頁「這是我們的論文」的靜態頁,我想讓它真的
-把我們在跑的系統**展示**出來——所以它會抓我們自己監控的即時資料,再包成一個
-可互動的 3D 介面。
-
-網站背後的叢集與監控都是我自己建起來的:實驗室 GPU 機器上的 Prometheus 與
-exporter 監控是我架設的,它所呈現的 CubeCOS(OpenStack)與 Proxmox 叢集,也是
-我在建置與維運。所以這個網站其實就是我自己搭起來的基礎設施的前端。
+東海大學實驗室的官方網站。比起一頁靜態的論文列表,它更希望能「展示」實驗室
+所使用的系統——透過一個可互動的 3D 介面,呈現來自我們自己監控系統的即時資料。
 
 ### 功能
 
-- **即時 GPU 監控**——實驗室 GPU 機器的真實使用率、溫度、功耗與顯存,來自我
-  自己架的 Prometheus。真實數字,不是填版面用的(而且內網 IP 不會傳到瀏覽器)。
-- **叢集總覽**——CubeCOS/OpenStack、Proxmox 與備份伺服器。這頁是有標日期的
-  快照(UI 上看得到),還不是即時的——那些平台我還沒拿到唯讀 API token。
-- 可拖曳的 **3D 研究網絡**、拉霸式資訊面板、**⌘/Ctrl-K 命令面板**、開場動畫,
-  還有**即時合成的背景音樂**(Web Audio,無音檔),節奏會跟著 GPU 負載跑。
-- 明暗主題、手機響應式,對鍵盤與 reduced-motion 友善。
+- **即時 GPU 監控**——實驗室 GPU 工作站的即時使用率、溫度、功耗與顯存,由
+  機器上的 Prometheus 提供。真實硬體的真實數字;內網位址不會傳到瀏覽器端。
+- **叢集總覽**——CubeCOS / OpenStack、Proxmox 與備份伺服器。這是一份標有
+  日期的盤點快照(UI 上可見),而非即時串流,因為目前尚未取得那些平台的唯讀
+  API 存取權。
+- 可互動的 **3D 研究網絡**、拉霸式資訊面板、**⌘/Ctrl-K 命令面板**、開場動畫,
+  以及節奏會跟隨 GPU 負載的即時合成背景音樂(Web Audio)。
+- 明暗主題、響應式版面,以及全程的無障礙設計(reduced-motion、鍵盤操作、
+  focus 狀態)。
 
 ### 技術
 
@@ -95,9 +87,9 @@ exporter 監控是我架設的,它所呈現的 CubeCOS(OpenStack)與 Proxmox 叢
 `Three.js / React Three Fiber` · `Framer Motion` · `Express` · `SQLite` ·
 `Docker` · `Kubernetes (RKE2)` · `Prometheus`
 
-前端是 code-split 的 Vite SPA;一個精簡的 Express 伺服器負責提供網站、處理
+前端是 code-split 的 Vite SPA。一個精簡的 Express 伺服器負責提供網站、處理
 聯絡表單(SQLite),並代理唯讀的 Prometheus 查詢,讓任何監控憑證都不會到達
-瀏覽器端。整包成 Docker image,跑在自架的 Kubernetes 叢集上,前面有 TLS ingress。
+瀏覽器端。整包成 Docker image,部署在自架的 Kubernetes 叢集上,前面有 TLS ingress。
 
 ### 本機執行
 
@@ -107,10 +99,10 @@ npm install
 npm run dev               # http://localhost:3000
 ```
 
-設定都只走環境變數(`.env.example`):`ADMIN_PASSWORD`、`PROMETHEUS_URL`、
+設定皆透過環境變數(`.env.example`):`ADMIN_PASSWORD`、`PROMETHEUS_URL`、
 `GEMINI_API_KEY`。
 
 ### 備註
 
-大部分是靠 Claude 跟 GPT 幫忙做出來的。沒有任何機密進版控——密碼和內網位址
-都只放在環境變數裡。
+本專案在 Claude 與 GPT 的協助下開發。沒有任何機密進版控——憑證與內網位址
+僅存在於環境變數中。
