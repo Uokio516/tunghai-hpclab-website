@@ -15,6 +15,11 @@ The website for our lab at Tunghai University. Instead of the usual static
 run — so it pulls live data from our own monitoring and wraps it in an
 interactive 3D interface.
 
+The clusters and monitoring behind it are mine: I set up the Prometheus +
+exporter monitoring across the lab's GPU machines, and I build and run the
+CubeCOS (OpenStack) and Proxmox clusters it reports on. So the site is really a
+front-end for infrastructure I put together myself.
+
 ## Features
 
 - **Live GPU monitoring** — real utilisation, temperature, power and VRAM from
@@ -69,6 +74,10 @@ passwords and internal addresses live in environment variables only.
 我們東海大學實驗室的官網。與其做一頁「這是我們的論文」的靜態頁,我想讓它真的
 把我們在跑的系統**展示**出來——所以它會抓我們自己監控的即時資料,再包成一個
 可互動的 3D 介面。
+
+網站背後的叢集與監控都是我自己建起來的:實驗室 GPU 機器上的 Prometheus 與
+exporter 監控是我架設的,它所呈現的 CubeCOS(OpenStack)與 Proxmox 叢集,也是
+我在建置與維運。所以這個網站其實就是我自己搭起來的基礎設施的前端。
 
 ### 功能
 
