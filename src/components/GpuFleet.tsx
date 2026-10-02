@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { RefreshCw, Cpu, Server, Activity, Zap, AlertTriangle } from "lucide-react";
+import { RefreshCw, Cpu, Server, Activity, HardDrive, AlertTriangle, MemoryStick } from "lucide-react";
 import { MetricArc, MonitoringChrome } from "./MonitoringChrome";
 
 type Gpu = {
@@ -15,10 +15,23 @@ type Machine = {
   telemetryCode?: number | null;
   gpus: Gpu[];
 };
+type InventoryGpu = { model: string; vramGB: number | null; class: string; passthrough: boolean };
+type InventoryMachine = {
+  id: string; label: string; owner: string; type: string; os: string | null;
+  location: string; group: string; groupName: string;
+  cpu: string | null; cpuThreads: number | null; ramGB: number | null;
+  gpus: InventoryGpu[]; virtual: boolean; countsForCapacity: boolean; edge: boolean;
+};
 type Data = {
   updatedAt: string; source: string;
-  summary: { machinesTotal: number; machinesOnline: number; gpusOnline: number; gpusBusy: number };
+  summary: {
+    machinesTotal: number; machinesOnline: number; gpusOnline: number; gpusBusy: number;
+    machinesTracked?: number; gpusTotal?: number; vramTotalGB?: number;
+    cpuThreadsTotal?: number; ramTotalGB?: number; edgeDevices?: number;
+  };
+  gpuModels?: { model: string; count: number; vramGB: number | null }[];
   machines: Machine[];
+  inventory?: { updatedAt: string; probedAt: string; machines: InventoryMachine[] } | null;
 };
 
 const REFRESH_MS = 12_000;
@@ -85,11 +98,25 @@ export function GpuFleet() {
     return true;
   }) ?? [];
 
+  // Group the un-instrumented machines by room so the page reads as a floor plan
+  // rather than one long undifferentiated list.
+  const inventoryGroups = (() => {
+    const order = ["圖書館機房", "ST430 機房", "叢集實體節點", "ST312 研究室", "ST429 研究室", "辦公室"];
+    const by = new Map<string, InventoryMachine[]>();
+    (data?.inventory?.machines ?? []).forEach((m) => {
+      const k = m.groupName || "其他";
+      by.set(k, [...(by.get(k) ?? []), m]);
+    });
+    return [...by.entries()].sort(
+      (a, b) => (order.indexOf(a[0]) + 1 || 99) - (order.indexOf(b[0]) + 1 || 99)
+    );
+  })();
+
   return (
     <MonitoringChrome
       eyebrow="Library GPU Fleet · Prometheus"
       title={<>GPU <span style={{ color: "var(--brand-light)" }}>機房遙測</span></>}
-      description="從 GPU 核心負載、顯存、溫度與功耗，到主機 CPU、RAM，將分散的運算節點收斂成一個即時控制平面。"
+      description="實驗室全部算力：有接遙測的機器顯示即時 GPU 負載、顯存、溫度與功耗；其餘已盤點的機器列出規格。搬移中而連不上的機器不列入。"
       live
       meta={<><div><RefreshCw className="mr-2 inline h-3 w-3" />12 秒輪詢</div><div>{at ? `Last sync ${at.toLocaleTimeString("zh-TW", { hour12: false })}` : "Connecting…"}</div><div>Prometheus · Exporters</div></>}
     >
@@ -99,11 +126,23 @@ export function GpuFleet() {
         {data && (
           <>
             <div className="monitor-kpi-grid">
-              <Kpi icon={Server} label="機器在線" value={`${data.summary.machinesOnline}/${data.summary.machinesTotal}`} />
-              <Kpi icon={Cpu} label="GPU 在線" value={String(data.summary.gpusOnline)} />
-              <Kpi icon={Activity} label="使用中 GPU" value={String(data.summary.gpusBusy)} />
-              <Kpi icon={Zap} label="閒置 GPU" value={String(Math.max(0, data.summary.gpusOnline - data.summary.gpusBusy))} />
+              <Kpi icon={Cpu} label="GPU 總數" value={String(data.summary.gpusTotal ?? data.summary.gpusOnline)} sub={data.summary.vramTotalGB ? `${data.summary.vramTotalGB} GB 顯存` : undefined} />
+              <Kpi icon={Server} label="運算機器" value={String(data.summary.machinesTracked ?? data.summary.machinesTotal)} sub={data.summary.edgeDevices ? `另有 ${data.summary.edgeDevices} 台邊緣裝置` : undefined} />
+              <Kpi icon={HardDrive} label="CPU 執行緒" value={String(data.summary.cpuThreadsTotal ?? 0)} sub={data.summary.ramTotalGB ? `${(data.summary.ramTotalGB / 1024).toFixed(1)} TB 記憶體` : undefined} />
+              <Kpi icon={Activity} label="即時遙測" value={`${data.summary.machinesOnline}/${data.summary.machinesTotal}`} sub={`使用中 ${data.summary.gpusBusy} · 閒置 ${Math.max(0, data.summary.gpusOnline - data.summary.gpusBusy)}`} />
             </div>
+
+            {data.gpuModels && data.gpuModels.length > 0 && (
+              <div className="gpu-model-strip">
+                {data.gpuModels.map((g) => (
+                  <span key={g.model} className="gpu-model-chip">
+                    <strong>{g.model}</strong>
+                    <span>×{g.count}</span>
+                    {g.vramGB ? <small>{g.vramGB} GB</small> : null}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="metric-arcs">
               <MetricArc value={data.summary.machinesOnline} max={data.summary.machinesTotal} label="Host availability" display={`${Math.round(data.summary.machinesOnline / Math.max(1, data.summary.machinesTotal) * 100)}%`} color="var(--good)" />
@@ -134,8 +173,40 @@ export function GpuFleet() {
               {visibleMachines.map((m, i) => <MachineCard key={m.id} m={m} delay={i * 0.03} />)}
             </div>
 
+            {inventoryGroups.length > 0 && (
+              <>
+                <div className="monitor-toolbar mt-14">
+                  <div>
+                    <p className="monitor-eyebrow">Inventory · no exporter yet</p>
+                    <h2 className="mt-1 text-2xl font-medium not-italic">其餘已盤點算力</h2>
+                    <p className="mt-1.5 text-sm" style={{ color: "var(--text-dim)" }}>
+                      這些機器尚未安裝遙測 exporter，僅列出規格；數值來自裝置清冊，
+                      最後盤點 {data.inventory?.updatedAt}。
+                    </p>
+                  </div>
+                </div>
+
+                {inventoryGroups.map(([groupName, items]) => (
+                  <section key={groupName} className="mt-7">
+                    <div className="mb-3.5 flex items-center gap-3">
+                      <span className="text-sm font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-faint)" }}>
+                        {groupName}
+                      </span>
+                      <span className="text-xs tabular-nums" style={{ color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>
+                        {items.length}
+                      </span>
+                      <span className="h-px flex-1" style={{ background: "var(--border)" }} />
+                    </div>
+                    <div className="inventory-grid">
+                      {items.map((m) => <InventoryCard key={m.id} m={m} />)}
+                    </div>
+                  </section>
+                ))}
+              </>
+            )}
+
             <p className="mt-9 text-center text-sm" style={{ color: "var(--text-faint)" }}>
-              資料來源 Prometheus · nvidia_gpu_exporter · node_exporter
+              即時資料 Prometheus · nvidia_gpu_exporter · node_exporter　｜　規格資料 實驗室裝置清冊
             </p>
           </>
         )}
@@ -143,12 +214,13 @@ export function GpuFleet() {
   );
 }
 
-function Kpi({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+function Kpi({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string; sub?: string }) {
   return (
     <div className="monitor-kpi">
       <Icon className="mb-1 h-5 w-5" style={{ color: "var(--brand)" }} />
       <div className="monitor-kpi-label">{label}</div>
       <div className="monitor-kpi-value">{value}</div>
+      {sub && <div className="text-xs leading-tight" style={{ color: "var(--text-faint)" }}>{sub}</div>}
     </div>
   );
 }
@@ -273,6 +345,59 @@ function GpuRow({ g, last }: { g: Gpu; last: boolean }) {
       <div className="h-2.5 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
         <div className="h-full rounded-full" style={{ width: `${memPct * 100}%`, background: "var(--brand)" }} />
       </div>
+    </div>
+  );
+}
+
+function InventoryCard({ m }: { m: InventoryMachine }) {
+  const specs = [
+    m.cpu && { k: "CPU", v: m.cpuThreads ? `${m.cpu} · ${m.cpuThreads}T` : m.cpu },
+    m.ramGB && { k: "RAM", v: `${m.ramGB} GB` },
+    m.os && { k: "OS", v: m.os },
+  ].filter(Boolean) as { k: string; v: string }[];
+
+  return (
+    <div className="inventory-card">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="truncate text-base font-bold">{m.label}</div>
+          <div className="mt-0.5 text-xs" style={{ color: "var(--text-faint)" }}>
+            {[m.type, m.location].filter(Boolean).join(" · ")}
+          </div>
+        </div>
+        <span className="inventory-badge">已盤點</span>
+      </div>
+
+      {m.gpus.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {m.gpus.map((g, i) => (
+            <span
+              key={`${g.model}-${i}`}
+              className="rounded px-2 py-0.5 text-xs font-bold tabular-nums"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: g.class === "display-only" ? "var(--text-faint)" : "var(--brand-light)",
+                background: g.class === "display-only" ? "var(--surface-2)" : "var(--brand-soft, rgba(49,197,207,.12))",
+              }}
+            >
+              {g.model}
+              {g.vramGB ? ` · ${g.vramGB}G` : ""}
+              {g.passthrough ? " · 直通" : ""}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {specs.length > 0 && (
+        <dl className="mt-3 space-y-1 text-xs">
+          {specs.map((sp) => (
+            <div key={sp.k} className="flex items-baseline justify-between gap-2">
+              <dt style={{ color: "var(--text-faint)" }}>{sp.k}</dt>
+              <dd className="truncate text-right tabular-nums" style={{ fontFamily: "var(--font-mono)", color: "var(--text-dim)" }}>{sp.v}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </div>
   );
 }

@@ -23,6 +23,20 @@ function checkAdminAuth(req: express.Request, res: express.Response): boolean {
   return true;
 }
 
+// Prometheus labels the card "RTX4070TiS" while the inventory spells it
+// "RTX 4070 Ti SUPER". Fold both spellings onto one name so a card is not counted
+// twice under two labels.
+function canonicalGpu(raw: string): string {
+  const compact = String(raw).toUpperCase().replace(/[\s_-]/g, "");
+  const m = compact.match(/^(RTX|GTX)(\d{3,4})(TI)?(S|SUPER)?$/);
+  if (m) {
+    return [m[1] === "RTX" ? "RTX" : "GTX", m[2], m[3] ? "Ti" : "", m[4] ? "SUPER" : ""]
+      .filter(Boolean)
+      .join(" ");
+  }
+  return String(raw).trim();
+}
+
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
@@ -113,21 +127,68 @@ async function startServer() {
   // NOTE: this endpoint intentionally holds NO cluster credentials. It serves a JSON
   // snapshot that an out-of-band collector can refresh by writing data/cluster-status.json.
   // Falls back to the bundled cluster-status.default.json when no live snapshot exists.
-  app.get("/api/cluster-status", (_req, res) => {
+  // Reads an out-of-band snapshot: the collector-written copy under data/ when it
+  // exists, otherwise the copy bundled into the image. data/ is the mounted hostPath,
+  // so a snapshot can be refreshed without rebuilding or restarting anything.
+  const readSnapshot = (name: string): string | null => {
     const candidates = [
-      path.join(process.cwd(), "data", "cluster-status.json"),
-      path.join(process.cwd(), "cluster-status.default.json"),
+      path.join(process.cwd(), "data", `${name}.json`),
+      path.join(process.cwd(), `${name}.default.json`),
     ];
     for (const file of candidates) {
       try {
-        if (fs.existsSync(file)) {
-          return res.type("application/json").send(fs.readFileSync(file, "utf-8"));
-        }
+        if (fs.existsSync(file)) return fs.readFileSync(file, "utf-8");
       } catch (error) {
-        console.error("cluster-status read error:", error);
+        console.error(`${name} read error:`, error);
       }
     }
+    return null;
+  };
+
+  app.get("/api/cluster-status", (_req, res) => {
+    const body = readSnapshot("cluster-status");
+    if (body) return res.type("application/json").send(body);
     res.status(404).json({ error: "Cluster status not available" });
+  });
+
+  // Hand-kept hardware inventory (built from the lab's device spreadsheet by
+  // tools/build-inventory.py and probed by tools/probe-inventory.py). It covers the
+  // machines that have no Prometheus exporter, so the site can show the lab's whole
+  // capacity rather than only the monitored subset.
+  type InventoryGpu = { model: string; vramGB: number | null; class: string; passthrough: boolean };
+  type InventoryMachine = {
+    id: string; ip: string | null; label: string; owner: string; type: string; os: string | null;
+    location: string; group: string; groupName: string;
+    cpu: string | null; cpuThreads: number | null; ramGB: number | null;
+    gpus: InventoryGpu[]; virtual: boolean; reachable: boolean; include: boolean;
+    excludeReason: string | null; countsForCapacity: boolean; edge: boolean;
+  };
+  type Inventory = {
+    updatedAt: string; probedAt: string; source: string;
+    totals: Record<string, number>;
+    gpuModels: { model: string; count: number; vramGB: number | null; class: string }[];
+    machines: InventoryMachine[];
+  };
+  const loadInventory = (): Inventory | null => {
+    const body = readSnapshot("lab-inventory");
+    if (!body) return null;
+    try {
+      return JSON.parse(body) as Inventory;
+    } catch (error) {
+      console.error("lab-inventory parse error:", error);
+      return null;
+    }
+  };
+  // Machines that answer nothing have been physically relocated; they are kept in the
+  // file for the next sync but never rendered.
+  const shownInventory = (inv: Inventory) => inv.machines.filter((m) => m.include);
+
+  app.get("/api/lab-inventory", (_req, res) => {
+    const inv = loadInventory();
+    if (!inv) return res.status(404).json({ error: "Inventory not available" });
+    // Public-safe view: addresses stay server-side, same rule as /api/gpus.
+    const { machines, ...rest } = inv;
+    res.json({ ...rest, machines: shownInventory(inv).map(({ ip, ...m }) => m) });
   });
 
   // Library GPU fleet live status (public). Queries the lab Prometheus server-side and
@@ -255,9 +316,23 @@ async function startServer() {
         }
       });
 
-      const list = Object.values(machines).sort((a: any, b: any) =>
-        a.instance.localeCompare(b.instance, undefined, { numeric: true })
-      );
+      const inv = loadInventory();
+      const invByIp = new Map<string, InventoryMachine>();
+      inv?.machines.forEach((m) => { if (m.ip) invByIp.set(m.ip, m); });
+
+      // Drop scrape targets that have been relocated: Prometheus still lists them but
+      // nothing answers, so they would render as permanently dead cards. A target that
+      // is merely between scrapes (reachable, or unknown to the inventory) is kept.
+      const relocated = (m: any) => {
+        if (m.gpus.length > 0) return false;
+        const known = invByIp.get(m.ip);
+        return known ? !known.reachable : !m.online;
+      };
+      const dropped = Object.values(machines).filter(relocated).length;
+
+      const list = Object.values(machines)
+        .filter((m: any) => !relocated(m))
+        .sort((a: any, b: any) => a.instance.localeCompare(b.instance, undefined, { numeric: true }));
       const online = list.filter((m: any) => m.online);
       const gpuCount = online.reduce((n: number, m: any) => n + m.gpus.length, 0);
       const busy = online.reduce(
@@ -278,16 +353,62 @@ async function startServer() {
         ramTotal: m.ramTotal,
         gpus: m.gpus,
       }));
+      // Second tier: machines with no exporter. They are shown from the inventory so
+      // the page reflects the lab's whole capacity, clearly marked as not live.
+      const liveIps = new Set(list.map((m: any) => m.ip));
+      const listed = inv
+        ? shownInventory(inv)
+            .filter((m) => !m.virtual && !(m.ip && liveIps.has(m.ip)))
+            .map(({ ip, ...m }) => m)
+        : [];
+
+      // Capacity across both tiers. Guest VMs and display-only cards are excluded so a
+      // card passed through to a VM is never counted on both the host and the guest.
+      const liveCapacity = list.filter((m: any) => m.gpus.length > 0);
+      const countable = listed.filter((m) => m.countsForCapacity && !m.edge);
+      const byModel = new Map<string, { model: string; count: number; vramGB: number | null }>();
+      const addModel = (model: string, vramGB: number | null) => {
+        const name = canonicalGpu(model);
+        const e = byModel.get(name) ?? { model: name, count: 0, vramGB };
+        e.count += 1;
+        if (e.vramGB == null) e.vramGB = vramGB;
+        byModel.set(name, e);
+      };
+      liveCapacity.forEach((m: any) =>
+        m.gpus.forEach((g: any) => addModel(g.model || g.name || "GPU", g.memTotal ? Math.round(g.memTotal / 1024 ** 3) : null))
+      );
+      // Integrated and display-only chips are not compute, and Jetson modules are
+      // tallied separately, so neither belongs in the discrete-GPU total.
+      countable.forEach((m) =>
+        m.gpus.filter((g) => g.class !== "display-only" && g.class !== "edge").forEach((g) => addModel(g.model, g.vramGB))
+      );
+      const gpuModels = [...byModel.values()].sort((a, b) => (b.vramGB ?? 0) - (a.vramGB ?? 0) || a.model.localeCompare(b.model));
+      const sum = (ns: (number | null | undefined)[]) => ns.reduce((t: number, n) => t + (n ?? 0), 0);
+
       res.json({
         updatedAt: new Date().toISOString(),
-        source: "prometheus",
+        source: inv ? "prometheus+inventory" : "prometheus",
         summary: {
           machinesTotal: list.length,
           machinesOnline: online.length,
           gpusOnline: gpuCount,
           gpusBusy: busy,
+          // Whole-lab figures spanning the live and the listed tier.
+          machinesTracked: liveCapacity.length + countable.length,
+          gpusTotal: gpuModels.reduce((n, e) => n + e.count, 0),
+          vramTotalGB: gpuModels.reduce((n, e) => n + e.count * (e.vramGB ?? 0), 0),
+          cpuThreadsTotal:
+            sum(liveCapacity.map((m: any) => invByIp.get(m.ip)?.cpuThreads)) +
+            sum(countable.map((m) => m.cpuThreads)),
+          ramTotalGB:
+            sum(liveCapacity.map((m: any) => invByIp.get(m.ip)?.ramGB)) +
+            sum(countable.map((m) => m.ramGB)),
+          edgeDevices: listed.filter((m) => m.edge).length,
+          relocatedHidden: inv ? inv.machines.filter((m) => !m.include).length : dropped,
         },
+        gpuModels,
         machines: publicList,
+        inventory: inv ? { updatedAt: inv.updatedAt, probedAt: inv.probedAt, machines: listed } : null,
       });
     } catch (error) {
       console.error("gpus query error:", error);

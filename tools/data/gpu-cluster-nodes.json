@@ -1,0 +1,2495 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "172.24.13.84",
+                    "cluster.x-k8s.io/cluster-name": "gpu-cluster",
+                    "cluster.x-k8s.io/cluster-namespace": "fleet-default",
+                    "cluster.x-k8s.io/labels-from-machine": "",
+                    "cluster.x-k8s.io/machine": "custom-6ac60eadf715",
+                    "management.cattle.io/pod-limits": "{\"memory\":\"512Mi\"}",
+                    "management.cattle.io/pod-requests": "{\"cpu\":\"355m\",\"memory\":\"282Mi\",\"pods\":\"5\"}",
+                    "nfd.node.kubernetes.io/feature-labels": "cpu-cpuid.ADX,cpu-cpuid.AESNI,cpu-cpuid.AMXFP8,cpu-cpuid.AVX,cpu-cpuid.AVX2,cpu-cpuid.AVX512BF16,cpu-cpuid.AVX512BITALG,cpu-cpuid.AVX512BW,cpu-cpuid.AVX512CD,cpu-cpuid.AVX512DQ,cpu-cpuid.AVX512F,cpu-cpuid.AVX512IFMA,cpu-cpuid.AVX512VBMI,cpu-cpuid.AVX512VBMI2,cpu-cpuid.AVX512VL,cpu-cpuid.AVX512VNNI,cpu-cpuid.AVX512VPOPCNTDQ,cpu-cpuid.CETSS,cpu-cpuid.CLZERO,cpu-cpuid.CMPXCHG8,cpu-cpuid.CPBOOST,cpu-cpuid.CPPC,cpu-cpuid.EFER_LMSLE_UNS,cpu-cpuid.FLUSH_L1D,cpu-cpuid.FMA3,cpu-cpuid.FP256,cpu-cpuid.FSRM,cpu-cpuid.FXSR,cpu-cpuid.FXSROPT,cpu-cpuid.GFNI,cpu-cpuid.IBPB,cpu-cpuid.IBRS,cpu-cpuid.IBRS_PREFERRED,cpu-cpuid.IBRS_PROVIDES_SMP,cpu-cpuid.IBS,cpu-cpuid.IBSBRNTRGT,cpu-cpuid.IBSFETCHSAM,cpu-cpuid.IBSFFV,cpu-cpuid.IBSOPCNT,cpu-cpuid.IBSOPCNTEXT,cpu-cpuid.IBSOPSAM,cpu-cpuid.IBSRDWROPCNT,cpu-cpuid.IBSRIPINVALIDCHK,cpu-cpuid.IBS_FETCH_CTLX,cpu-cpuid.IBS_OPFUSE,cpu-cpuid.IBS_ZEN4,cpu-cpuid.INT_WBINVD,cpu-cpuid.LAHF,cpu-cpuid.LBRVIRT,cpu-cpuid.MCAOVERFLOW,cpu-cpuid.MOVBE,cpu-cpuid.MOVU,cpu-cpuid.MSRIRC,cpu-cpuid.NRIPS,cpu-cpuid.OSXSAVE,cpu-cpuid.PSFD,cpu-cpuid.RDPRU,cpu-cpuid.SHA,cpu-cpuid.SME,cpu-cpuid.SPEC_CTRL_SSBD,cpu-cpuid.SSE4A,cpu-cpuid.STIBP,cpu-cpuid.STIBP_ALWAYSON,cpu-cpuid.SUCCOR,cpu-cpuid.SVM,cpu-cpuid.SVMDA,cpu-cpuid.SVMFBASID,cpu-cpuid.SVML,cpu-cpuid.SVMNP,cpu-cpuid.SVMPF,cpu-cpuid.SVMPFT,cpu-cpuid.SYSCALL,cpu-cpuid.SYSEE,cpu-cpuid.TOPEXT,cpu-cpuid.TSCRATEMSR,cpu-cpuid.VAES,cpu-cpuid.VMCBCLEAN,cpu-cpuid.VPCLMULQDQ,cpu-cpuid.WBNOINVD,cpu-cpuid.X87,cpu-cpuid.XGETBV1,cpu-cpuid.XSAVE,cpu-cpuid.XSAVEC,cpu-cpuid.XSAVEOPT,cpu-cpuid.XSAVES,cpu-hardware_multithreading,cpu-model.family,cpu-model.id,cpu-model.vendor_id,kernel-config.NO_HZ,kernel-config.NO_HZ_FULL,kernel-version.full,kernel-version.major,kernel-version.minor,kernel-version.revision,pci-1002.present,pci-10de.present,pci-14c3.present,pci-8086.present,storage-nonrotationaldisk,system-os_release.ID,system-os_release.VERSION_ID,system-os_release.VERSION_ID.major,system-os_release.VERSION_ID.minor,usb-ef_0489_e0e2.present,usb-ef_0b05_1a52.present,usb-ff_0b05_19af.present",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "projectcalico.org/IPv4Address": "172.24.13.84/24",
+                    "projectcalico.org/IPv4VXLANTunnelAddr": "10.42.255.192",
+                    "rke2.io/hostname": "pk-3060",
+                    "rke2.io/internal-ip": "172.24.13.84",
+                    "rke2.io/node-args": "[\"agent\",\"--node-ip\",\"172.24.13.84\",\"--node-label\",\"cattle.io/os=linux\",\"--node-label\",\"rke.cattle.io/machine=9a3a07d1-d4d0-4c10-8943-78f86691c7d8\",\"--node-name\",\"pk-3060\",\"--private-registry\",\"/etc/rancher/rke2/registries.yaml\",\"--protect-kernel-defaults\",\"false\",\"--server\",\"https://172.24.13.247:9345\",\"--token\",\"********\"]",
+                    "rke2.io/node-config-hash": "CM3X5IVFM2CTWPS6XMIZK45H3NCO3OKIXAHCXPTFJFZFROFQTQBA====",
+                    "rke2.io/node-env": "{}",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-09-29T16:47:12Z",
+                "finalizers": [
+                    "wrangler.cattle.io/managed-etcd-controller",
+                    "wrangler.cattle.io/node"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "rke2",
+                    "beta.kubernetes.io/os": "linux",
+                    "cattle.io/os": "linux",
+                    "feature.node.kubernetes.io/cpu-cpuid.ADX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AESNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AMXFP8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX2": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512BF16": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512BITALG": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512BW": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512CD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512DQ": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512F": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512IFMA": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VBMI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VBMI2": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VNNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VPOPCNTDQ": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CETSS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CLZERO": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CPBOOST": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CPPC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.EFER_LMSLE_UNS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FLUSH_L1D": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FMA3": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FP256": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FSRM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSROPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.GFNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBPB": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBRS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBRS_PREFERRED": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBRS_PROVIDES_SMP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBSBRNTRGT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBSFETCHSAM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBSFFV": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBSOPCNT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBSOPCNTEXT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBSOPSAM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBSRDWROPCNT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBSRIPINVALIDCHK": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBS_FETCH_CTLX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBS_OPFUSE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBS_ZEN4": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.INT_WBINVD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LAHF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LBRVIRT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MCAOVERFLOW": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVBE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVU": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MSRIRC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.NRIPS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.OSXSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.PSFD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.RDPRU": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SHA": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SME": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SSE4A": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STIBP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STIBP_ALWAYSON": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SUCCOR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMDA": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMFBASID": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVML": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMNP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMPF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMPFT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSCALL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSEE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.TOPEXT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.TSCRATEMSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VAES": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VMCBCLEAN": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VPCLMULQDQ": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.WBNOINVD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.X87": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XGETBV1": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVES": "true",
+                    "feature.node.kubernetes.io/cpu-hardware_multithreading": "true",
+                    "feature.node.kubernetes.io/cpu-model.family": "25",
+                    "feature.node.kubernetes.io/cpu-model.id": "97",
+                    "feature.node.kubernetes.io/cpu-model.vendor_id": "AMD",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ": "true",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ_FULL": "true",
+                    "feature.node.kubernetes.io/kernel-version.full": "6.8.0-142-generic",
+                    "feature.node.kubernetes.io/kernel-version.major": "6",
+                    "feature.node.kubernetes.io/kernel-version.minor": "8",
+                    "feature.node.kubernetes.io/kernel-version.revision": "0",
+                    "feature.node.kubernetes.io/pci-1002.present": "true",
+                    "feature.node.kubernetes.io/pci-10de.present": "true",
+                    "feature.node.kubernetes.io/pci-14c3.present": "true",
+                    "feature.node.kubernetes.io/pci-8086.present": "true",
+                    "feature.node.kubernetes.io/storage-nonrotationaldisk": "true",
+                    "feature.node.kubernetes.io/system-os_release.ID": "ubuntu",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID": "24.04",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.major": "24",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.minor": "04",
+                    "feature.node.kubernetes.io/usb-ef_0489_e0e2.present": "true",
+                    "feature.node.kubernetes.io/usb-ef_0b05_1a52.present": "true",
+                    "feature.node.kubernetes.io/usb-ff_0b05_19af.present": "true",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "pk-3060",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/worker": "true",
+                    "node.kubernetes.io/instance-type": "rke2",
+                    "plan.upgrade.cattle.io/system-agent-upgrader": "7385bc6684d78a6b8f192e81ba787f77cc494f9d44f90c44c4e4aca0",
+                    "rke.cattle.io/machine": "9a3a07d1-d4d0-4c10-8943-78f86691c7d8"
+                },
+                "name": "pk-3060",
+                "resourceVersion": "13634607",
+                "uid": "9a25e73f-3e5d-40a9-b780-28a2f558bb95"
+            },
+            "spec": {
+                "podCIDR": "10.42.7.0/24",
+                "podCIDRs": [
+                    "10.42.7.0/24"
+                ],
+                "providerID": "rke2://pk-3060"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "172.24.13.84",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "pk-3060",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "32",
+                    "ephemeral-storage": "99834798412",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "131082016Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "32",
+                    "ephemeral-storage": "102626232Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "131082016Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-10-01T11:56:12Z",
+                        "lastTransitionTime": "2026-10-01T11:56:12Z",
+                        "message": "Calico is running on this node",
+                        "reason": "CalicoIsUp",
+                        "status": "False",
+                        "type": "NetworkUnavailable"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:30:07Z",
+                        "lastTransitionTime": "2026-10-01T11:43:44Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:30:07Z",
+                        "lastTransitionTime": "2026-10-01T11:43:44Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:30:07Z",
+                        "lastTransitionTime": "2026-10-01T11:43:44Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:30:07Z",
+                        "lastTransitionTime": "2026-10-01T11:43:44Z",
+                        "message": "kubelet is posting ready status. AppArmor enabled",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/rancher/nginx-ingress-controller@sha256:40b389fcbfc019e1adf2e6aa9b1a75235455a2e78fcec3261f867064afd801cb",
+                            "docker.io/rancher/nginx-ingress-controller:nginx-1.9.3-hardened1"
+                        ],
+                        "sizeBytes": 334039604
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-kubernetes@sha256:f4048fc828e3e8c15fde84aead902cc17ea26c5e52a60f9f609df2796add8665",
+                            "docker.io/rancher/hardened-kubernetes:v1.26.15-rke2r1-build20240314"
+                        ],
+                        "sizeBytes": 226884295
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-node@sha256:928d3aea42430dec473d0deba089e6a5312d73fc32799a5b108faaee44472636",
+                            "docker.io/rancher/mirrored-calico-node:v3.27.2"
+                        ],
+                        "sizeBytes": 117437511
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/fleet-agent@sha256:bf69e015b7f3df065df11ab985e476792f092c58aae03985aabbc2a92cdb81dc",
+                            "docker.io/rancher/fleet-agent:v0.8.0"
+                        ],
+                        "sizeBytes": 114901591
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rke2-runtime@sha256:0823eae26e557e019509fa1ce956fc3a496d46fbaee787b66a8a57f7ffd62084",
+                            "docker.io/rancher/rke2-runtime:v1.26.15-rke2r1"
+                        ],
+                        "sizeBytes": 110234387
+                    },
+                    {
+                        "names": [
+                            "docker.io/nvidia/cuda@sha256:80d4d9ac041242f6ae5d05f9be262b3374e0e0b8bb5a49c6c3e94e192cde4a44",
+                            "docker.io/nvidia/cuda:12.4.0-base-ubuntu22.04"
+                        ],
+                        "sizeBytes": 91774027
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-cni@sha256:127f0f327a12b8c8d2debb37fe76a25d5e53dccbaea1420500b7177b4146f311",
+                            "docker.io/rancher/mirrored-calico-cni:v3.27.2"
+                        ],
+                        "sizeBytes": 88207211
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/nfd/node-feature-discovery@sha256:5ad4e3ac1afcbeb9d096241b0352614e5e77ee1bfe0f37c45a8d7b4329599d11",
+                            "registry.k8s.io/nfd/node-feature-discovery:v0.17.3"
+                        ],
+                        "sizeBytes": 80718055
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-k8s-metrics-server@sha256:a81a294035282517b5a61a47de52c787f1115c7ba28af1ee717db0f78385e8d2",
+                            "docker.io/rancher/hardened-k8s-metrics-server:v0.6.3-build20231009"
+                        ],
+                        "sizeBytes": 63412972
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s-device-plugin@sha256:32e1bdf5b45f6ccf7389d9e3ff98f569fa7063c562f5376f478bd4b1fe1a4aa6",
+                            "nvcr.io/nvidia/k8s-device-plugin:v0.19.2"
+                        ],
+                        "sizeBytes": 55978955
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-typha@sha256:17b2181a719a3bcf08fbb9eb814ab657a15d7858819e2224fad84b889c283e1d",
+                            "docker.io/rancher/mirrored-calico-typha:v3.27.2"
+                        ],
+                        "sizeBytes": 29584340
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-agent@sha256:c51e354fd85e29739ab15c11ef4cc5f0b158c7c4d94829177a439651d4eb2251",
+                            "docker.io/rancher/system-agent:v0.3.3-suc"
+                        ],
+                        "sizeBytes": 27710791
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rancher-webhook@sha256:1c5d1e90a3b4a762cb8584d22b5170fec15b78a11649c4affce45e3f935c2b65",
+                            "docker.io/rancher/rancher-webhook:v0.3.6"
+                        ],
+                        "sizeBytes": 25389430
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-coredns@sha256:80f496f03fd7cc53bc32ce27fb552668590a0c0ecb42fb346b6bff147c15d023",
+                            "docker.io/rancher/hardened-coredns:v1.11.1-build20240305"
+                        ],
+                        "sizeBytes": 23518025
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-operator@sha256:4b55b027cf2e991e231715a602950403a373fbdebaea87d64d6a417a9facd651",
+                            "docker.io/rancher/mirrored-calico-operator:v1.32.5"
+                        ],
+                        "sizeBytes": 21366938
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-validation-webhook@sha256:5eb55a850de857d72bc5827aed89230b61eb309e1ab1c5bbf0c3c48ad7a6a679",
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-validation-webhook:v6.2.2"
+                        ],
+                        "sizeBytes": 21209410
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-controller@sha256:9c0527cab629b61bd60c20f0c25615a8593314d3504add968b42bc5b891b253a",
+                            "quay.io/jetstack/cert-manager-controller:v1.14.5"
+                        ],
+                        "sizeBytes": 19361056
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-webhook@sha256:ef419261a209c5409fb1539dbd45c805d05936e955b4530b8ec4ac780577f151",
+                            "quay.io/jetstack/cert-manager-webhook:v1.14.5"
+                        ],
+                        "sizeBytes": 16539853
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-cainjector@sha256:4ffda7facb4da16dab20a88e7607b75ebdab4e6c9069a840216a89f47261ee0b",
+                            "quay.io/jetstack/cert-manager-cainjector:v1.14.5"
+                        ],
+                        "sizeBytes": 13306166
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol@sha256:0d692f338237be04f9ac0261c6727c3388f4995ba61dcc5805e3afee3cce5bf5",
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol:v3.27.2"
+                        ],
+                        "sizeBytes": 7595833
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/pause@sha256:036d575e82945c112ef84e4585caff3648322a2f9ed4c3a6ce409dd10abc4f34",
+                            "docker.io/rancher/pause:3.6"
+                        ],
+                        "sizeBytes": 299396
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "b34a1dfd-08d1-472e-b377-c8e967d26bb3",
+                    "containerRuntimeVersion": "containerd://1.7.11-k3s2",
+                    "kernelVersion": "6.8.0-142-generic",
+                    "kubeProxyVersion": "v1.26.15+rke2r1",
+                    "kubeletVersion": "v1.26.15+rke2r1",
+                    "machineID": "7b11cd1fd8f04b36bfac6ada8c4e7011",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.5 LTS",
+                    "systemUUID": "42b3f4fe-1ba9-4a91-5b7d-c87f5405dae7"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "172.24.12.85",
+                    "cluster.x-k8s.io/cluster-name": "gpu-cluster",
+                    "cluster.x-k8s.io/cluster-namespace": "fleet-default",
+                    "cluster.x-k8s.io/labels-from-machine": "",
+                    "cluster.x-k8s.io/machine": "custom-4e3a1f321e8c",
+                    "management.cattle.io/pod-limits": "{\"memory\":\"512Mi\"}",
+                    "management.cattle.io/pod-requests": "{\"cpu\":\"355m\",\"memory\":\"282Mi\",\"pods\":\"6\"}",
+                    "nfd.node.kubernetes.io/feature-labels": "cpu-cpuid.ADX,cpu-cpuid.AESNI,cpu-cpuid.AVX,cpu-cpuid.AVX2,cpu-cpuid.AVXIFMA,cpu-cpuid.AVXNECONVERT,cpu-cpuid.AVXVNNI,cpu-cpuid.AVXVNNIINT16,cpu-cpuid.AVXVNNIINT8,cpu-cpuid.BHI_CTRL,cpu-cpuid.CETIBT,cpu-cpuid.CETSS,cpu-cpuid.CMPCCXADD,cpu-cpuid.CMPXCHG8,cpu-cpuid.FLUSH_L1D,cpu-cpuid.FMA3,cpu-cpuid.FSRM,cpu-cpuid.FXSR,cpu-cpuid.FXSROPT,cpu-cpuid.GFNI,cpu-cpuid.HRESET,cpu-cpuid.HYBRID_CPU,cpu-cpuid.IA32_ARCH_CAP,cpu-cpuid.IA32_CORE_CAP,cpu-cpuid.IBPB,cpu-cpuid.IDPRED_CTRL,cpu-cpuid.LAHF,cpu-cpuid.LAM,cpu-cpuid.MCDT_NO,cpu-cpuid.MD_CLEAR,cpu-cpuid.MOVBE,cpu-cpuid.MOVDIR64B,cpu-cpuid.MOVDIRI,cpu-cpuid.OSXSAVE,cpu-cpuid.PCONFIG,cpu-cpuid.PSFD,cpu-cpuid.RRSBA_CTRL,cpu-cpuid.SERIALIZE,cpu-cpuid.SHA,cpu-cpuid.SPEC_CTRL_SSBD,cpu-cpuid.STIBP,cpu-cpuid.STOSB_SHORT,cpu-cpuid.SYSCALL,cpu-cpuid.SYSEE,cpu-cpuid.TME,cpu-cpuid.VAES,cpu-cpuid.VMX,cpu-cpuid.VPCLMULQDQ,cpu-cpuid.WAITPKG,cpu-cpuid.WBNOINVD,cpu-cpuid.X87,cpu-cpuid.XGETBV1,cpu-cpuid.XSAVE,cpu-cpuid.XSAVEC,cpu-cpuid.XSAVEOPT,cpu-cpuid.XSAVES,cpu-cstate.enabled,cpu-hardware_multithreading,cpu-model.family,cpu-model.id,cpu-model.vendor_id,cpu-power.sst_bf.enabled,cpu-pstate.scaling_governor,cpu-pstate.status,cpu-pstate.turbo,kernel-config.NO_HZ,kernel-config.NO_HZ_FULL,kernel-version.full,kernel-version.major,kernel-version.minor,kernel-version.revision,pci-10de.present,pci-10de.sriov.capable,pci-8086.present,storage-nonrotationaldisk,system-os_release.ID,system-os_release.VERSION_ID,system-os_release.VERSION_ID.major,system-os_release.VERSION_ID.minor",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "projectcalico.org/IPv4Address": "172.24.12.85/24",
+                    "projectcalico.org/IPv4VXLANTunnelAddr": "10.42.39.192",
+                    "rke2.io/hostname": "pk-5090",
+                    "rke2.io/internal-ip": "172.24.12.85",
+                    "rke2.io/node-args": "[\"agent\",\"--node-label\",\"cattle.io/os=linux\",\"--node-label\",\"rke.cattle.io/machine=a172a346-b771-4160-8a32-e7db33e58bce\",\"--private-registry\",\"/etc/rancher/rke2/registries.yaml\",\"--protect-kernel-defaults\",\"false\",\"--server\",\"https://172.24.13.247:9345\",\"--token\",\"********\",\"--node-ip\",\"172.24.12.85\"]",
+                    "rke2.io/node-config-hash": "CSYIYTFYDCIHYL6L4SFPBLWSNRBMZT2YYOCBD33BWOPFWQF5JLVA====",
+                    "rke2.io/node-env": "{}",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-09-24T06:51:42Z",
+                "finalizers": [
+                    "wrangler.cattle.io/node",
+                    "wrangler.cattle.io/managed-etcd-controller"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "rke2",
+                    "beta.kubernetes.io/os": "linux",
+                    "cattle.io/os": "linux",
+                    "feature.node.kubernetes.io/cpu-cpuid.ADX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AESNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX2": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVXIFMA": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVXNECONVERT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVXVNNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVXVNNIINT16": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVXVNNIINT8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.BHI_CTRL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CETIBT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CETSS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CMPCCXADD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FLUSH_L1D": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FMA3": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FSRM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSROPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.GFNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HRESET": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HYBRID_CPU": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IA32_ARCH_CAP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IA32_CORE_CAP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBPB": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IDPRED_CTRL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LAHF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LAM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MCDT_NO": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MD_CLEAR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVBE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVDIR64B": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVDIRI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.OSXSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.PCONFIG": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.PSFD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.RRSBA_CTRL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SERIALIZE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SHA": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STIBP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STOSB_SHORT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSCALL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSEE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.TME": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VAES": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VMX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VPCLMULQDQ": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.WAITPKG": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.WBNOINVD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.X87": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XGETBV1": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVES": "true",
+                    "feature.node.kubernetes.io/cpu-cstate.enabled": "true",
+                    "feature.node.kubernetes.io/cpu-hardware_multithreading": "false",
+                    "feature.node.kubernetes.io/cpu-model.family": "6",
+                    "feature.node.kubernetes.io/cpu-model.id": "198",
+                    "feature.node.kubernetes.io/cpu-model.vendor_id": "Intel",
+                    "feature.node.kubernetes.io/cpu-power.sst_bf.enabled": "true",
+                    "feature.node.kubernetes.io/cpu-pstate.scaling_governor": "powersave",
+                    "feature.node.kubernetes.io/cpu-pstate.status": "active",
+                    "feature.node.kubernetes.io/cpu-pstate.turbo": "true",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ": "true",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ_FULL": "true",
+                    "feature.node.kubernetes.io/kernel-version.full": "6.8.0-139-generic",
+                    "feature.node.kubernetes.io/kernel-version.major": "6",
+                    "feature.node.kubernetes.io/kernel-version.minor": "8",
+                    "feature.node.kubernetes.io/kernel-version.revision": "0",
+                    "feature.node.kubernetes.io/pci-10de.present": "true",
+                    "feature.node.kubernetes.io/pci-10de.sriov.capable": "true",
+                    "feature.node.kubernetes.io/pci-8086.present": "true",
+                    "feature.node.kubernetes.io/storage-nonrotationaldisk": "true",
+                    "feature.node.kubernetes.io/system-os_release.ID": "ubuntu",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID": "24.04",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.major": "24",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.minor": "04",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "pk-5090",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/worker": "true",
+                    "node.kubernetes.io/instance-type": "rke2",
+                    "plan.upgrade.cattle.io/system-agent-upgrader": "7385bc6684d78a6b8f192e81ba787f77cc494f9d44f90c44c4e4aca0",
+                    "rke.cattle.io/machine": "a172a346-b771-4160-8a32-e7db33e58bce"
+                },
+                "name": "pk-5090",
+                "resourceVersion": "13633570",
+                "uid": "466449fa-82ef-4331-99eb-932acff6d6f2"
+            },
+            "spec": {
+                "podCIDR": "10.42.3.0/24",
+                "podCIDRs": [
+                    "10.42.3.0/24"
+                ],
+                "providerID": "rke2://pk-5090"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "172.24.12.85",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "pk-5090",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "20",
+                    "ephemeral-storage": "99834798412",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32532140Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "20",
+                    "ephemeral-storage": "102626232Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32532140Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-09-24T06:54:17Z",
+                        "lastTransitionTime": "2026-09-24T06:54:17Z",
+                        "message": "Calico is running on this node",
+                        "reason": "CalicoIsUp",
+                        "status": "False",
+                        "type": "NetworkUnavailable"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:05Z",
+                        "lastTransitionTime": "2026-09-24T06:51:42Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:05Z",
+                        "lastTransitionTime": "2026-09-24T06:51:42Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:05Z",
+                        "lastTransitionTime": "2026-09-24T06:51:42Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:05Z",
+                        "lastTransitionTime": "2026-09-24T06:53:24Z",
+                        "message": "kubelet is posting ready status. AppArmor enabled",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/pytorch/pytorch@sha256:417bd75df6365104c283ea4c1651fb3530d9eb5a4c2fafa51943cff2a94e6385",
+                            "docker.io/pytorch/pytorch:2.8.0-cuda12.8-cudnn9-runtime"
+                        ],
+                        "sizeBytes": 4288264574
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rancher-agent@sha256:be68811b44350c56d6ef7eaf74f0fb85da59b859a3bb1b624abd247db9107f90",
+                            "docker.io/rancher/rancher-agent:v2.7.9"
+                        ],
+                        "sizeBytes": 553000415
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/nginx-ingress-controller@sha256:40b389fcbfc019e1adf2e6aa9b1a75235455a2e78fcec3261f867064afd801cb",
+                            "docker.io/rancher/nginx-ingress-controller:nginx-1.9.3-hardened1"
+                        ],
+                        "sizeBytes": 334039604
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-kubernetes@sha256:f4048fc828e3e8c15fde84aead902cc17ea26c5e52a60f9f609df2796add8665",
+                            "docker.io/rancher/hardened-kubernetes:v1.26.15-rke2r1-build20240314"
+                        ],
+                        "sizeBytes": 226884295
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-node@sha256:928d3aea42430dec473d0deba089e6a5312d73fc32799a5b108faaee44472636",
+                            "docker.io/rancher/mirrored-calico-node:v3.27.2"
+                        ],
+                        "sizeBytes": 117437511
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/fleet-agent@sha256:bf69e015b7f3df065df11ab985e476792f092c58aae03985aabbc2a92cdb81dc",
+                            "docker.io/rancher/fleet-agent:v0.8.0"
+                        ],
+                        "sizeBytes": 114901591
+                    },
+                    {
+                        "names": [
+                            "docker.io/nvidia/cuda@sha256:80d4d9ac041242f6ae5d05f9be262b3374e0e0b8bb5a49c6c3e94e192cde4a44",
+                            "docker.io/nvidia/cuda:12.4.0-base-ubuntu22.04"
+                        ],
+                        "sizeBytes": 91774027
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-cni@sha256:127f0f327a12b8c8d2debb37fe76a25d5e53dccbaea1420500b7177b4146f311",
+                            "docker.io/rancher/mirrored-calico-cni:v3.27.2"
+                        ],
+                        "sizeBytes": 88207211
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/nfd/node-feature-discovery@sha256:5ad4e3ac1afcbeb9d096241b0352614e5e77ee1bfe0f37c45a8d7b4329599d11",
+                            "registry.k8s.io/nfd/node-feature-discovery:v0.17.3"
+                        ],
+                        "sizeBytes": 80718055
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s-device-plugin@sha256:32e1bdf5b45f6ccf7389d9e3ff98f569fa7063c562f5376f478bd4b1fe1a4aa6",
+                            "nvcr.io/nvidia/k8s-device-plugin:v0.19.2"
+                        ],
+                        "sizeBytes": 55978955
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-kube-controllers@sha256:f78dca60d37987555e5e21772b52f42bfd75aa994c5c688a438958448d0be89b",
+                            "docker.io/rancher/mirrored-calico-kube-controllers:v3.27.2"
+                        ],
+                        "sizeBytes": 33374265
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-typha@sha256:17b2181a719a3bcf08fbb9eb814ab657a15d7858819e2224fad84b889c283e1d",
+                            "docker.io/rancher/mirrored-calico-typha:v3.27.2"
+                        ],
+                        "sizeBytes": 29584340
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-agent@sha256:c51e354fd85e29739ab15c11ef4cc5f0b158c7c4d94829177a439651d4eb2251",
+                            "docker.io/rancher/system-agent:v0.3.3-suc"
+                        ],
+                        "sizeBytes": 27710791
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rancher-webhook@sha256:1c5d1e90a3b4a762cb8584d22b5170fec15b78a11649c4affce45e3f935c2b65",
+                            "docker.io/rancher/rancher-webhook:v0.3.6"
+                        ],
+                        "sizeBytes": 25389430
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-controller@sha256:8776214c491da926a9a808b4ad832c297262defeb2d736240ebed4be8d9f3512",
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-controller:v6.2.1"
+                        ],
+                        "sizeBytes": 24225718
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-coredns@sha256:80f496f03fd7cc53bc32ce27fb552668590a0c0ecb42fb346b6bff147c15d023",
+                            "docker.io/rancher/hardened-coredns:v1.11.1-build20240305"
+                        ],
+                        "sizeBytes": 23518025
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-validation-webhook@sha256:5eb55a850de857d72bc5827aed89230b61eb309e1ab1c5bbf0c3c48ad7a6a679",
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-validation-webhook:v6.2.2"
+                        ],
+                        "sizeBytes": 21209410
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-webhook@sha256:ef419261a209c5409fb1539dbd45c805d05936e955b4530b8ec4ac780577f151",
+                            "quay.io/jetstack/cert-manager-webhook:v1.14.5"
+                        ],
+                        "sizeBytes": 16539853
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-cainjector@sha256:4ffda7facb4da16dab20a88e7607b75ebdab4e6c9069a840216a89f47261ee0b",
+                            "quay.io/jetstack/cert-manager-cainjector:v1.14.5"
+                        ],
+                        "sizeBytes": 13306166
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-cluster-autoscaler@sha256:d20da9f117571682998722be4c426ba980852515134c6bd979f66a9fdea49ba8",
+                            "docker.io/rancher/hardened-cluster-autoscaler:v1.8.10-build20240124"
+                        ],
+                        "sizeBytes": 11978894
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol@sha256:0d692f338237be04f9ac0261c6727c3388f4995ba61dcc5805e3afee3cce5bf5",
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol:v3.27.2"
+                        ],
+                        "sizeBytes": 7595833
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/pause@sha256:036d575e82945c112ef84e4585caff3648322a2f9ed4c3a6ce409dd10abc4f34",
+                            "docker.io/rancher/pause:3.6"
+                        ],
+                        "sizeBytes": 299396
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "a5b873a0-0d50-447c-a544-6de52df7c9b7",
+                    "containerRuntimeVersion": "containerd://1.7.11-k3s2",
+                    "kernelVersion": "6.8.0-139-generic",
+                    "kubeProxyVersion": "v1.26.15+rke2r1",
+                    "kubeletVersion": "v1.26.15+rke2r1",
+                    "machineID": "7d036e17494b42febda57a8e89894833",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.5 LTS",
+                    "systemUUID": "d2fd9f48-1a11-4c82-ba7a-e6f763c5a16d"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "172.24.13.247",
+                    "cluster.x-k8s.io/cluster-name": "gpu-cluster",
+                    "cluster.x-k8s.io/cluster-namespace": "fleet-default",
+                    "cluster.x-k8s.io/labels-from-machine": "",
+                    "cluster.x-k8s.io/machine": "custom-65d759abd2e7",
+                    "etcd.rke2.cattle.io/local-snapshots-timestamp": "2026-10-02T00:00:03Z",
+                    "etcd.rke2.cattle.io/node-address": "172.24.13.247",
+                    "etcd.rke2.cattle.io/node-name": "pk-gpu-cc1-0d6e334d",
+                    "management.cattle.io/pod-limits": "{\"cpu\":\"200m\",\"memory\":\"704Mi\"}",
+                    "management.cattle.io/pod-requests": "{\"cpu\":\"1330m\",\"memory\":\"2474Mi\",\"pods\":\"24\"}",
+                    "nfd.node.kubernetes.io/feature-labels": "cpu-cpuid.ADX,cpu-cpuid.AESNI,cpu-cpuid.AVX,cpu-cpuid.AVX2,cpu-cpuid.AVX512BW,cpu-cpuid.AVX512CD,cpu-cpuid.AVX512DQ,cpu-cpuid.AVX512F,cpu-cpuid.AVX512VL,cpu-cpuid.AVX512VNNI,cpu-cpuid.CMPXCHG8,cpu-cpuid.FMA3,cpu-cpuid.FXSR,cpu-cpuid.FXSROPT,cpu-cpuid.HYPERVISOR,cpu-cpuid.IA32_ARCH_CAP,cpu-cpuid.IBPB,cpu-cpuid.IBRS,cpu-cpuid.LAHF,cpu-cpuid.MD_CLEAR,cpu-cpuid.MOVBE,cpu-cpuid.MPX,cpu-cpuid.OSXSAVE,cpu-cpuid.SPEC_CTRL_SSBD,cpu-cpuid.STIBP,cpu-cpuid.SYSCALL,cpu-cpuid.SYSEE,cpu-cpuid.VMX,cpu-cpuid.X87,cpu-cpuid.XGETBV1,cpu-cpuid.XSAVE,cpu-cpuid.XSAVEC,cpu-cpuid.XSAVEOPT,cpu-cpuid.XSAVES,cpu-hardware_multithreading,cpu-model.family,cpu-model.id,cpu-model.vendor_id,kernel-config.NO_HZ,kernel-config.NO_HZ_FULL,kernel-version.full,kernel-version.major,kernel-version.minor,kernel-version.revision,pci-10de.present,pci-1234.present,pci-1af4.present,system-os_release.ID,system-os_release.VERSION_ID,system-os_release.VERSION_ID.major,system-os_release.VERSION_ID.minor",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "projectcalico.org/IPv4Address": "140.128.101.192/24",
+                    "projectcalico.org/IPv4VXLANTunnelAddr": "10.42.120.0",
+                    "rke2.io/encryption-config-hash": "start-8e728bcf34e9937f4a9f544df13caee90e3c13c6620bf2a2a39a8f1f1470711b",
+                    "rke2.io/external-ip": "140.128.101.192",
+                    "rke2.io/hostname": "pk-gpu-cc1",
+                    "rke2.io/internal-ip": "172.24.13.247",
+                    "rke2.io/node-args": "[\"server\",\"--agent-token\",\"********\",\"--cni\",\"calico\",\"--disable-kube-proxy\",\"false\",\"--etcd-expose-metrics\",\"false\",\"--kube-controller-manager-arg\",\"cert-dir=/var/lib/rancher/rke2/server/tls/kube-controller-manager\",\"--kube-controller-manager-arg\",\"secure-port=10257\",\"--kube-controller-manager-extra-mount\",\"/var/lib/rancher/rke2/server/tls/kube-controller-manager:/var/lib/rancher/rke2/server/tls/kube-controller-manager\",\"--kube-scheduler-arg\",\"cert-dir=/var/lib/rancher/rke2/server/tls/kube-scheduler\",\"--kube-scheduler-arg\",\"secure-port=10259\",\"--kube-scheduler-extra-mount\",\"/var/lib/rancher/rke2/server/tls/kube-scheduler:/var/lib/rancher/rke2/server/tls/kube-scheduler\",\"--node-external-ip\",\"140.128.101.192\",\"--node-ip\",\"172.24.13.247\",\"--node-label\",\"cattle.io/os=linux\",\"--node-label\",\"rke.cattle.io/machine=e1c83515-cf07-4781-8e01-3874a7f1b637\",\"--node-name\",\"pk-gpu-cc1\",\"--private-registry\",\"/etc/rancher/rke2/registries.yaml\",\"--protect-kernel-defaults\",\"false\",\"--token\",\"********\"]",
+                    "rke2.io/node-config-hash": "AHHIYM2MGXDG7XUYDDNEXVQ2IJ3QEPSA5LFVNVMSB5GCB5RI4DHQ====",
+                    "rke2.io/node-env": "{}",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-07-30T10:11:46Z",
+                "finalizers": [
+                    "wrangler.cattle.io/node",
+                    "wrangler.cattle.io/managed-etcd-controller"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "rke2",
+                    "beta.kubernetes.io/os": "linux",
+                    "cattle.io/os": "linux",
+                    "feature.node.kubernetes.io/cpu-cpuid.ADX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AESNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX2": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512BW": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512CD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512DQ": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512F": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VNNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FMA3": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSROPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IA32_ARCH_CAP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBPB": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBRS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LAHF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MD_CLEAR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVBE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MPX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.OSXSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STIBP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSCALL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSEE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VMX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.X87": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XGETBV1": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVES": "true",
+                    "feature.node.kubernetes.io/cpu-hardware_multithreading": "false",
+                    "feature.node.kubernetes.io/cpu-model.family": "6",
+                    "feature.node.kubernetes.io/cpu-model.id": "85",
+                    "feature.node.kubernetes.io/cpu-model.vendor_id": "Intel",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ": "true",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ_FULL": "true",
+                    "feature.node.kubernetes.io/kernel-version.full": "6.8.0-142-generic",
+                    "feature.node.kubernetes.io/kernel-version.major": "6",
+                    "feature.node.kubernetes.io/kernel-version.minor": "8",
+                    "feature.node.kubernetes.io/kernel-version.revision": "0",
+                    "feature.node.kubernetes.io/pci-10de.present": "true",
+                    "feature.node.kubernetes.io/pci-1234.present": "true",
+                    "feature.node.kubernetes.io/pci-1af4.present": "true",
+                    "feature.node.kubernetes.io/system-os_release.ID": "ubuntu",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID": "24.04",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.major": "24",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.minor": "04",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "pk-gpu-cc1",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/control-plane": "true",
+                    "node-role.kubernetes.io/etcd": "true",
+                    "node-role.kubernetes.io/master": "true",
+                    "node-role.kubernetes.io/worker": "true",
+                    "node.kubernetes.io/instance-type": "rke2",
+                    "plan.upgrade.cattle.io/system-agent-upgrader": "7385bc6684d78a6b8f192e81ba787f77cc494f9d44f90c44c4e4aca0",
+                    "rke.cattle.io/machine": "e1c83515-cf07-4781-8e01-3874a7f1b637"
+                },
+                "name": "pk-gpu-cc1",
+                "resourceVersion": "13634629",
+                "uid": "d5b1cc7f-5f17-4792-9530-131b18cbbb26"
+            },
+            "spec": {
+                "podCIDR": "10.42.0.0/24",
+                "podCIDRs": [
+                    "10.42.0.0/24"
+                ],
+                "providerID": "rke2://pk-gpu-cc1"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "172.24.13.247",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "140.128.101.192",
+                        "type": "ExternalIP"
+                    },
+                    {
+                        "address": "pk-gpu-cc1",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "8",
+                    "ephemeral-storage": "196555267123",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32866108Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "8",
+                    "ephemeral-storage": "202051056Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32866108Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-10-01T11:39:52Z",
+                        "lastTransitionTime": "2026-10-01T11:39:52Z",
+                        "message": "Calico is running on this node",
+                        "reason": "CalicoIsUp",
+                        "status": "False",
+                        "type": "NetworkUnavailable"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:30:09Z",
+                        "lastTransitionTime": "2026-10-01T11:40:09Z",
+                        "message": "Node is a voting member of the etcd cluster",
+                        "reason": "MemberNotLearner",
+                        "status": "True",
+                        "type": "EtcdIsVoter"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:29:00Z",
+                        "lastTransitionTime": "2026-10-01T11:39:36Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:29:00Z",
+                        "lastTransitionTime": "2026-10-01T11:39:36Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:29:00Z",
+                        "lastTransitionTime": "2026-10-01T11:39:36Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:29:00Z",
+                        "lastTransitionTime": "2026-10-01T11:39:36Z",
+                        "message": "kubelet is posting ready status. AppArmor enabled",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/pytorch/pytorch@sha256:417bd75df6365104c283ea4c1651fb3530d9eb5a4c2fafa51943cff2a94e6385",
+                            "docker.io/pytorch/pytorch:2.8.0-cuda12.8-cudnn9-runtime"
+                        ],
+                        "sizeBytes": 4288264574
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rancher-agent@sha256:be68811b44350c56d6ef7eaf74f0fb85da59b859a3bb1b624abd247db9107f90",
+                            "docker.io/rancher/rancher-agent:v2.7.9"
+                        ],
+                        "sizeBytes": 553000415
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/nginx-ingress-controller@sha256:40b389fcbfc019e1adf2e6aa9b1a75235455a2e78fcec3261f867064afd801cb",
+                            "docker.io/rancher/nginx-ingress-controller:nginx-1.9.3-hardened1"
+                        ],
+                        "sizeBytes": 334039604
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-kubernetes@sha256:f4048fc828e3e8c15fde84aead902cc17ea26c5e52a60f9f609df2796add8665",
+                            "docker.io/rancher/hardened-kubernetes:v1.26.15-rke2r1-build20240314"
+                        ],
+                        "sizeBytes": 226884295
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/shell@sha256:2b507a1718c9b7c10245325247d065f6f69240250748cb52cbeee9c764826e6b",
+                            "docker.io/rancher/shell:v0.1.21"
+                        ],
+                        "sizeBytes": 136120408
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s/cuda-sample@sha256:59261e419d6d48a772aad5bb213f9f1588fcdb042b115ceb7166c89a51f03363",
+                            "nvcr.io/nvidia/k8s/cuda-sample:nbody"
+                        ],
+                        "sizeBytes": 122383440
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-node@sha256:928d3aea42430dec473d0deba089e6a5312d73fc32799a5b108faaee44472636",
+                            "docker.io/rancher/mirrored-calico-node:v3.27.2"
+                        ],
+                        "sizeBytes": 117437511
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/fleet-agent@sha256:bf69e015b7f3df065df11ab985e476792f092c58aae03985aabbc2a92cdb81dc",
+                            "docker.io/rancher/fleet-agent:v0.8.0"
+                        ],
+                        "sizeBytes": 114901591
+                    },
+                    {
+                        "names": [
+                            "docker.io/nvidia/cuda@sha256:80d4d9ac041242f6ae5d05f9be262b3374e0e0b8bb5a49c6c3e94e192cde4a44",
+                            "docker.io/nvidia/cuda:12.4.0-base-ubuntu22.04"
+                        ],
+                        "sizeBytes": 91774027
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/klipper-helm@sha256:87db3ad354905e6d31e420476467aefcd8f37d071a8f1c8a904f4743162ae546",
+                            "docker.io/rancher/klipper-helm:v0.8.3-build20240228"
+                        ],
+                        "sizeBytes": 91162124
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-cni@sha256:127f0f327a12b8c8d2debb37fe76a25d5e53dccbaea1420500b7177b4146f311",
+                            "docker.io/rancher/mirrored-calico-cni:v3.27.2"
+                        ],
+                        "sizeBytes": 88207211
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/nfd/node-feature-discovery@sha256:5ad4e3ac1afcbeb9d096241b0352614e5e77ee1bfe0f37c45a8d7b4329599d11",
+                            "registry.k8s.io/nfd/node-feature-discovery:v0.17.3"
+                        ],
+                        "sizeBytes": 80718055
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-etcd@sha256:c4d25c075d5d61b1860ae5496d1acc8f88dd3a8be6024b37207901da744efa08",
+                            "docker.io/rancher/hardened-etcd:v3.5.9-k3s1-build20230802"
+                        ],
+                        "sizeBytes": 64402047
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rke2-cloud-provider@sha256:e2d98791f28b7aed3ab99afb99b52310eb1a36844b9bc9c497ebce327e4c68d5",
+                            "docker.io/rancher/rke2-cloud-provider:v1.26.3-build20230406"
+                        ],
+                        "sizeBytes": 63663048
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-k8s-metrics-server@sha256:a81a294035282517b5a61a47de52c787f1115c7ba28af1ee717db0f78385e8d2",
+                            "docker.io/rancher/hardened-k8s-metrics-server:v0.6.3-build20231009"
+                        ],
+                        "sizeBytes": 63412972
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s-device-plugin@sha256:32e1bdf5b45f6ccf7389d9e3ff98f569fa7063c562f5376f478bd4b1fe1a4aa6",
+                            "nvcr.io/nvidia/k8s-device-plugin:v0.19.2"
+                        ],
+                        "sizeBytes": 55978955
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-kube-controllers@sha256:f78dca60d37987555e5e21772b52f42bfd75aa994c5c688a438958448d0be89b",
+                            "docker.io/rancher/mirrored-calico-kube-controllers:v3.27.2"
+                        ],
+                        "sizeBytes": 33374265
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-typha@sha256:17b2181a719a3bcf08fbb9eb814ab657a15d7858819e2224fad84b889c283e1d",
+                            "docker.io/rancher/mirrored-calico-typha:v3.27.2"
+                        ],
+                        "sizeBytes": 29584340
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-agent@sha256:c51e354fd85e29739ab15c11ef4cc5f0b158c7c4d94829177a439651d4eb2251",
+                            "docker.io/rancher/system-agent:v0.3.3-suc"
+                        ],
+                        "sizeBytes": 27710791
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-controller@sha256:8776214c491da926a9a808b4ad832c297262defeb2d736240ebed4be8d9f3512",
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-controller:v6.2.1"
+                        ],
+                        "sizeBytes": 24225718
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-coredns@sha256:80f496f03fd7cc53bc32ce27fb552668590a0c0ecb42fb346b6bff147c15d023",
+                            "docker.io/rancher/hardened-coredns:v1.11.1-build20240305"
+                        ],
+                        "sizeBytes": 23518025
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-operator@sha256:4b55b027cf2e991e231715a602950403a373fbdebaea87d64d6a417a9facd651",
+                            "docker.io/rancher/mirrored-calico-operator:v1.32.5"
+                        ],
+                        "sizeBytes": 21366938
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-validation-webhook@sha256:5eb55a850de857d72bc5827aed89230b61eb309e1ab1c5bbf0c3c48ad7a6a679",
+                            "docker.io/rancher/mirrored-sig-storage-snapshot-validation-webhook:v6.2.2"
+                        ],
+                        "sizeBytes": 21209410
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-ingress-nginx-kube-webhook-certgen@sha256:25af4d737af79a08200df23208de4fa613efd2daba6801b559447f1f6b048714",
+                            "docker.io/rancher/mirrored-ingress-nginx-kube-webhook-certgen:v20230312-helm-chart-4.5.2-28-g66a760794"
+                        ],
+                        "sizeBytes": 20111940
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-controller@sha256:9c0527cab629b61bd60c20f0c25615a8593314d3504add968b42bc5b891b253a",
+                            "quay.io/jetstack/cert-manager-controller:v1.14.5"
+                        ],
+                        "sizeBytes": 19361056
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-webhook@sha256:ef419261a209c5409fb1539dbd45c805d05936e955b4530b8ec4ac780577f151",
+                            "quay.io/jetstack/cert-manager-webhook:v1.14.5"
+                        ],
+                        "sizeBytes": 16539853
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-cainjector@sha256:4ffda7facb4da16dab20a88e7607b75ebdab4e6c9069a840216a89f47261ee0b",
+                            "quay.io/jetstack/cert-manager-cainjector:v1.14.5"
+                        ],
+                        "sizeBytes": 13306166
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-cluster-autoscaler@sha256:d20da9f117571682998722be4c426ba980852515134c6bd979f66a9fdea49ba8",
+                            "docker.io/rancher/hardened-cluster-autoscaler:v1.8.10-build20240124"
+                        ],
+                        "sizeBytes": 11978894
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-upgrade-controller@sha256:68ada626ece26452b0cbd3ecc981b182a05d83b8d05d6eab958bb5950eb750d3",
+                            "docker.io/rancher/system-upgrade-controller:v0.11.0"
+                        ],
+                        "sizeBytes": 9157693
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-acmesolver@sha256:5e807851354e51b6d978dde72523952464ecc3e79678a88892d2598c7bba9fd5",
+                            "quay.io/jetstack/cert-manager-acmesolver:v1.14.5"
+                        ],
+                        "sizeBytes": 7707306
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol@sha256:0d692f338237be04f9ac0261c6727c3388f4995ba61dcc5805e3afee3cce5bf5",
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol:v3.27.2"
+                        ],
+                        "sizeBytes": 7595833
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/pause@sha256:036d575e82945c112ef84e4585caff3648322a2f9ed4c3a6ce409dd10abc4f34",
+                            "docker.io/rancher/pause:3.6"
+                        ],
+                        "sizeBytes": 299396
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "53c1ecd3-a3bf-4808-8b10-3bda91d89d2a",
+                    "containerRuntimeVersion": "containerd://1.7.11-k3s2",
+                    "kernelVersion": "6.8.0-142-generic",
+                    "kubeProxyVersion": "v1.26.15+rke2r1",
+                    "kubeletVersion": "v1.26.15+rke2r1",
+                    "machineID": "ad295aaebd7448a5ab69c39b69d977b7",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.4 LTS",
+                    "systemUUID": "fbc04d7e-0687-4f1b-bb46-50323ff2d6db"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "172.24.13.249",
+                    "cluster.x-k8s.io/cluster-name": "gpu-cluster",
+                    "cluster.x-k8s.io/cluster-namespace": "fleet-default",
+                    "cluster.x-k8s.io/labels-from-machine": "",
+                    "cluster.x-k8s.io/machine": "custom-3b1c98cc4050",
+                    "etcd.rke2.cattle.io/local-snapshots-timestamp": "2026-10-02T00:00:04Z",
+                    "etcd.rke2.cattle.io/node-address": "172.24.13.249",
+                    "etcd.rke2.cattle.io/node-name": "pk-gpu-cc2-d72db7fe",
+                    "management.cattle.io/pod-limits": "{\"memory\":\"512Mi\"}",
+                    "management.cattle.io/pod-requests": "{\"cpu\":\"1205m\",\"memory\":\"2330Mi\",\"pods\":\"11\"}",
+                    "nfd.node.kubernetes.io/feature-labels": "cpu-cpuid.ADX,cpu-cpuid.AESNI,cpu-cpuid.AVX,cpu-cpuid.AVX2,cpu-cpuid.AVX512BW,cpu-cpuid.AVX512CD,cpu-cpuid.AVX512DQ,cpu-cpuid.AVX512F,cpu-cpuid.AVX512VL,cpu-cpuid.CMPXCHG8,cpu-cpuid.FMA3,cpu-cpuid.FXSR,cpu-cpuid.FXSROPT,cpu-cpuid.HLE,cpu-cpuid.HYPERVISOR,cpu-cpuid.IA32_ARCH_CAP,cpu-cpuid.IBPB,cpu-cpuid.IBRS,cpu-cpuid.LAHF,cpu-cpuid.MOVBE,cpu-cpuid.MPX,cpu-cpuid.OSXSAVE,cpu-cpuid.RTM,cpu-cpuid.SPEC_CTRL_SSBD,cpu-cpuid.STIBP,cpu-cpuid.SYSCALL,cpu-cpuid.SYSEE,cpu-cpuid.VMX,cpu-cpuid.X87,cpu-cpuid.XGETBV1,cpu-cpuid.XSAVE,cpu-cpuid.XSAVEC,cpu-cpuid.XSAVEOPT,cpu-cpuid.XSAVES,cpu-hardware_multithreading,cpu-model.family,cpu-model.id,cpu-model.vendor_id,kernel-config.NO_HZ,kernel-config.NO_HZ_FULL,kernel-version.full,kernel-version.major,kernel-version.minor,kernel-version.revision,pci-10de.present,pci-1234.present,pci-1af4.present,system-os_release.ID,system-os_release.VERSION_ID,system-os_release.VERSION_ID.major,system-os_release.VERSION_ID.minor",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "projectcalico.org/IPv4Address": "140.128.101.191/24",
+                    "projectcalico.org/IPv4VXLANTunnelAddr": "10.42.212.128",
+                    "rke2.io/encryption-config-hash": "start-8e728bcf34e9937f4a9f544df13caee90e3c13c6620bf2a2a39a8f1f1470711b",
+                    "rke2.io/external-ip": "140.128.101.191",
+                    "rke2.io/hostname": "pk-gpu-cc2",
+                    "rke2.io/internal-ip": "172.24.13.249",
+                    "rke2.io/node-args": "[\"server\",\"--agent-token\",\"********\",\"--cni\",\"calico\",\"--disable-kube-proxy\",\"false\",\"--etcd-expose-metrics\",\"false\",\"--kube-controller-manager-arg\",\"cert-dir=/var/lib/rancher/rke2/server/tls/kube-controller-manager\",\"--kube-controller-manager-arg\",\"secure-port=10257\",\"--kube-controller-manager-extra-mount\",\"/var/lib/rancher/rke2/server/tls/kube-controller-manager:/var/lib/rancher/rke2/server/tls/kube-controller-manager\",\"--kube-scheduler-arg\",\"cert-dir=/var/lib/rancher/rke2/server/tls/kube-scheduler\",\"--kube-scheduler-arg\",\"secure-port=10259\",\"--kube-scheduler-extra-mount\",\"/var/lib/rancher/rke2/server/tls/kube-scheduler:/var/lib/rancher/rke2/server/tls/kube-scheduler\",\"--node-external-ip\",\"140.128.101.191\",\"--node-ip\",\"172.24.13.249\",\"--node-label\",\"cattle.io/os=linux\",\"--node-label\",\"rke.cattle.io/machine=2cf7ca3a-0e19-4dc8-9e6f-b73410de79cc\",\"--node-name\",\"pk-gpu-cc2\",\"--private-registry\",\"/etc/rancher/rke2/registries.yaml\",\"--protect-kernel-defaults\",\"false\",\"--server\",\"https://172.24.13.247:9345\",\"--token\",\"********\"]",
+                    "rke2.io/node-config-hash": "7K4YZYVEWZPJYI76NN3NQFYXQTAESKLCTX2WZDCTMZG2NP3BTLOQ====",
+                    "rke2.io/node-env": "{}",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-07-30T10:15:09Z",
+                "finalizers": [
+                    "wrangler.cattle.io/node",
+                    "wrangler.cattle.io/managed-etcd-controller"
+                ],
+                "labels": {
+                    "accelerator": "nvidia",
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "rke2",
+                    "beta.kubernetes.io/os": "linux",
+                    "cattle.io/os": "linux",
+                    "feature.node.kubernetes.io/cpu-cpuid.ADX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AESNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX2": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512BW": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512CD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512DQ": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512F": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FMA3": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSROPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HLE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IA32_ARCH_CAP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBPB": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBRS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LAHF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVBE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MPX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.OSXSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.RTM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STIBP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSCALL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSEE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VMX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.X87": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XGETBV1": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVES": "true",
+                    "feature.node.kubernetes.io/cpu-hardware_multithreading": "false",
+                    "feature.node.kubernetes.io/cpu-model.family": "6",
+                    "feature.node.kubernetes.io/cpu-model.id": "85",
+                    "feature.node.kubernetes.io/cpu-model.vendor_id": "Intel",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ": "true",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ_FULL": "true",
+                    "feature.node.kubernetes.io/kernel-version.full": "6.8.0-142-generic",
+                    "feature.node.kubernetes.io/kernel-version.major": "6",
+                    "feature.node.kubernetes.io/kernel-version.minor": "8",
+                    "feature.node.kubernetes.io/kernel-version.revision": "0",
+                    "feature.node.kubernetes.io/pci-10de.present": "true",
+                    "feature.node.kubernetes.io/pci-1234.present": "true",
+                    "feature.node.kubernetes.io/pci-1af4.present": "true",
+                    "feature.node.kubernetes.io/system-os_release.ID": "ubuntu",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID": "24.04",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.major": "24",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.minor": "04",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "pk-gpu-cc2",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/control-plane": "true",
+                    "node-role.kubernetes.io/etcd": "true",
+                    "node-role.kubernetes.io/master": "true",
+                    "node-role.kubernetes.io/worker": "true",
+                    "node.kubernetes.io/instance-type": "rke2",
+                    "plan.upgrade.cattle.io/system-agent-upgrader": "7385bc6684d78a6b8f192e81ba787f77cc494f9d44f90c44c4e4aca0",
+                    "rke.cattle.io/machine": "2cf7ca3a-0e19-4dc8-9e6f-b73410de79cc"
+                },
+                "name": "pk-gpu-cc2",
+                "resourceVersion": "13634631",
+                "uid": "265cb3bd-072b-46e2-87ab-4208ed1f1165"
+            },
+            "spec": {
+                "podCIDR": "10.42.1.0/24",
+                "podCIDRs": [
+                    "10.42.1.0/24"
+                ],
+                "providerID": "rke2://pk-gpu-cc2"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "172.24.13.249",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "140.128.101.191",
+                        "type": "ExternalIP"
+                    },
+                    {
+                        "address": "pk-gpu-cc2",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "8",
+                    "ephemeral-storage": "196555267123",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32866108Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "8",
+                    "ephemeral-storage": "202051056Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32866108Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:30:09Z",
+                        "lastTransitionTime": "2026-09-30T14:14:35Z",
+                        "message": "Node is a voting member of the etcd cluster",
+                        "reason": "MemberNotLearner",
+                        "status": "True",
+                        "type": "EtcdIsVoter"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-30T14:13:33Z",
+                        "lastTransitionTime": "2026-09-30T14:13:33Z",
+                        "message": "Calico is running on this node",
+                        "reason": "CalicoIsUp",
+                        "status": "False",
+                        "type": "NetworkUnavailable"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:20Z",
+                        "lastTransitionTime": "2026-09-30T14:13:20Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:20Z",
+                        "lastTransitionTime": "2026-09-30T14:13:20Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:20Z",
+                        "lastTransitionTime": "2026-09-30T14:13:20Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:20Z",
+                        "lastTransitionTime": "2026-09-30T14:13:20Z",
+                        "message": "kubelet is posting ready status. AppArmor enabled",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/henryli0338/trackguard-lte-web@sha256:4f2ad2574ba02896476dabb2a5d3f58ed484c65a7ef5bdf85d5b3c72a6d40410",
+                            "docker.io/henryli0338/trackguard-lte-web:v2026.07.28-1"
+                        ],
+                        "sizeBytes": 4415409562
+                    },
+                    {
+                        "names": [
+                            "docker.io/pytorch/pytorch@sha256:417bd75df6365104c283ea4c1651fb3530d9eb5a4c2fafa51943cff2a94e6385"
+                        ],
+                        "sizeBytes": 4288264574
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rancher-agent@sha256:be68811b44350c56d6ef7eaf74f0fb85da59b859a3bb1b624abd247db9107f90",
+                            "docker.io/rancher/rancher-agent:v2.7.9"
+                        ],
+                        "sizeBytes": 553000415
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/nginx-ingress-controller@sha256:40b389fcbfc019e1adf2e6aa9b1a75235455a2e78fcec3261f867064afd801cb",
+                            "docker.io/rancher/nginx-ingress-controller:nginx-1.9.3-hardened1"
+                        ],
+                        "sizeBytes": 334039604
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-kubernetes@sha256:f4048fc828e3e8c15fde84aead902cc17ea26c5e52a60f9f609df2796add8665",
+                            "docker.io/rancher/hardened-kubernetes:v1.26.15-rke2r1-build20240314"
+                        ],
+                        "sizeBytes": 226884295
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s/cuda-sample@sha256:59261e419d6d48a772aad5bb213f9f1588fcdb042b115ceb7166c89a51f03363",
+                            "nvcr.io/nvidia/k8s/cuda-sample:nbody"
+                        ],
+                        "sizeBytes": 122383440
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-node@sha256:928d3aea42430dec473d0deba089e6a5312d73fc32799a5b108faaee44472636",
+                            "docker.io/rancher/mirrored-calico-node:v3.27.2"
+                        ],
+                        "sizeBytes": 117437511
+                    },
+                    {
+                        "names": [
+                            "docker.io/nvidia/cuda@sha256:80d4d9ac041242f6ae5d05f9be262b3374e0e0b8bb5a49c6c3e94e192cde4a44",
+                            "docker.io/nvidia/cuda:12.4.0-base-ubuntu22.04"
+                        ],
+                        "sizeBytes": 91774027
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/klipper-helm@sha256:87db3ad354905e6d31e420476467aefcd8f37d071a8f1c8a904f4743162ae546",
+                            "docker.io/rancher/klipper-helm:v0.8.3-build20240228"
+                        ],
+                        "sizeBytes": 91162124
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-cni@sha256:127f0f327a12b8c8d2debb37fe76a25d5e53dccbaea1420500b7177b4146f311",
+                            "docker.io/rancher/mirrored-calico-cni:v3.27.2"
+                        ],
+                        "sizeBytes": 88207211
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/nfd/node-feature-discovery@sha256:5ad4e3ac1afcbeb9d096241b0352614e5e77ee1bfe0f37c45a8d7b4329599d11",
+                            "registry.k8s.io/nfd/node-feature-discovery:v0.17.3"
+                        ],
+                        "sizeBytes": 80718055
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-etcd@sha256:c4d25c075d5d61b1860ae5496d1acc8f88dd3a8be6024b37207901da744efa08",
+                            "docker.io/rancher/hardened-etcd:v3.5.9-k3s1-build20230802"
+                        ],
+                        "sizeBytes": 64402047
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rke2-cloud-provider@sha256:e2d98791f28b7aed3ab99afb99b52310eb1a36844b9bc9c497ebce327e4c68d5",
+                            "docker.io/rancher/rke2-cloud-provider:v1.26.3-build20230406"
+                        ],
+                        "sizeBytes": 63663048
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s-device-plugin@sha256:32e1bdf5b45f6ccf7389d9e3ff98f569fa7063c562f5376f478bd4b1fe1a4aa6",
+                            "nvcr.io/nvidia/k8s-device-plugin:v0.19.2"
+                        ],
+                        "sizeBytes": 55978955
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-typha@sha256:17b2181a719a3bcf08fbb9eb814ab657a15d7858819e2224fad84b889c283e1d",
+                            "docker.io/rancher/mirrored-calico-typha:v3.27.2"
+                        ],
+                        "sizeBytes": 29584340
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-agent@sha256:c51e354fd85e29739ab15c11ef4cc5f0b158c7c4d94829177a439651d4eb2251",
+                            "docker.io/rancher/system-agent:v0.3.3-suc"
+                        ],
+                        "sizeBytes": 27710791
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rancher-webhook@sha256:1c5d1e90a3b4a762cb8584d22b5170fec15b78a11649c4affce45e3f935c2b65",
+                            "docker.io/rancher/rancher-webhook:v0.3.6"
+                        ],
+                        "sizeBytes": 25389430
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-coredns@sha256:80f496f03fd7cc53bc32ce27fb552668590a0c0ecb42fb346b6bff147c15d023",
+                            "docker.io/rancher/hardened-coredns:v1.11.1-build20240305"
+                        ],
+                        "sizeBytes": 23518025
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-upgrade-controller@sha256:68ada626ece26452b0cbd3ecc981b182a05d83b8d05d6eab958bb5950eb750d3",
+                            "docker.io/rancher/system-upgrade-controller:v0.11.0"
+                        ],
+                        "sizeBytes": 9157693
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol@sha256:0d692f338237be04f9ac0261c6727c3388f4995ba61dcc5805e3afee3cce5bf5",
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol:v3.27.2"
+                        ],
+                        "sizeBytes": 7595833
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/pause@sha256:036d575e82945c112ef84e4585caff3648322a2f9ed4c3a6ce409dd10abc4f34",
+                            "docker.io/rancher/pause:3.6"
+                        ],
+                        "sizeBytes": 299396
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "1fe07ab3-f70b-496f-af60-19537188ebf0",
+                    "containerRuntimeVersion": "containerd://1.7.11-k3s2",
+                    "kernelVersion": "6.8.0-142-generic",
+                    "kubeProxyVersion": "v1.26.15+rke2r1",
+                    "kubeletVersion": "v1.26.15+rke2r1",
+                    "machineID": "030622b0bd0044598d2d9af39e3c5f65",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.4 LTS",
+                    "systemUUID": "ed72d8f4-715a-4ac7-ab4c-1581003a3113"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "172.24.13.244",
+                    "cluster.x-k8s.io/cluster-name": "gpu-cluster",
+                    "cluster.x-k8s.io/cluster-namespace": "fleet-default",
+                    "cluster.x-k8s.io/labels-from-machine": "",
+                    "cluster.x-k8s.io/machine": "custom-cba58e4b7a5b",
+                    "etcd.rke2.cattle.io/local-snapshots-timestamp": "2026-10-02T00:00:03Z",
+                    "etcd.rke2.cattle.io/node-address": "172.24.13.244",
+                    "etcd.rke2.cattle.io/node-name": "pk-gpu-cc3-140cb9e0",
+                    "management.cattle.io/pod-limits": "{\"cpu\":\"100m\",\"memory\":\"5760Mi\"}",
+                    "management.cattle.io/pod-requests": "{\"cpu\":\"1415m\",\"memory\":\"2714Mi\",\"pods\":\"15\"}",
+                    "nfd.node.kubernetes.io/feature-labels": "cpu-cpuid.ADX,cpu-cpuid.AESNI,cpu-cpuid.AVX,cpu-cpuid.AVX2,cpu-cpuid.AVXVNNI,cpu-cpuid.CMPXCHG8,cpu-cpuid.FMA3,cpu-cpuid.FSRM,cpu-cpuid.FXSR,cpu-cpuid.FXSROPT,cpu-cpuid.GFNI,cpu-cpuid.HYPERVISOR,cpu-cpuid.IA32_ARCH_CAP,cpu-cpuid.IBPB,cpu-cpuid.IBRS,cpu-cpuid.LAHF,cpu-cpuid.MD_CLEAR,cpu-cpuid.MOVBE,cpu-cpuid.MOVDIR64B,cpu-cpuid.MOVDIRI,cpu-cpuid.OSXSAVE,cpu-cpuid.SERIALIZE,cpu-cpuid.SHA,cpu-cpuid.SPEC_CTRL_SSBD,cpu-cpuid.STIBP,cpu-cpuid.STOSB_SHORT,cpu-cpuid.SYSCALL,cpu-cpuid.SYSEE,cpu-cpuid.VAES,cpu-cpuid.VMX,cpu-cpuid.VPCLMULQDQ,cpu-cpuid.WAITPKG,cpu-cpuid.X87,cpu-cpuid.XGETBV1,cpu-cpuid.XSAVE,cpu-cpuid.XSAVEC,cpu-cpuid.XSAVEOPT,cpu-cpuid.XSAVES,cpu-hardware_multithreading,cpu-model.family,cpu-model.id,cpu-model.vendor_id,kernel-config.NO_HZ,kernel-config.NO_HZ_FULL,kernel-version.full,kernel-version.major,kernel-version.minor,kernel-version.revision,pci-10de.present,pci-1234.present,pci-1af4.present,system-os_release.ID,system-os_release.VERSION_ID,system-os_release.VERSION_ID.major,system-os_release.VERSION_ID.minor",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "projectcalico.org/IPv4Address": "140.128.101.197/24",
+                    "projectcalico.org/IPv4VXLANTunnelAddr": "10.42.178.0",
+                    "rke2.io/encryption-config-hash": "start-8e728bcf34e9937f4a9f544df13caee90e3c13c6620bf2a2a39a8f1f1470711b",
+                    "rke2.io/external-ip": "140.128.101.197",
+                    "rke2.io/hostname": "pk-gpu-cc3",
+                    "rke2.io/internal-ip": "172.24.13.244",
+                    "rke2.io/node-args": "[\"server\",\"--agent-token\",\"********\",\"--cni\",\"calico\",\"--disable-kube-proxy\",\"false\",\"--etcd-expose-metrics\",\"false\",\"--kube-controller-manager-arg\",\"cert-dir=/var/lib/rancher/rke2/server/tls/kube-controller-manager\",\"--kube-controller-manager-arg\",\"secure-port=10257\",\"--kube-controller-manager-extra-mount\",\"/var/lib/rancher/rke2/server/tls/kube-controller-manager:/var/lib/rancher/rke2/server/tls/kube-controller-manager\",\"--kube-scheduler-arg\",\"cert-dir=/var/lib/rancher/rke2/server/tls/kube-scheduler\",\"--kube-scheduler-arg\",\"secure-port=10259\",\"--kube-scheduler-extra-mount\",\"/var/lib/rancher/rke2/server/tls/kube-scheduler:/var/lib/rancher/rke2/server/tls/kube-scheduler\",\"--node-label\",\"cattle.io/os=linux\",\"--node-label\",\"rke.cattle.io/machine=0de397ee-09a9-4e0e-b62f-6a4c693a3813\",\"--private-registry\",\"/etc/rancher/rke2/registries.yaml\",\"--protect-kernel-defaults\",\"false\",\"--server\",\"https://172.24.13.247:9345\",\"--token\",\"********\",\"--node-ip\",\"172.24.13.244\",\"--node-external-ip\",\"140.128.101.197\"]",
+                    "rke2.io/node-config-hash": "YM4PVFESXVHURNGXCBJTNS5YIWDUEOV257NJANOF2W5YQHFDMF5Q====",
+                    "rke2.io/node-env": "{}",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-08-03T16:31:32Z",
+                "finalizers": [
+                    "wrangler.cattle.io/managed-etcd-controller",
+                    "wrangler.cattle.io/node"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "rke2",
+                    "beta.kubernetes.io/os": "linux",
+                    "cattle.io/os": "linux",
+                    "feature.node.kubernetes.io/cpu-cpuid.ADX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AESNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX2": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVXVNNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FMA3": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FSRM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSROPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.GFNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IA32_ARCH_CAP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBPB": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBRS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LAHF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MD_CLEAR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVBE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVDIR64B": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVDIRI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.OSXSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SERIALIZE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SHA": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STIBP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STOSB_SHORT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSCALL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSEE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VAES": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VMX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VPCLMULQDQ": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.WAITPKG": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.X87": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XGETBV1": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVES": "true",
+                    "feature.node.kubernetes.io/cpu-hardware_multithreading": "false",
+                    "feature.node.kubernetes.io/cpu-model.family": "6",
+                    "feature.node.kubernetes.io/cpu-model.id": "95",
+                    "feature.node.kubernetes.io/cpu-model.vendor_id": "Intel",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ": "true",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ_FULL": "true",
+                    "feature.node.kubernetes.io/kernel-version.full": "6.8.0-142-generic",
+                    "feature.node.kubernetes.io/kernel-version.major": "6",
+                    "feature.node.kubernetes.io/kernel-version.minor": "8",
+                    "feature.node.kubernetes.io/kernel-version.revision": "0",
+                    "feature.node.kubernetes.io/pci-10de.present": "true",
+                    "feature.node.kubernetes.io/pci-1234.present": "true",
+                    "feature.node.kubernetes.io/pci-1af4.present": "true",
+                    "feature.node.kubernetes.io/system-os_release.ID": "ubuntu",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID": "24.04",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.major": "24",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.minor": "04",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "pk-gpu-cc3",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/control-plane": "true",
+                    "node-role.kubernetes.io/etcd": "true",
+                    "node-role.kubernetes.io/master": "true",
+                    "node-role.kubernetes.io/worker": "true",
+                    "node.kubernetes.io/instance-type": "rke2",
+                    "plan.upgrade.cattle.io/system-agent-upgrader": "7385bc6684d78a6b8f192e81ba787f77cc494f9d44f90c44c4e4aca0",
+                    "rke.cattle.io/machine": "0de397ee-09a9-4e0e-b62f-6a4c693a3813"
+                },
+                "name": "pk-gpu-cc3",
+                "resourceVersion": "13634628",
+                "uid": "2bb5afc7-338d-4054-89e6-d8bfa4c88d2c"
+            },
+            "spec": {
+                "podCIDR": "10.42.2.0/24",
+                "podCIDRs": [
+                    "10.42.2.0/24"
+                ],
+                "providerID": "rke2://pk-gpu-cc3"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "172.24.13.244",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "140.128.101.197",
+                        "type": "ExternalIP"
+                    },
+                    {
+                        "address": "pk-gpu-cc3",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "8",
+                    "ephemeral-storage": "196555267123",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32866112Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "8",
+                    "ephemeral-storage": "202051056Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32866112Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:30:09Z",
+                        "lastTransitionTime": "2026-09-30T13:57:35Z",
+                        "message": "Node is a voting member of the etcd cluster",
+                        "reason": "MemberNotLearner",
+                        "status": "True",
+                        "type": "EtcdIsVoter"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-30T13:58:00Z",
+                        "lastTransitionTime": "2026-09-30T13:58:00Z",
+                        "message": "Calico is running on this node",
+                        "reason": "CalicoIsUp",
+                        "status": "False",
+                        "type": "NetworkUnavailable"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:16Z",
+                        "lastTransitionTime": "2026-10-01T11:39:35Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:16Z",
+                        "lastTransitionTime": "2026-10-01T11:39:35Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:16Z",
+                        "lastTransitionTime": "2026-10-01T11:39:35Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:16Z",
+                        "lastTransitionTime": "2026-10-01T11:39:37Z",
+                        "message": "kubelet is posting ready status. AppArmor enabled",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/pytorch/pytorch@sha256:417bd75df6365104c283ea4c1651fb3530d9eb5a4c2fafa51943cff2a94e6385"
+                        ],
+                        "sizeBytes": 4288264574
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rancher-agent@sha256:be68811b44350c56d6ef7eaf74f0fb85da59b859a3bb1b624abd247db9107f90",
+                            "docker.io/rancher/rancher-agent:v2.7.9"
+                        ],
+                        "sizeBytes": 553000415
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/nginx-ingress-controller@sha256:40b389fcbfc019e1adf2e6aa9b1a75235455a2e78fcec3261f867064afd801cb",
+                            "docker.io/rancher/nginx-ingress-controller:nginx-1.9.3-hardened1"
+                        ],
+                        "sizeBytes": 334039604
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-kubernetes@sha256:f4048fc828e3e8c15fde84aead902cc17ea26c5e52a60f9f609df2796add8665",
+                            "docker.io/rancher/hardened-kubernetes:v1.26.15-rke2r1-build20240314"
+                        ],
+                        "sizeBytes": 226884295
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-node@sha256:928d3aea42430dec473d0deba089e6a5312d73fc32799a5b108faaee44472636",
+                            "docker.io/rancher/mirrored-calico-node:v3.27.2"
+                        ],
+                        "sizeBytes": 117437511
+                    },
+                    {
+                        "names": [
+                            "docker.io/nvidia/cuda@sha256:80d4d9ac041242f6ae5d05f9be262b3374e0e0b8bb5a49c6c3e94e192cde4a44",
+                            "docker.io/nvidia/cuda:12.4.0-base-ubuntu22.04"
+                        ],
+                        "sizeBytes": 91774027
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-cni@sha256:127f0f327a12b8c8d2debb37fe76a25d5e53dccbaea1420500b7177b4146f311",
+                            "docker.io/rancher/mirrored-calico-cni:v3.27.2"
+                        ],
+                        "sizeBytes": 88207211
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/nfd/node-feature-discovery@sha256:5ad4e3ac1afcbeb9d096241b0352614e5e77ee1bfe0f37c45a8d7b4329599d11",
+                            "registry.k8s.io/nfd/node-feature-discovery:v0.17.3"
+                        ],
+                        "sizeBytes": 80718055
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-etcd@sha256:c4d25c075d5d61b1860ae5496d1acc8f88dd3a8be6024b37207901da744efa08",
+                            "docker.io/rancher/hardened-etcd:v3.5.9-k3s1-build20230802"
+                        ],
+                        "sizeBytes": 64402047
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rke2-cloud-provider:v1.26.3-build20230406"
+                        ],
+                        "sizeBytes": 63663048
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s-device-plugin@sha256:32e1bdf5b45f6ccf7389d9e3ff98f569fa7063c562f5376f478bd4b1fe1a4aa6",
+                            "nvcr.io/nvidia/k8s-device-plugin:v0.19.2"
+                        ],
+                        "sizeBytes": 55978955
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-typha@sha256:17b2181a719a3bcf08fbb9eb814ab657a15d7858819e2224fad84b889c283e1d",
+                            "docker.io/rancher/mirrored-calico-typha:v3.27.2"
+                        ],
+                        "sizeBytes": 29584340
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-agent@sha256:c51e354fd85e29739ab15c11ef4cc5f0b158c7c4d94829177a439651d4eb2251",
+                            "docker.io/rancher/system-agent:v0.3.3-suc"
+                        ],
+                        "sizeBytes": 27710791
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/rancher-webhook@sha256:1c5d1e90a3b4a762cb8584d22b5170fec15b78a11649c4affce45e3f935c2b65",
+                            "docker.io/rancher/rancher-webhook:v0.3.6"
+                        ],
+                        "sizeBytes": 25389430
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-coredns@sha256:80f496f03fd7cc53bc32ce27fb552668590a0c0ecb42fb346b6bff147c15d023",
+                            "docker.io/rancher/hardened-coredns:v1.11.1-build20240305"
+                        ],
+                        "sizeBytes": 23518025
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol@sha256:0d692f338237be04f9ac0261c6727c3388f4995ba61dcc5805e3afee3cce5bf5",
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol:v3.27.2"
+                        ],
+                        "sizeBytes": 7595833
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/pause@sha256:036d575e82945c112ef84e4585caff3648322a2f9ed4c3a6ce409dd10abc4f34",
+                            "docker.io/rancher/pause:3.6"
+                        ],
+                        "sizeBytes": 299396
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "c3d94a85-d26d-4408-a210-79f36e0d0107",
+                    "containerRuntimeVersion": "containerd://1.7.11-k3s2",
+                    "kernelVersion": "6.8.0-142-generic",
+                    "kubeProxyVersion": "v1.26.15+rke2r1",
+                    "kubeletVersion": "v1.26.15+rke2r1",
+                    "machineID": "19ece682a3d84d04a15f53a157ff5318",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.4 LTS",
+                    "systemUUID": "fbef8c0a-37cd-44be-89fe-2c9ed9b80372"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "172.24.13.252",
+                    "cluster.x-k8s.io/cluster-name": "gpu-cluster",
+                    "cluster.x-k8s.io/cluster-namespace": "fleet-default",
+                    "cluster.x-k8s.io/labels-from-machine": "",
+                    "cluster.x-k8s.io/machine": "custom-c0d29bd7c7ed",
+                    "management.cattle.io/pod-limits": "{\"memory\":\"512Mi\"}",
+                    "management.cattle.io/pod-requests": "{\"cpu\":\"355m\",\"memory\":\"282Mi\",\"pods\":\"5\"}",
+                    "nfd.node.kubernetes.io/feature-labels": "cpu-cpuid.ADX,cpu-cpuid.AESNI,cpu-cpuid.AVX,cpu-cpuid.AVX2,cpu-cpuid.AVX512BW,cpu-cpuid.AVX512CD,cpu-cpuid.AVX512DQ,cpu-cpuid.AVX512F,cpu-cpuid.AVX512VL,cpu-cpuid.CMPXCHG8,cpu-cpuid.FLUSH_L1D,cpu-cpuid.FMA3,cpu-cpuid.FXSR,cpu-cpuid.FXSROPT,cpu-cpuid.HLE,cpu-cpuid.HYPERVISOR,cpu-cpuid.IA32_ARCH_CAP,cpu-cpuid.IBPB,cpu-cpuid.IBRS,cpu-cpuid.LAHF,cpu-cpuid.MD_CLEAR,cpu-cpuid.MOVBE,cpu-cpuid.MPX,cpu-cpuid.OSXSAVE,cpu-cpuid.RTM,cpu-cpuid.SPEC_CTRL_SSBD,cpu-cpuid.STIBP,cpu-cpuid.SYSCALL,cpu-cpuid.SYSEE,cpu-cpuid.VMX,cpu-cpuid.X87,cpu-cpuid.XGETBV1,cpu-cpuid.XSAVE,cpu-cpuid.XSAVEC,cpu-cpuid.XSAVEOPT,cpu-cpuid.XSAVES,cpu-hardware_multithreading,cpu-model.family,cpu-model.id,cpu-model.vendor_id,kernel-config.NO_HZ,kernel-config.NO_HZ_FULL,kernel-version.full,kernel-version.major,kernel-version.minor,kernel-version.revision,pci-10de.present,pci-1af4.present,storage-nonrotationaldisk,system-os_release.ID,system-os_release.VERSION_ID,system-os_release.VERSION_ID.major,system-os_release.VERSION_ID.minor",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "projectcalico.org/IPv4Address": "172.24.13.252/24",
+                    "projectcalico.org/IPv4VXLANTunnelAddr": "10.42.34.64",
+                    "rke2.io/hostname": "pk-gpu-pve3",
+                    "rke2.io/internal-ip": "172.24.13.252",
+                    "rke2.io/node-args": "[\"agent\",\"--node-ip\",\"172.24.13.252\",\"--node-label\",\"cattle.io/os=linux\",\"--node-label\",\"rke.cattle.io/machine=7284f514-f175-43dd-9b93-bff164b04a3f\",\"--node-name\",\"pk-gpu-pve3\",\"--private-registry\",\"/etc/rancher/rke2/registries.yaml\",\"--protect-kernel-defaults\",\"false\",\"--server\",\"https://172.24.13.247:9345\",\"--token\",\"********\"]",
+                    "rke2.io/node-config-hash": "FS32QEVJMPOTH3RCVBGWK5CO4OQEXR5HVMRJ6B66HSX5ZSFUQ27Q====",
+                    "rke2.io/node-env": "{}",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-09-29T16:43:59Z",
+                "finalizers": [
+                    "wrangler.cattle.io/node",
+                    "wrangler.cattle.io/managed-etcd-controller"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "rke2",
+                    "beta.kubernetes.io/os": "linux",
+                    "cattle.io/os": "linux",
+                    "feature.node.kubernetes.io/cpu-cpuid.ADX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AESNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX2": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512BW": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512CD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512DQ": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512F": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX512VL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FLUSH_L1D": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FMA3": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSROPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HLE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IA32_ARCH_CAP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBPB": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBRS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LAHF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MD_CLEAR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVBE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MPX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.OSXSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.RTM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STIBP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSCALL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSEE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VMX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.X87": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XGETBV1": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVES": "true",
+                    "feature.node.kubernetes.io/cpu-hardware_multithreading": "false",
+                    "feature.node.kubernetes.io/cpu-model.family": "6",
+                    "feature.node.kubernetes.io/cpu-model.id": "85",
+                    "feature.node.kubernetes.io/cpu-model.vendor_id": "Intel",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ": "true",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ_FULL": "true",
+                    "feature.node.kubernetes.io/kernel-version.full": "6.8.0-142-generic",
+                    "feature.node.kubernetes.io/kernel-version.major": "6",
+                    "feature.node.kubernetes.io/kernel-version.minor": "8",
+                    "feature.node.kubernetes.io/kernel-version.revision": "0",
+                    "feature.node.kubernetes.io/pci-10de.present": "true",
+                    "feature.node.kubernetes.io/pci-1af4.present": "true",
+                    "feature.node.kubernetes.io/storage-nonrotationaldisk": "true",
+                    "feature.node.kubernetes.io/system-os_release.ID": "ubuntu",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID": "24.04",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.major": "24",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.minor": "04",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "pk-gpu-pve3",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/worker": "true",
+                    "node.kubernetes.io/instance-type": "rke2",
+                    "plan.upgrade.cattle.io/system-agent-upgrader": "7385bc6684d78a6b8f192e81ba787f77cc494f9d44f90c44c4e4aca0",
+                    "rke.cattle.io/machine": "7284f514-f175-43dd-9b93-bff164b04a3f"
+                },
+                "name": "pk-gpu-pve3",
+                "resourceVersion": "13633822",
+                "uid": "f0949d1f-bda0-430a-a62b-ac86ac2629bd"
+            },
+            "spec": {
+                "podCIDR": "10.42.6.0/24",
+                "podCIDRs": [
+                    "10.42.6.0/24"
+                ],
+                "providerID": "rke2://pk-gpu-pve3"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "172.24.13.252",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "pk-gpu-pve3",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "8",
+                    "ephemeral-storage": "97743690881",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32846392Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "8",
+                    "ephemeral-storage": "100476656Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32846392Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-09-29T16:44:37Z",
+                        "lastTransitionTime": "2026-09-29T16:44:37Z",
+                        "message": "Calico is running on this node",
+                        "reason": "CalicoIsUp",
+                        "status": "False",
+                        "type": "NetworkUnavailable"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:35Z",
+                        "lastTransitionTime": "2026-10-01T03:42:46Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:35Z",
+                        "lastTransitionTime": "2026-10-01T03:42:46Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:35Z",
+                        "lastTransitionTime": "2026-10-01T03:42:46Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:35Z",
+                        "lastTransitionTime": "2026-10-01T03:42:46Z",
+                        "message": "kubelet is posting ready status. AppArmor enabled",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/rancher/nginx-ingress-controller@sha256:40b389fcbfc019e1adf2e6aa9b1a75235455a2e78fcec3261f867064afd801cb",
+                            "docker.io/rancher/nginx-ingress-controller:nginx-1.9.3-hardened1"
+                        ],
+                        "sizeBytes": 334039604
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-kubernetes@sha256:f4048fc828e3e8c15fde84aead902cc17ea26c5e52a60f9f609df2796add8665",
+                            "docker.io/rancher/hardened-kubernetes:v1.26.15-rke2r1-build20240314"
+                        ],
+                        "sizeBytes": 226884295
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-node@sha256:928d3aea42430dec473d0deba089e6a5312d73fc32799a5b108faaee44472636",
+                            "docker.io/rancher/mirrored-calico-node:v3.27.2"
+                        ],
+                        "sizeBytes": 117437511
+                    },
+                    {
+                        "names": [
+                            "docker.io/nvidia/cuda@sha256:80d4d9ac041242f6ae5d05f9be262b3374e0e0b8bb5a49c6c3e94e192cde4a44",
+                            "docker.io/nvidia/cuda:12.4.0-base-ubuntu22.04"
+                        ],
+                        "sizeBytes": 91774027
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-cni@sha256:127f0f327a12b8c8d2debb37fe76a25d5e53dccbaea1420500b7177b4146f311",
+                            "docker.io/rancher/mirrored-calico-cni:v3.27.2"
+                        ],
+                        "sizeBytes": 88207211
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/nfd/node-feature-discovery@sha256:5ad4e3ac1afcbeb9d096241b0352614e5e77ee1bfe0f37c45a8d7b4329599d11",
+                            "registry.k8s.io/nfd/node-feature-discovery:v0.17.3"
+                        ],
+                        "sizeBytes": 80718055
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-k8s-metrics-server@sha256:a81a294035282517b5a61a47de52c787f1115c7ba28af1ee717db0f78385e8d2",
+                            "docker.io/rancher/hardened-k8s-metrics-server:v0.6.3-build20231009"
+                        ],
+                        "sizeBytes": 63412972
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s-device-plugin@sha256:32e1bdf5b45f6ccf7389d9e3ff98f569fa7063c562f5376f478bd4b1fe1a4aa6",
+                            "nvcr.io/nvidia/k8s-device-plugin:v0.19.2"
+                        ],
+                        "sizeBytes": 55978955
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-typha@sha256:17b2181a719a3bcf08fbb9eb814ab657a15d7858819e2224fad84b889c283e1d",
+                            "docker.io/rancher/mirrored-calico-typha:v3.27.2"
+                        ],
+                        "sizeBytes": 29584340
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-agent@sha256:c51e354fd85e29739ab15c11ef4cc5f0b158c7c4d94829177a439651d4eb2251",
+                            "docker.io/rancher/system-agent:v0.3.3-suc"
+                        ],
+                        "sizeBytes": 27710791
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-coredns@sha256:80f496f03fd7cc53bc32ce27fb552668590a0c0ecb42fb346b6bff147c15d023",
+                            "docker.io/rancher/hardened-coredns:v1.11.1-build20240305"
+                        ],
+                        "sizeBytes": 23518025
+                    },
+                    {
+                        "names": [
+                            "quay.io/jetstack/cert-manager-controller@sha256:9c0527cab629b61bd60c20f0c25615a8593314d3504add968b42bc5b891b253a",
+                            "quay.io/jetstack/cert-manager-controller:v1.14.5"
+                        ],
+                        "sizeBytes": 19361056
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol@sha256:0d692f338237be04f9ac0261c6727c3388f4995ba61dcc5805e3afee3cce5bf5",
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol:v3.27.2"
+                        ],
+                        "sizeBytes": 7595833
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/pause@sha256:036d575e82945c112ef84e4585caff3648322a2f9ed4c3a6ce409dd10abc4f34",
+                            "docker.io/rancher/pause:3.6"
+                        ],
+                        "sizeBytes": 299396
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "4e53f8ef-dbfb-4917-a0c0-788f40aa5172",
+                    "containerRuntimeVersion": "containerd://1.7.11-k3s2",
+                    "kernelVersion": "6.8.0-142-generic",
+                    "kubeProxyVersion": "v1.26.15+rke2r1",
+                    "kubeletVersion": "v1.26.15+rke2r1",
+                    "machineID": "78c36b9257ea4972809a63be18825b25",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.5 LTS",
+                    "systemUUID": "78c36b92-57ea-4972-809a-63be18825b25"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "alpha.kubernetes.io/provided-node-ip": "172.24.13.251",
+                    "cluster.x-k8s.io/cluster-name": "gpu-cluster",
+                    "cluster.x-k8s.io/cluster-namespace": "fleet-default",
+                    "cluster.x-k8s.io/labels-from-machine": "",
+                    "cluster.x-k8s.io/machine": "custom-95ee67c58f88",
+                    "management.cattle.io/pod-limits": "{\"memory\":\"512Mi\"}",
+                    "management.cattle.io/pod-requests": "{\"cpu\":\"355m\",\"memory\":\"282Mi\",\"pods\":\"5\"}",
+                    "nfd.node.kubernetes.io/feature-labels": "cpu-cpuid.ADX,cpu-cpuid.AESNI,cpu-cpuid.AVX,cpu-cpuid.AVX2,cpu-cpuid.CLZERO,cpu-cpuid.CMPXCHG8,cpu-cpuid.FMA3,cpu-cpuid.FXSR,cpu-cpuid.FXSROPT,cpu-cpuid.HYPERVISOR,cpu-cpuid.IA32_ARCH_CAP,cpu-cpuid.IBPB,cpu-cpuid.IBPB_BRTYPE,cpu-cpuid.LAHF,cpu-cpuid.LBRVIRT,cpu-cpuid.MCAOVERFLOW,cpu-cpuid.MOVBE,cpu-cpuid.NRIPS,cpu-cpuid.OSXSAVE,cpu-cpuid.SHA,cpu-cpuid.SPEC_CTRL_SSBD,cpu-cpuid.SSE4A,cpu-cpuid.STIBP,cpu-cpuid.SUCCOR,cpu-cpuid.SVM,cpu-cpuid.SVMFBASID,cpu-cpuid.SVMNP,cpu-cpuid.SVMPF,cpu-cpuid.SVMPFT,cpu-cpuid.SYSCALL,cpu-cpuid.SYSEE,cpu-cpuid.TSCRATEMSR,cpu-cpuid.VMCBCLEAN,cpu-cpuid.WBNOINVD,cpu-cpuid.X87,cpu-cpuid.XGETBV1,cpu-cpuid.XSAVE,cpu-cpuid.XSAVEC,cpu-cpuid.XSAVEOPT,cpu-hardware_multithreading,cpu-model.family,cpu-model.id,cpu-model.vendor_id,kernel-config.NO_HZ,kernel-config.NO_HZ_FULL,kernel-version.full,kernel-version.major,kernel-version.minor,kernel-version.revision,memory-swap,pci-10de.present,pci-1af4.present,storage-nonrotationaldisk,system-os_release.ID,system-os_release.VERSION_ID,system-os_release.VERSION_ID.major,system-os_release.VERSION_ID.minor",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "note": "Reserved for Anggi (TrackGuard IEEE revision). Not for thesis workloads.",
+                    "projectcalico.org/IPv4Address": "172.24.13.251/24",
+                    "projectcalico.org/IPv4VXLANTunnelAddr": "10.42.142.64",
+                    "rke2.io/hostname": "pk-gpu-pve4",
+                    "rke2.io/internal-ip": "172.24.13.251",
+                    "rke2.io/node-args": "[\"agent\",\"--node-ip\",\"172.24.13.251\",\"--node-label\",\"cattle.io/os=linux\",\"--node-label\",\"rke.cattle.io/machine=30f590b6-b1ec-40be-b880-7e37fcc92c00\",\"--node-name\",\"pk-gpu-pve4\",\"--private-registry\",\"/etc/rancher/rke2/registries.yaml\",\"--protect-kernel-defaults\",\"false\",\"--server\",\"https://172.24.13.247:9345\",\"--token\",\"********\"]",
+                    "rke2.io/node-config-hash": "ZNZLSVWIBUNMSW5BSKUVOKNJ6QAD2DFKR4WAKBL64NYYNSAXRZGA====",
+                    "rke2.io/node-env": "{}",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-09-29T16:41:09Z",
+                "finalizers": [
+                    "wrangler.cattle.io/managed-etcd-controller",
+                    "wrangler.cattle.io/node"
+                ],
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/instance-type": "rke2",
+                    "beta.kubernetes.io/os": "linux",
+                    "cattle.io/os": "linux",
+                    "feature.node.kubernetes.io/cpu-cpuid.ADX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AESNI": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.AVX2": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CLZERO": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.CMPXCHG8": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FMA3": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.FXSROPT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.HYPERVISOR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IA32_ARCH_CAP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBPB": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.IBPB_BRTYPE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LAHF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.LBRVIRT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MCAOVERFLOW": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.MOVBE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.NRIPS": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.OSXSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SHA": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SPEC_CTRL_SSBD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SSE4A": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.STIBP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SUCCOR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVM": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMFBASID": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMNP": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMPF": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SVMPFT": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSCALL": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.SYSEE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.TSCRATEMSR": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.VMCBCLEAN": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.WBNOINVD": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.X87": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XGETBV1": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVE": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEC": "true",
+                    "feature.node.kubernetes.io/cpu-cpuid.XSAVEOPT": "true",
+                    "feature.node.kubernetes.io/cpu-hardware_multithreading": "false",
+                    "feature.node.kubernetes.io/cpu-model.family": "23",
+                    "feature.node.kubernetes.io/cpu-model.id": "49",
+                    "feature.node.kubernetes.io/cpu-model.vendor_id": "AMD",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ": "true",
+                    "feature.node.kubernetes.io/kernel-config.NO_HZ_FULL": "true",
+                    "feature.node.kubernetes.io/kernel-version.full": "6.8.0-142-generic",
+                    "feature.node.kubernetes.io/kernel-version.major": "6",
+                    "feature.node.kubernetes.io/kernel-version.minor": "8",
+                    "feature.node.kubernetes.io/kernel-version.revision": "0",
+                    "feature.node.kubernetes.io/memory-swap": "true",
+                    "feature.node.kubernetes.io/pci-10de.present": "true",
+                    "feature.node.kubernetes.io/pci-1af4.present": "true",
+                    "feature.node.kubernetes.io/storage-nonrotationaldisk": "true",
+                    "feature.node.kubernetes.io/system-os_release.ID": "ubuntu",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID": "24.04",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.major": "24",
+                    "feature.node.kubernetes.io/system-os_release.VERSION_ID.minor": "04",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "pk-gpu-pve4",
+                    "kubernetes.io/os": "linux",
+                    "node-role.kubernetes.io/worker": "true",
+                    "node.kubernetes.io/instance-type": "rke2",
+                    "plan.upgrade.cattle.io/system-agent-upgrader": "7385bc6684d78a6b8f192e81ba787f77cc494f9d44f90c44c4e4aca0",
+                    "rke.cattle.io/machine": "30f590b6-b1ec-40be-b880-7e37fcc92c00"
+                },
+                "name": "pk-gpu-pve4",
+                "resourceVersion": "13633734",
+                "uid": "2a8a8bce-d47f-403c-8e03-59b814773d51"
+            },
+            "spec": {
+                "podCIDR": "10.42.5.0/24",
+                "podCIDRs": [
+                    "10.42.5.0/24"
+                ],
+                "providerID": "rke2://pk-gpu-pve4",
+                "taints": [
+                    {
+                        "effect": "NoSchedule",
+                        "key": "dedicated",
+                        "value": "anggi"
+                    }
+                ]
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "172.24.13.251",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "pk-gpu-pve4",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "8",
+                    "ephemeral-storage": "196555267123",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32846408Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "8",
+                    "ephemeral-storage": "202051056Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32846408Ki",
+                    "nvidia.com/gpu": "1",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-09-29T16:42:18Z",
+                        "lastTransitionTime": "2026-09-29T16:42:18Z",
+                        "message": "Calico is running on this node",
+                        "reason": "CalicoIsUp",
+                        "status": "False",
+                        "type": "NetworkUnavailable"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:24Z",
+                        "lastTransitionTime": "2026-09-29T16:41:09Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:24Z",
+                        "lastTransitionTime": "2026-09-29T16:41:09Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:24Z",
+                        "lastTransitionTime": "2026-09-29T16:41:09Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-10-02T07:28:24Z",
+                        "lastTransitionTime": "2026-09-29T16:42:00Z",
+                        "message": "kubelet is posting ready status. AppArmor enabled",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/rancher/nginx-ingress-controller@sha256:40b389fcbfc019e1adf2e6aa9b1a75235455a2e78fcec3261f867064afd801cb",
+                            "docker.io/rancher/nginx-ingress-controller:nginx-1.9.3-hardened1"
+                        ],
+                        "sizeBytes": 334039604
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/hardened-kubernetes@sha256:f4048fc828e3e8c15fde84aead902cc17ea26c5e52a60f9f609df2796add8665",
+                            "docker.io/rancher/hardened-kubernetes:v1.26.15-rke2r1-build20240314"
+                        ],
+                        "sizeBytes": 226884295
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-node@sha256:928d3aea42430dec473d0deba089e6a5312d73fc32799a5b108faaee44472636",
+                            "docker.io/rancher/mirrored-calico-node:v3.27.2"
+                        ],
+                        "sizeBytes": 117437511
+                    },
+                    {
+                        "names": [
+                            "docker.io/nvidia/cuda@sha256:80d4d9ac041242f6ae5d05f9be262b3374e0e0b8bb5a49c6c3e94e192cde4a44",
+                            "docker.io/nvidia/cuda:12.4.0-base-ubuntu22.04"
+                        ],
+                        "sizeBytes": 91774027
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-cni@sha256:127f0f327a12b8c8d2debb37fe76a25d5e53dccbaea1420500b7177b4146f311",
+                            "docker.io/rancher/mirrored-calico-cni:v3.27.2"
+                        ],
+                        "sizeBytes": 88207211
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/nfd/node-feature-discovery@sha256:5ad4e3ac1afcbeb9d096241b0352614e5e77ee1bfe0f37c45a8d7b4329599d11",
+                            "registry.k8s.io/nfd/node-feature-discovery:v0.17.3"
+                        ],
+                        "sizeBytes": 80718055
+                    },
+                    {
+                        "names": [
+                            "nvcr.io/nvidia/k8s-device-plugin@sha256:32e1bdf5b45f6ccf7389d9e3ff98f569fa7063c562f5376f478bd4b1fe1a4aa6",
+                            "nvcr.io/nvidia/k8s-device-plugin:v0.19.2"
+                        ],
+                        "sizeBytes": 55978955
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/system-agent@sha256:c51e354fd85e29739ab15c11ef4cc5f0b158c7c4d94829177a439651d4eb2251",
+                            "docker.io/rancher/system-agent:v0.3.3-suc"
+                        ],
+                        "sizeBytes": 27710791
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol@sha256:0d692f338237be04f9ac0261c6727c3388f4995ba61dcc5805e3afee3cce5bf5",
+                            "docker.io/rancher/mirrored-calico-pod2daemon-flexvol:v3.27.2"
+                        ],
+                        "sizeBytes": 7595833
+                    },
+                    {
+                        "names": [
+                            "docker.io/rancher/pause@sha256:036d575e82945c112ef84e4585caff3648322a2f9ed4c3a6ce409dd10abc4f34",
+                            "docker.io/rancher/pause:3.6"
+                        ],
+                        "sizeBytes": 299396
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "4db86aa9-588a-4c4b-8029-2cf3e45e281a",
+                    "containerRuntimeVersion": "containerd://1.7.11-k3s2",
+                    "kernelVersion": "6.8.0-142-generic",
+                    "kubeProxyVersion": "v1.26.15+rke2r1",
+                    "kubeletVersion": "v1.26.15+rke2r1",
+                    "machineID": "1c7f713eed0e4ffc909512b058b59972",
+                    "operatingSystem": "linux",
+                    "osImage": "Ubuntu 24.04.5 LTS",
+                    "systemUUID": "1c7f713e-ed0e-4ffc-9095-12b058b59972"
+                }
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

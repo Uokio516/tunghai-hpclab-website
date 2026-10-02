@@ -20,6 +20,9 @@ type Summary = {
   physicalNodes: number; cpuThreads: number; memoryGB: number;
   gpus: number; gpusPending: number; cephTiB: number;
   vmsTotal: number; vmsRunning: number; platforms: number;
+  // Captions used to be hardcoded in the component and went stale as soon as a
+  // node was added; the snapshot now carries them.
+  notes?: Partial<Record<"physicalNodes" | "cpuThreads" | "memoryGB" | "gpus" | "cephTiB" | "vms" | "platforms", string>>;
 };
 type ClusterData = { updatedAt: string; source: string; summary: Summary; clusters: Cluster[] };
 
@@ -99,14 +102,15 @@ export function Infrastructure() {
 }
 
 function SummaryStrip({ s }: { s: Summary }) {
+  const n = s.notes ?? {};
   const items = [
-    { icon: Server, label: "實體節點", value: String(s.physicalNodes), sub: "3 CubeCOS · 7 Proxmox" },
-    { icon: Cpu, label: "CPU 執行緒", value: String(s.cpuThreads), sub: "合計" },
-    { icon: MemoryStick, label: "記憶體", value: (s.memoryGB / 1000).toFixed(1), sub: "TB · ≈ " + s.memoryGB.toLocaleString() + " GB" },
-    { icon: Cog, label: "GPU", value: `${s.gpus}+${s.gpusPending}`, sub: "2080 Ti ×2 · 3060 待裝" },
-    { icon: Database, label: "Ceph 儲存", value: s.cephTiB.toFixed(1), sub: "TiB · +PBS 5.7 TB" },
-    { icon: Box, label: "虛擬機", value: `${s.vmsRunning}/${s.vmsTotal}`, sub: "運行 / 總數" },
-    { icon: Layers, label: "虛擬化平台", value: String(s.platforms), sub: "OpenStack · PVE · ESXi" },
+    { icon: Server, label: "實體節點", value: String(s.physicalNodes), sub: n.physicalNodes ?? "合計" },
+    { icon: Cpu, label: "CPU 執行緒", value: String(s.cpuThreads), sub: n.cpuThreads ?? "合計" },
+    { icon: MemoryStick, label: "記憶體", value: (s.memoryGB / 1000).toFixed(1), sub: n.memoryGB ?? "TB · ≈ " + s.memoryGB.toLocaleString() + " GB" },
+    { icon: Cog, label: "GPU", value: s.gpusPending ? `${s.gpus}+${s.gpusPending}` : String(s.gpus), sub: n.gpus ?? "合計" },
+    { icon: Database, label: "Ceph 儲存", value: s.cephTiB.toFixed(1), sub: n.cephTiB ?? "TiB" },
+    { icon: Box, label: "虛擬機", value: `${s.vmsRunning}/${s.vmsTotal}`, sub: n.vms ?? "運行 / 總數" },
+    { icon: Layers, label: "虛擬化平台", value: String(s.platforms), sub: n.platforms ?? "合計" },
   ];
   return (
     <div className="monitor-kpi-grid">
@@ -120,6 +124,13 @@ function SummaryStrip({ s }: { s: Summary }) {
       ))}
     </div>
   );
+}
+
+function statusColor(level: string) {
+  if (level === "warn") return "var(--warn)";
+  if (level === "critical") return "var(--critical)";
+  if (level === "idle") return "var(--text-faint)";
+  return "var(--good)";
 }
 
 function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
@@ -149,9 +160,9 @@ function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
         <span className="flex-1" />
         <span
           className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold"
-          style={{ color: "var(--good)", background: "var(--good-soft)" }}
+          style={{ color: statusColor(c.statusLevel), background: `color-mix(in srgb, ${statusColor(c.statusLevel)} 14%, transparent)` }}
         >
-          <span className="h-2 w-2 rounded-full" style={{ background: "var(--good)" }} /> {c.status}
+          <span className="h-2 w-2 rounded-full" style={{ background: statusColor(c.statusLevel) }} /> {c.status}
         </span>
       </div>
 

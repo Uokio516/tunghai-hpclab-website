@@ -1,0 +1,1566 @@
+{
+  "source": "HPC Device List.xlsx",
+  "machines": [
+    {
+      "row": 4,
+      "ip": "140.128.103.163",
+      "asset": "3140104-07-368",
+      "label": "廠商借用(成大)",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "Ultra 9 285K",
+      "cpuThreads": 24,
+      "ramGB": 256,
+      "gpus": [
+        {
+          "model": "RTX 5090",
+          "vramGB": 32,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 1147.5,
+      "virtual": false
+    },
+    {
+      "row": 5,
+      "ip": "140.128.103.164",
+      "asset": "3140104-07-369",
+      "label": "廠商借用(成大)",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "Ultra 9 285K",
+      "cpuThreads": 24,
+      "ramGB": 192,
+      "gpus": [
+        {
+          "model": "RTX 5080",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 868.0,
+      "virtual": false
+    },
+    {
+      "row": 6,
+      "ip": "140.128.103.169",
+      "asset": "3140104-07-342",
+      "label": "INF43-7、GitLab、連愷昱",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "AMD 7960X",
+      "cpuThreads": 48,
+      "ramGB": 256,
+      "gpus": [
+        {
+          "model": "RTX 4090",
+          "vramGB": 24,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": 1085.0,
+      "virtual": false
+    },
+    {
+      "row": 7,
+      "ip": "140.128.103.174",
+      "asset": "老師個人財產",
+      "label": "PK",
+      "owner": "WJ",
+      "type": "Rack 1U",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "EPYC 7302",
+      "cpuThreads": 32,
+      "ramGB": 256,
+      "gpus": [
+        {
+          "model": "NVIDIA A100 40GB",
+          "vramGB": 40,
+          "class": "datacenter",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": 695.0,
+      "virtual": false
+    },
+    {
+      "row": 8,
+      "ip": "140.128.103.175",
+      "asset": "3140101-01-739",
+      "label": "WY",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "Ultra 9 285K",
+      "cpuThreads": 24,
+      "ramGB": 192,
+      "gpus": [
+        {
+          "model": "RTX 4070 Ti SUPER",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 770.5,
+      "virtual": false
+    },
+    {
+      "row": 9,
+      "ip": "140.128.103.191",
+      "asset": "",
+      "label": "HH(心臟科LLM&漢翔)",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "Ultra 9 285K",
+      "cpuThreads": 24,
+      "ramGB": 64,
+      "gpus": [
+        {
+          "model": "RTX 5070 Ti",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 790.0,
+      "virtual": false
+    },
+    {
+      "row": 10,
+      "ip": "140.128.103.192",
+      "asset": "圖資處",
+      "label": "廠商借用(成大)",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Corridor",
+      "section": "可借用主機",
+      "cpu": "Ultra 9 285K",
+      "cpuThreads": 24,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 5090",
+          "vramGB": 32,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 1147.5,
+      "virtual": false
+    },
+    {
+      "row": 11,
+      "ip": "140.128.103.194",
+      "asset": "3140104-07-383",
+      "label": "Anggi",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "AMD 9950X",
+      "cpuThreads": 32,
+      "ramGB": 192,
+      "gpus": [
+        {
+          "model": "RTX 5090",
+          "vramGB": 32,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 1097.5,
+      "virtual": false
+    },
+    {
+      "row": 12,
+      "ip": "140.128.101.67",
+      "asset": "3140104-07-390",
+      "label": "CW",
+      "owner": "CW",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "可借用主機",
+      "cpu": "AMD 9950X3D",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 5080",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 818.0,
+      "virtual": false
+    },
+    {
+      "row": 14,
+      "ip": "140.128.101.200",
+      "asset": "3140104-07-393",
+      "label": "WJ",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "ST429",
+      "section": "可借用主機",
+      "cpu": "AMD 9950X3D",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 5090",
+          "vramGB": 32,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 1097.5,
+      "virtual": false
+    },
+    {
+      "row": 17,
+      "ip": "140.128.103.176",
+      "asset": "3140104-07-332",
+      "label": "INF43-4、INF43-8",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "i9-13900K",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 4060 Ti",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": 608.0,
+      "virtual": false
+    },
+    {
+      "row": 18,
+      "ip": "140.128.101.199",
+      "asset": "3140104-07-352",
+      "label": "INF43-6",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "ST429",
+      "section": "可借用主機",
+      "cpu": "AMD 7950X",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 4060 Ti",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 588.0,
+      "virtual": false
+    },
+    {
+      "row": 19,
+      "ip": "140.128.101.66",
+      "asset": "3140104-07-301",
+      "label": "INF43-2",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "可借用主機",
+      "cpu": "i9-12900KF",
+      "cpuThreads": 24,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 3080",
+          "vramGB": 10,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": 816.0,
+      "virtual": false
+    },
+    {
+      "row": 20,
+      "ip": "140.128.103.189",
+      "asset": "3140104-07-321",
+      "label": "INF43-1",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "LIB Server Room",
+      "section": "可借用主機",
+      "cpu": "i9-13900K",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 3060",
+          "vramGB": 12,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": 621.0,
+      "virtual": false
+    },
+    {
+      "row": 21,
+      "ip": "140.128.103.193",
+      "asset": "",
+      "label": "Thor 工作站",
+      "owner": "",
+      "type": "Edge",
+      "location": "Office",
+      "section": "可借用主機",
+      "cpu": "Arm Neoverse-V3AE 14C",
+      "cpuThreads": 14,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "Jetson AGX Thor",
+          "vramGB": 128,
+          "class": "edge",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 24",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 25,
+      "ip": "172.23.2.170",
+      "asset": "3140101-03-49559",
+      "label": "個人主機",
+      "owner": "WY",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "AMD 3700X",
+      "cpuThreads": 16,
+      "ramGB": 64,
+      "gpus": [
+        {
+          "model": "RTX 4060 Ti",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "N/A",
+      "powerW": 563.0,
+      "virtual": false
+    },
+    {
+      "row": 26,
+      "ip": "172.23.2.171",
+      "asset": "3140101-03-49280",
+      "label": "個人主機",
+      "owner": "PH",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "i7-9700",
+      "cpuThreads": 8,
+      "ramGB": 32,
+      "gpus": [
+        {
+          "model": "GTX 1080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "N/A",
+      "powerW": 540.0,
+      "virtual": false
+    },
+    {
+      "row": 27,
+      "ip": "172.23.2.173",
+      "asset": "3140101-03-53215",
+      "label": "個人主機",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "Ultra 7 265K",
+      "cpuThreads": 20,
+      "ramGB": 128,
+      "gpus": [],
+      "os": "N/A",
+      "powerW": 400.0,
+      "virtual": false
+    },
+    {
+      "row": 29,
+      "ip": "172.23.2.177",
+      "asset": "3140104-07-225",
+      "label": "個人主機",
+      "owner": "CW",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "i9-9960X",
+      "cpuThreads": 32,
+      "ramGB": 64,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "N/A",
+      "powerW": 640.0,
+      "virtual": false
+    },
+    {
+      "row": 30,
+      "ip": "172.23.2.161",
+      "asset": "3140101-03-53216",
+      "label": "個人主機",
+      "owner": "HH",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "Ultra 7 265K",
+      "cpuThreads": 20,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "N/A",
+      "powerW": 725.0,
+      "virtual": false
+    },
+    {
+      "row": 31,
+      "ip": null,
+      "asset": "3140101-03-52945",
+      "label": "個人主機",
+      "owner": "",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "AMD 7700",
+      "cpuThreads": 16,
+      "ramGB": 32,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "N/A",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 32,
+      "ip": "172.23.2.163",
+      "asset": "3140101-03-52947",
+      "label": "個人主機",
+      "owner": "CY",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "AMD 7700",
+      "cpuThreads": 16,
+      "ramGB": null,
+      "gpus": [
+        {
+          "model": "RTX 3060",
+          "vramGB": 12,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "N/A",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 33,
+      "ip": null,
+      "asset": "3140101-03-52946",
+      "label": "個人主機",
+      "owner": "",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [
+        {
+          "model": "RTX 3060",
+          "vramGB": 12,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "N/A",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 34,
+      "ip": "172.23.2.162",
+      "asset": "3140104-07-224",
+      "label": "個人主機",
+      "owner": "SH",
+      "type": "Tower PC",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "i9-9960X",
+      "cpuThreads": 32,
+      "ramGB": null,
+      "gpus": [
+        {
+          "model": "TITAN RTX",
+          "vramGB": 24,
+          "class": "prosumer",
+          "passthrough": false
+        }
+      ],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 36,
+      "ip": "172.23.2.149",
+      "asset": "3140101-03-52561",
+      "label": "Privnurse、暴力/輪椅",
+      "owner": "WJ",
+      "type": "Notebook",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "i9-14900HX",
+      "cpuThreads": 32,
+      "ramGB": 64,
+      "gpus": [
+        {
+          "model": "RTX 4090 Laptop",
+          "vramGB": 16,
+          "class": "laptop",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 37,
+      "ip": null,
+      "asset": "老師個人財產",
+      "label": "CW(胸痛)",
+      "owner": "CW",
+      "type": "Notebook",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "Ultra 9 185H",
+      "cpuThreads": 22,
+      "ramGB": 32,
+      "gpus": [
+        {
+          "model": "RTX 4090 Laptop",
+          "vramGB": 16,
+          "class": "laptop",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 38,
+      "ip": "140.128.101.185",
+      "asset": "3140101-03-51758",
+      "label": "脛骨筆電",
+      "owner": "",
+      "type": "Notebook",
+      "location": "ST312",
+      "section": "ST312",
+      "cpu": "i9-13980HX",
+      "cpuThreads": 32,
+      "ramGB": 64,
+      "gpus": [
+        {
+          "model": "RTX 4080 Laptop",
+          "vramGB": 12,
+          "class": "laptop",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 63,
+      "ip": null,
+      "asset": "3140104-06-6",
+      "label": "Jetson Orin Nano",
+      "owner": "ST312 白板下鐵櫃",
+      "type": "Edge",
+      "location": "ST312",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 64,
+      "ip": null,
+      "asset": "3140104-06-5",
+      "label": "Jetson Orin Nano",
+      "owner": "YL",
+      "type": "Edge",
+      "location": "ST312",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 65,
+      "ip": null,
+      "asset": "3140103-08-363",
+      "label": "Jetson Xavier NX",
+      "owner": "ST312 白板下鐵櫃",
+      "type": "Edge",
+      "location": "ST312",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 66,
+      "ip": null,
+      "asset": "3140103-08-364",
+      "label": "Jetson Xavier NX",
+      "owner": "ST312 白板下鐵櫃",
+      "type": "Edge",
+      "location": "ST312",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 67,
+      "ip": null,
+      "asset": "3140103-08-365",
+      "label": "Jetson Xavier NX",
+      "owner": "ST312 白板下鐵櫃",
+      "type": "Edge",
+      "location": "ST312",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 71,
+      "ip": null,
+      "asset": "3101103-000-851",
+      "label": "HAILO",
+      "owner": "ST312 白板下鐵櫃",
+      "type": "Edge",
+      "location": "ST312",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 72,
+      "ip": null,
+      "asset": "3101103-000-850",
+      "label": "HAILO",
+      "owner": "",
+      "type": "Edge",
+      "location": "非使用中財產",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 73,
+      "ip": null,
+      "asset": "3101103-000-855",
+      "label": "HAILO",
+      "owner": "",
+      "type": "Edge",
+      "location": "非使用中財產",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 74,
+      "ip": null,
+      "asset": "3101103-000-857",
+      "label": "HAILO",
+      "owner": "",
+      "type": "Edge",
+      "location": "非使用中財產",
+      "section": "非使用中財產",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 84,
+      "ip": "172.24.13.81",
+      "asset": "",
+      "label": "CubeCOS 節點 cc1",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i9-10980XE (18C)",
+      "cpuThreads": 36,
+      "ramGB": 256,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": true
+        }
+      ],
+      "os": "CentOS Stream 9",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 85,
+      "ip": "172.24.13.82",
+      "asset": "",
+      "label": "CubeCOS 節點 cc2",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i9-9980XE (18C)",
+      "cpuThreads": 36,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": true
+        }
+      ],
+      "os": "CentOS Stream 9",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 86,
+      "ip": "172.24.13.83",
+      "asset": "",
+      "label": "CubeCOS 節點 cc3",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i9-12900K",
+      "cpuThreads": 24,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 3060",
+          "vramGB": 12,
+          "class": "consumer",
+          "passthrough": true
+        }
+      ],
+      "os": "CentOS Stream 9",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 87,
+      "ip": "172.24.13.171",
+      "asset": "3140101-03-48069",
+      "label": "Proxmox pve1",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i9-7920X (12C)",
+      "cpuThreads": 24,
+      "ramGB": 64,
+      "gpus": [],
+      "os": "Debian 12",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 88,
+      "ip": "172.24.13.172",
+      "asset": "3140104-07-204",
+      "label": "Proxmox pve2",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i9-9980XE (18C)",
+      "cpuThreads": 36,
+      "ramGB": 32,
+      "gpus": [
+        {
+          "model": "GeForce 210",
+          "vramGB": 1,
+          "class": "display-only",
+          "passthrough": false
+        }
+      ],
+      "os": "Debian 12",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 89,
+      "ip": "172.24.13.173",
+      "asset": "3140104-07-227",
+      "label": "Proxmox pve3",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i9-9960X (16C)",
+      "cpuThreads": 32,
+      "ramGB": 64,
+      "gpus": [
+        {
+          "model": "RTX 2060",
+          "vramGB": 6,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Debian 12",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 90,
+      "ip": "172.24.13.174",
+      "asset": "",
+      "label": "Proxmox pve4",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "AMD Threadripper 3970X (32C)",
+      "cpuThreads": 64,
+      "ramGB": 256,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Debian 12",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 91,
+      "ip": "172.24.13.175",
+      "asset": "",
+      "label": "Proxmox pve5",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i7-12700",
+      "cpuThreads": 20,
+      "ramGB": 64,
+      "gpus": [],
+      "os": "Debian 12",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 92,
+      "ip": "172.24.13.176",
+      "asset": "",
+      "label": "Proxmox pve6",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i7-12700",
+      "cpuThreads": 20,
+      "ramGB": 64,
+      "gpus": [],
+      "os": "Debian 12",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 93,
+      "ip": "172.24.13.177",
+      "asset": "",
+      "label": "Proxmox pve7",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i7-14700",
+      "cpuThreads": 28,
+      "ramGB": 32,
+      "gpus": [],
+      "os": "Debian 12",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 94,
+      "ip": "172.24.13.139",
+      "asset": "3140101-03-51694",
+      "label": "Proxmox Backup Server (PKpve)",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i7-12700",
+      "cpuThreads": 20,
+      "ramGB": 16,
+      "gpus": [
+        {
+          "model": "Intel iGPU",
+          "vramGB": 0,
+          "class": "display-only",
+          "passthrough": false
+        }
+      ],
+      "os": "Debian 13",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 95,
+      "ip": "172.24.13.15",
+      "asset": "N/A",
+      "label": "WireGuard VPN 伺服器",
+      "owner": "PK",
+      "type": "VM",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "2 vCPU (QEMU)",
+      "cpuThreads": 2,
+      "ramGB": 32,
+      "gpus": [],
+      "os": "Ubuntu 24.04",
+      "powerW": null,
+      "virtual": true
+    },
+    {
+      "row": 96,
+      "ip": "172.24.13.41",
+      "asset": "N/A",
+      "label": "pk-cluster master (pk-master1)",
+      "owner": "PK",
+      "type": "VM",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "16 vCPU",
+      "cpuThreads": 16,
+      "ramGB": 16,
+      "gpus": [],
+      "os": "Ubuntu 24.04",
+      "powerW": null,
+      "virtual": true
+    },
+    {
+      "row": 97,
+      "ip": "172.24.13.42",
+      "asset": "N/A",
+      "label": "pk-cluster worker1",
+      "owner": "PK",
+      "type": "VM",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "12 vCPU",
+      "cpuThreads": 12,
+      "ramGB": 12,
+      "gpus": [],
+      "os": "Ubuntu 24.04",
+      "powerW": null,
+      "virtual": true
+    },
+    {
+      "row": 98,
+      "ip": "172.24.13.43",
+      "asset": "N/A",
+      "label": "pk-cluster worker2",
+      "owner": "PK",
+      "type": "VM",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "4 vCPU",
+      "cpuThreads": 4,
+      "ramGB": 16,
+      "gpus": [],
+      "os": "Ubuntu 24.04",
+      "powerW": null,
+      "virtual": true
+    },
+    {
+      "row": 99,
+      "ip": "172.24.13.247",
+      "asset": "N/A",
+      "label": "gpu-cluster VM (pk-gpu-cc1)",
+      "owner": "PK",
+      "type": "VM",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "8 vCPU",
+      "cpuThreads": 8,
+      "ramGB": 32,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": true
+        }
+      ],
+      "os": "Ubuntu 24.04",
+      "powerW": null,
+      "virtual": true
+    },
+    {
+      "row": 100,
+      "ip": "172.24.13.249",
+      "asset": "N/A",
+      "label": "gpu-cluster VM (pk-gpu-cc2)",
+      "owner": "PK",
+      "type": "VM",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "8 vCPU",
+      "cpuThreads": 8,
+      "ramGB": 32,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": true
+        }
+      ],
+      "os": "Ubuntu 24.04",
+      "powerW": null,
+      "virtual": true
+    },
+    {
+      "row": 101,
+      "ip": "172.24.13.244",
+      "asset": "N/A",
+      "label": "gpu-cluster VM (pk-gpu-cc3)",
+      "owner": "PK",
+      "type": "VM",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "8 vCPU",
+      "cpuThreads": 8,
+      "ramGB": 32,
+      "gpus": [
+        {
+          "model": "RTX 3060",
+          "vramGB": 12,
+          "class": "consumer",
+          "passthrough": true
+        }
+      ],
+      "os": "Ubuntu 24.04",
+      "powerW": null,
+      "virtual": true
+    },
+    {
+      "row": 102,
+      "ip": "172.24.13.248",
+      "asset": "",
+      "label": "Proxmox (mwinds87)",
+      "owner": "FW",
+      "type": "Server",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "Intel i9-9960X (16C)",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "GeForce 210",
+          "vramGB": 1,
+          "class": "display-only",
+          "passthrough": false
+        }
+      ],
+      "os": "Debian 12",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 104,
+      "ip": "140.128.101.179",
+      "asset": "N/A",
+      "label": "幼兒課堂參與數位平台 (測試)",
+      "owner": "FW",
+      "type": "VM",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "2 vCPU (QEMU)",
+      "cpuThreads": 2,
+      "ramGB": 10,
+      "gpus": [],
+      "os": "Ubuntu 22.04",
+      "powerW": null,
+      "virtual": true
+    },
+    {
+      "row": 106,
+      "ip": "140.128.103.190",
+      "asset": "3140104-07-311",
+      "label": "WJ",
+      "owner": "WJ",
+      "type": "Tower PC",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "AMD 7950X",
+      "cpuThreads": 32,
+      "ramGB": 64,
+      "gpus": [
+        {
+          "model": "RTX 3060",
+          "vramGB": 12,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 26",
+      "powerW": 601.0,
+      "virtual": false
+    },
+    {
+      "row": 107,
+      "ip": "172.24.13.84",
+      "asset": "3140104-07-340",
+      "label": "PK",
+      "owner": "PK",
+      "type": "Tower PC",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "i9-14900K",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 3060",
+          "vramGB": 12,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": 621.0,
+      "previousIp": "140.128.103.173",
+      "virtual": false
+    },
+    {
+      "row": 108,
+      "ip": "140.128.103.182",
+      "asset": "3140104-07-272",
+      "label": "PH",
+      "owner": "PH",
+      "type": "Tower PC",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "AMD 3990X",
+      "cpuThreads": 128,
+      "ramGB": 256,
+      "gpus": [
+        {
+          "model": "RTX 4060 Ti",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": 638.0,
+      "virtual": false
+    },
+    {
+      "row": 109,
+      "ip": "140.128.103.184",
+      "asset": "3140104-07-341",
+      "label": "PH",
+      "owner": "PH",
+      "type": "Tower PC",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "i9-14900K",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [
+        {
+          "model": "RTX 4060 Ti",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": 608.0,
+      "virtual": false
+    },
+    {
+      "row": 110,
+      "ip": "140.128.103.172",
+      "asset": "3140104-07-361",
+      "label": "PH",
+      "owner": "PH",
+      "type": "Tower PC",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "AMD 9950X",
+      "cpuThreads": 32,
+      "ramGB": 192,
+      "gpus": [
+        {
+          "model": "RTX 4070 Ti SUPER",
+          "vramGB": 16,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": "Ubuntu 22",
+      "powerW": 720.5,
+      "virtual": false
+    },
+    {
+      "row": 111,
+      "ip": null,
+      "asset": "3140104-07-333",
+      "label": "ST430小白板下",
+      "owner": "ST430小白板下",
+      "type": "Tower PC",
+      "location": "ST430",
+      "section": "ST430",
+      "cpu": "AMD 7950X",
+      "cpuThreads": 32,
+      "ramGB": 128,
+      "gpus": [],
+      "os": "Ubuntu 24",
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 151,
+      "ip": null,
+      "asset": "",
+      "label": "Jetson Orin Nano",
+      "owner": "Candra",
+      "type": "Edge",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 152,
+      "ip": null,
+      "asset": "",
+      "label": "Jetson Orin Nano",
+      "owner": "Candra",
+      "type": "Edge",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 153,
+      "ip": null,
+      "asset": "3140104-06-7",
+      "label": "Jetson Orin Nano",
+      "owner": "Candra",
+      "type": "Edge",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 154,
+      "ip": "172.24.12.69",
+      "asset": "3140103-08-362",
+      "label": "Jetson Xavier NX",
+      "owner": "Candra",
+      "type": "Edge",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": "NVIDIA Carmel 6C",
+      "cpuThreads": 6,
+      "ramGB": 8,
+      "gpus": [
+        {
+          "model": "Jetson Xavier NX (384-core Volta)",
+          "vramGB": 8,
+          "class": "edge",
+          "passthrough": false
+        }
+      ],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 155,
+      "ip": null,
+      "asset": "",
+      "label": "Jetson Nano",
+      "owner": "Candra",
+      "type": "Edge",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 159,
+      "ip": "172.24.12.78",
+      "asset": "",
+      "label": "Jetson Orin Nano",
+      "owner": "Anggi",
+      "type": "Edge",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": "Arm Cortex-A78AE 6C",
+      "cpuThreads": 6,
+      "ramGB": 8,
+      "gpus": [
+        {
+          "model": "Jetson Orin Nano (1024-core Ampere)",
+          "vramGB": 8,
+          "class": "edge",
+          "passthrough": false
+        }
+      ],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 160,
+      "ip": null,
+      "asset": "N/A",
+      "label": "Anggi Personal PC",
+      "owner": "Anggi",
+      "type": "Tower PC",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [
+        {
+          "model": "RTX 3060",
+          "vramGB": 12,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 164,
+      "ip": null,
+      "asset": "",
+      "label": "RTX 2080 Ti 工作站",
+      "owner": "",
+      "type": "Tower PC",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "row": 165,
+      "ip": null,
+      "asset": "3140101-03-52948",
+      "label": "endra Personal PC",
+      "owner": "Endra",
+      "type": "Tower PC",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": null,
+      "cpuThreads": null,
+      "ramGB": null,
+      "gpus": [
+        {
+          "model": "RTX 2080 Ti",
+          "vramGB": 11,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "os": null,
+      "powerW": null,
+      "virtual": false
+    },
+    {
+      "ip": "172.24.12.85",
+      "label": "pk-5090",
+      "owner": "PK",
+      "type": "Server",
+      "location": "ST429",
+      "section": "ST429",
+      "cpu": "20T",
+      "cpuThreads": 20,
+      "ramGB": 32,
+      "os": "Ubuntu 24.04",
+      "asset": "",
+      "row": null,
+      "powerW": null,
+      "gpus": [
+        {
+          "model": "RTX 5090",
+          "vramGB": 32,
+          "class": "consumer",
+          "passthrough": false
+        }
+      ],
+      "virtual": false
+    }
+  ]
+}
