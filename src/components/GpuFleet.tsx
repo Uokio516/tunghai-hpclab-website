@@ -419,9 +419,15 @@ function InventoryCard({ m }: { m: InventoryMachine }) {
         </div>
       )}
 
-      {m.online === false && m.lastSeen && (
+      {m.online === true && m.latencyMs != null && (
         <div className="mt-2 text-xs" style={{ color: "var(--text-faint)" }}>
-          最後回應 {new Date(m.lastSeen).toLocaleTimeString("zh-TW", { hour12: false })}
+          連線延遲 {m.latencyMs} ms
+        </div>
+      )}
+
+      {m.online === false && (
+        <div className="mt-2 text-xs" style={{ color: "var(--text-faint)" }}>
+          最後回應 {m.lastSeen ? new Date(m.lastSeen).toLocaleString("zh-TW", { hour12: false }) : "尚無成功連線紀錄"}
         </div>
       )}
 
