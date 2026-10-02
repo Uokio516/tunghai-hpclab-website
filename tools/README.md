@@ -54,7 +54,10 @@ python tools/build-cluster-status.py
 - GPU 使用率取 Prometheus 最新 `nvidia_smi_utilization_gpu_ratio`，不是移動平均。
   `sampledAt` 是實際採樣時間；超過 120 秒、主機離線或 collector 失敗時，使用率回傳 `null`。
 - 網頁的「取得資料」與每張 GPU 的「採樣」時間分開標示。無遙測的設備不推估使用率，
-  連線可達也不等於 GPU 閒置。卡片與表格共用同一組資料。
+  連線可達也不等於 GPU 閒置。節點卡片只顯示摘要，點選後才展開詳細遙測與歷史。
+- 歷史由獨立的 `tools/history-service.ts` 每分鐘取樣並寫入單一 PVC；網站兩個副本
+  都透過 `/api/monitoring/history/:machineId` 讀同一份資料，保留 30 天。部署與模組
+  邊界見 [網站架構與維護手冊](../docs/website-architecture.md)。
 - `node tools/verify-gpu-monitoring.mjs` 使用假的 Prometheus 與暫存 SQLite，驗證最新採樣、
   使用率變動、資料過期、採集失敗、離線、IP 隱藏與錯誤恢復；不探測實驗室機器。
 

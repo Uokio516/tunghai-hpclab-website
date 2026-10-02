@@ -13,12 +13,12 @@ export function ProjectsPage() {
         {projects.length === 0 ? (
           <EmptyState message="專案資料整理中。" />
         ) : (
-          <ul className="border-t" style={{ borderColor: "rgba(255,255,255,0.12)" }}>
+          <ul className="border-t" style={{ borderColor: "var(--border)" }}>
             {projects.map((project, i) => (
               <motion.li
                 key={project.id}
                 className="border-b py-10"
-                style={{ borderColor: "rgba(255,255,255,0.12)" }}
+                style={{ borderColor: "var(--border)" }}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.25 }}
@@ -42,7 +42,7 @@ export function ProjectsPage() {
                         <li
                           key={c}
                           className="text-xs font-medium uppercase tracking-[0.1em]"
-                          style={{ color: "#c9b8a0" }}
+                          style={{ color: "var(--brand-light)" }}
                         >
                           {c}
                         </li>

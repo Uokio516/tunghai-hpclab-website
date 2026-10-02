@@ -345,6 +345,23 @@ async function startServer() {
     res.json({ ...rest, machines: shownInventory(inv).map(withLiveness) });
   });
 
+  app.get("/api/monitoring/history/:machineId", async (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    const machineId = req.params.machineId;
+    const hours = Number(req.query.hours ?? 24);
+    if (!/^[-a-zA-Z0-9_]{1,80}$/.test(machineId) || ![1, 6, 24, 168, 720].includes(hours)) return res.status(400).json({ error: "Invalid query" });
+    const base = process.env.HISTORY_SERVICE_URL;
+    if (!base) return res.status(503).json({ error: "History unavailable" });
+    try {
+      const url = new URL("/history", base);
+      url.searchParams.set("machineId", machineId);
+      url.searchParams.set("hours", String(hours));
+      const upstream = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (!upstream.ok) throw new Error(`History HTTP ${upstream.status}`);
+      res.json(await upstream.json());
+    } catch { res.status(503).json({ error: "History unavailable" }); }
+  });
+
   // Library GPU fleet live status (public). Queries the lab Prometheus server-side and
   // returns a per-machine / per-GPU snapshot. NO credentials are exposed to the browser;
   // Prometheus itself is not publicly reachable. The Prometheus location comes only from
@@ -522,7 +539,7 @@ async function startServer() {
       );
       // Public-safe view: DO NOT expose machine IPs / instances to the browser.
       const publicList = list.map((m: any, i: number) => ({
-        id: `gpu-${i + 1}`,
+        id: invByIp.get(m.ip)?.id ?? `gpu-${i + 1}`,
         label: m.owner || `機器 ${i + 1}`,
         location: m.location || "",
         online: m.online,

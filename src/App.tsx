@@ -1,7 +1,7 @@
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import React, { lazy, Suspense, useEffect, useId, useRef, useState } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from "react-router-dom";
-import { BrainCircuit, ArrowUpRight, Cpu, Server } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 const AdminPanel = lazy(() =>
   import("./components/AdminPanel").then((m) => ({ default: m.AdminPanel }))
@@ -63,11 +63,10 @@ function RouteFallback() {
    different background — which reads as a second loading screen before
    the hero's own intro — this paints the hero's identity line on the
    hero's own background, so the chunk arriving is a continuation. */
-/* Content pages share the hero's dark ground, so their chunk-loading
-   fallback must too — a mismatched background reads as a flash. */
+/* Keep content-page loading states in the selected theme. */
 function DarkRoute({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<div className="min-h-screen" style={{ background: "#05070b" }} />}>
+    <Suspense fallback={<div className="min-h-screen" style={{ background: "var(--bg)" }} />}>
       {children}
     </Suspense>
   );
@@ -272,39 +271,26 @@ function CinematicBackdrop() {
 /* Live counts pulled from the lab's own public endpoints — a claim    */
 /* the homepage can back up rather than a decorative stat block.       */
 /* ------------------------------------------------------------------ */
-const TELEMETRY_HISTORY_LENGTH = 20;
-
 function useLiveTelemetry() {
   const [gpuOnline, setGpuOnline] = useState<number | null>(null);
   const [gpuBusy, setGpuBusy] = useState<number | null>(null);
   const [nodesOnline, setNodesOnline] = useState<number | null>(null);
-  const [cephTiB, setCephTiB] = useState<number | null>(null);
-  // Rolling history for the sparkline — real samples appended on every
-  // poll, not synthesized. Starts as a single point and fills in over the
-  // session; never backfilled with fake data.
-  const [gpuHistory, setGpuHistory] = useState<number[]>([]);
-
+  const [gpuTotal, setGpuTotal] = useState<number | null>(null);
+  const [endpoints, setEndpoints] = useState<{ up: number; total: number } | null>(null);
   useEffect(() => {
     let alive = true;
-    const poll = () => {
-      Promise.allSettled([
-        fetch("/api/gpus").then((r) => r.json()),
-        fetch("/api/cluster-status").then((r) => r.json()),
-      ]).then(([gpuRes, clusterRes]) => {
+    const poll = async () => {
+      try {
+        const response = await fetch("/api/gpus", { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = await response.json();
         if (!alive) return;
-        if (gpuRes.status === "fulfilled") {
-          const online = gpuRes.value?.summary?.gpusOnline ?? null;
-          setGpuOnline(online);
-          setGpuBusy(gpuRes.value?.summary?.gpusBusy ?? null);
-          if (online != null) {
-            setGpuHistory((prev) => [...prev, online].slice(-TELEMETRY_HISTORY_LENGTH));
-          }
-        }
-        if (clusterRes.status === "fulfilled") {
-          setNodesOnline(clusterRes.value?.summary?.physicalNodes ?? null);
-          setCephTiB(clusterRes.value?.summary?.cephTiB ?? null);
-        }
-      });
+        setGpuOnline(payload?.summary?.gpusOnline ?? null);
+        setGpuBusy(payload?.summary?.gpusBusy ?? null);
+        setGpuTotal(payload?.summary?.gpusTotal ?? null);
+        setEndpoints(payload?.summary?.hostsTotal != null ? { up: payload.summary.hostsUp, total: payload.summary.hostsTotal } : null);
+        setNodesOnline(payload?.summary?.machinesTracked ?? null);
+      } catch { /* Keep the previous good snapshot until the next poll. */ }
     };
     poll();
     const interval = window.setInterval(poll, 15000);
@@ -314,42 +300,10 @@ function useLiveTelemetry() {
     };
   }, []);
 
-  // How busy the GPU fleet actually is right now (0–1) — real Prometheus
-  // data, not a decorative random number. null until both counts arrive,
-  // so consumers can fall back to a calm default instead of a division
-  // artifact (e.g. 0/0).
+  // Busy count is measured by the API; unknown stays unknown.
   const busyRatio = gpuOnline && gpuBusy != null ? Math.min(1, gpuBusy / gpuOnline) : null;
 
-  return { gpuOnline, gpuBusy, nodesOnline, cephTiB, busyRatio, gpuHistory };
-}
-
-const REVEAL = { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const };
-const STANDARD = { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const };
-
-/* Tiny inline line chart for a real rolling history (see useLiveTelemetry's
-   gpuHistory) — not decoration, an actual trend of the last ~5 minutes of
-   polls. A single sample just renders a flat line at that value; it fills
-   in as more polls arrive. */
-function Sparkline({ values, width = 64, height = 20 }: { values: number[]; width?: number; height?: number }) {
-  if (values.length === 0) return null;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-  const points = values
-    .map((v, i) => {
-      const x = values.length === 1 ? width : (i / (values.length - 1)) * width;
-      const y = height - ((v - min) / range) * height;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-  const lastX = width;
-  const lastY = height - ((values[values.length - 1] - min) / range) * height;
-  return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
-      <polyline points={points} fill="none" stroke="var(--brand-light)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" opacity={0.85} />
-      <circle cx={lastX} cy={lastY} r={2} fill="var(--brand-light)" />
-    </svg>
-  );
+  return { gpuOnline, gpuBusy, gpuTotal, nodesOnline, endpoints, busyRatio };
 }
 
 function LivePill({ status }: { status: string }) {
@@ -370,236 +324,6 @@ function LivePill({ status }: { status: string }) {
 /* cursor. A handful of fading dots follow the pointer inside the hero */
 /* only; Canvas, not a DOM-per-particle approach, stays cheap.         */
 /* ------------------------------------------------------------------ */
-function CursorTrail() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(pointer: coarse)").matches) return; // touch devices: skip
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    let raf = 0;
-    let dpr = 1;
-    type P = { x: number; y: number; life: number };
-    let points: P[] = [];
-    let visible = true;
-
-    const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = canvas.clientWidth * dpr;
-      canvas.height = canvas.clientHeight * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const onMove = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      points.push({ x: e.clientX - rect.left, y: e.clientY - rect.top, life: 1 });
-      if (points.length > 40) points.shift();
-    };
-    canvas.parentElement?.addEventListener("pointermove", onMove);
-
-    const draw = () => {
-      if (!visible) { raf = requestAnimationFrame(draw); return; }
-      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-      points = points.filter((p) => p.life > 0.02);
-      for (const p of points) {
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(201, 184, 160, ${p.life * 0.5})`;
-        ctx.arc(p.x, p.y, 2 + p.life * 2.5, 0, Math.PI * 2);
-        ctx.fill();
-        p.life *= 0.92;
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    raf = requestAnimationFrame(draw);
-
-    const onVisibility = () => { visible = document.visibilityState === "visible"; };
-    document.addEventListener("visibilitychange", onVisibility);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      canvas.parentElement?.removeEventListener("pointermove", onMove);
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, []);
-  return <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true" />;
-}
-
-/* ------------------------------------------------------------------ */
-/* Control deck — a 2D homage to Active Theory's floating project      */
-/* panels + live terminal readout, not a literal WebGL rebuild: a      */
-/* dynamic left-hand info panel updates as you hover the right-hand    */
-/* cards, exactly like their bottom-left project readout does.        */
-/* ------------------------------------------------------------------ */
-type DeckItem = {
-  to?: string; href?: string; label: string; category: string; detail: string; bars: number[];
-};
-
-function ControlDeck({ items, live }: { items: DeckItem[]; live: ReturnType<typeof useLiveTelemetry> }) {
-  const [hovered, setHovered] = useState(0);
-  const active = items[hovered];
-
-  return (
-    <div className="relative mx-auto mt-16 hidden max-w-5xl lg:block">
-      <CursorTrail />
-      <div className="grid grid-cols-5 gap-6">
-        {/* terminal readout */}
-        <motion.div
-          initial={{ opacity: 0, x: -16 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={REVEAL}
-          className="video-panel col-span-2 flex flex-col justify-between p-6"
-          style={{ fontFamily: "var(--font-mono)" }}
-        >
-          <div>
-            <div className="eyebrow mb-4" style={{ color: "var(--brand-light)" }}>系統即時狀態</div>
-            <div className="flex flex-col gap-2.5">
-              {items.map((it, i) => (
-                <button
-                  key={it.label}
-                  onMouseEnter={() => setHovered(i)}
-                  onFocus={() => setHovered(i)}
-                  onClick={() => setHovered(i)}
-                  aria-pressed={hovered === i}
-                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors focus-visible:outline-none"
-                  style={{ background: hovered === i ? "var(--glass-strong)" : "transparent", color: hovered === i ? "var(--text)" : "var(--text-faint)" }}
-                >
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hovered === i ? "var(--brand-light)" : "var(--border-strong)" }} />
-                  {it.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Fixed height sized for the longest `detail` string (2 lines):
-              算力監控's detail is one line, the other two are two lines —
-              without a fixed height this panel grew/shrank per hover,
-              which (same grid row as the three cards) changed the whole
-              row's height, which resized the hero, which resized the
-              video's object-cover crop — read as the background "jumping"
-              every time you moved between cards. */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={active.label}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="mt-8 flex h-[6.5rem] flex-col border-t pt-4"
-              style={{ borderColor: "var(--glass-border)" }}
-            >
-              <div className="text-xs" style={{ color: "var(--text-faint)" }}>{active.category}</div>
-              <div className="mt-1 text-lg font-semibold" style={{ fontFamily: "var(--font-sans)" }}>{active.label}</div>
-              <div className="mt-1.5 text-sm leading-relaxed" style={{ color: "var(--text-dim)", fontFamily: "var(--font-sans)" }}>
-                {active.detail}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          <a
-            href="#contact"
-            className="mt-6 flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-colors"
-            style={{ background: "var(--surface-2)", border: "1px solid var(--glass-border)", color: "var(--text-faint)" }}
-          >
-            <span>問我們任何問題<span className="terminal-cursor">_</span></span>
-            <ArrowUpRight className="h-4 w-4" />
-          </a>
-        </motion.div>
-
-        {/* floating panels */}
-        <div className="col-span-3 flex h-full flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {items.map((it, i) => (
-              <DeckPanel key={it.label} item={it} active={hovered === i} onHover={() => setHovered(i)} delay={i * 0.08} />
-            ))}
-          </div>
-
-          {/* Fills the space left over below the cards (the terminal
-              readout panel is taller) with a real, live status line rather
-              than leaving bare background showing through. */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ ...REVEAL, delay: 0.3 }}
-            className="video-tile mt-auto flex items-center justify-between px-5 py-3.5"
-            style={{ fontFamily: "var(--font-mono)" }}
-          >
-            <span className="text-xs uppercase tracking-[0.15em]" style={{ color: "var(--brand-light)" }}>
-              System Status<span className="terminal-cursor">_</span>
-            </span>
-            <div className="flex items-center gap-3">
-              {live.gpuHistory.length > 1 && <Sparkline values={live.gpuHistory} />}
-              <span className="text-xs tabular-nums" style={{ color: "var(--text-faint)" }}>
-                {live.gpuOnline != null ? `${live.gpuOnline} GPU 在線` : "—"} · {live.nodesOnline != null ? `${live.nodesOnline} 盤點節點` : "—"}
-              </span>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DeckPanel({ item, active, onHover, delay }: { item: DeckItem; active: boolean; onHover: () => void; delay: number }) {
-  const inner = (
-    <motion.div
-      onMouseEnter={onHover}
-      className="video-tile relative flex h-full min-h-[15rem] flex-col justify-between gap-6 p-5 transition-colors"
-      style={{ outline: active ? "1.5px solid var(--brand-light)" : "1px solid transparent" }}
-    >
-      <div className="flex h-16 items-end gap-1.5">
-        {item.bars.map((h, i) => (
-          <motion.div
-            key={i}
-            className="flex-1 origin-bottom rounded-sm"
-            style={{ height: `${h}%`, background: active ? "var(--brand-light)" : "var(--brand-soft)" }}
-            initial={{ scaleY: 0 }}
-            whileInView={{ scaleY: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-          />
-        ))}
-      </div>
-      <div>
-        <div className="text-base font-semibold">{item.label}</div>
-        <div className="mt-0.5 truncate text-sm" style={{ color: "var(--text-faint)" }}>{item.category}</div>
-      </div>
-    </motion.div>
-  );
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ ...REVEAL, delay }}
-      className="h-full"
-    >
-      {/* Link/a default to inline, which silently breaks `h-full` on the
-          card inside — that mismatch (plus a stray per-card margin hack)
-          is why the three cards used to render at different heights.
-
-          focus-visible:outline-none is intentional, not a lost affordance:
-          the card's own outline already IS the focus indicator (onFocus
-          sets `hovered`, which drives that outline) — without suppressing
-          the browser's separate native ring, a keyboard-focused card keeps
-          its native ring even after the mouse moves to hover a different
-          card (mouse movement doesn't move DOM focus), so two cards would
-          show two different highlights at once. */}
-      {item.to ? (
-        <Link to={item.to} onFocus={onHover} className="block h-full focus-visible:outline-none">{inner}</Link>
-      ) : (
-        <a href={item.href} onFocus={onHover} className="block h-full focus-visible:outline-none">{inner}</a>
-      )}
-    </motion.div>
-  );
-}
-
 function HeroBody({
   live, compact,
 }: { live: ReturnType<typeof useLiveTelemetry>; compact?: boolean }) {
@@ -638,44 +362,28 @@ function HeroBody({
         >
           聯絡我們 <ArrowUpRight className="h-4 w-4" />
         </a>
-        <a
-          href="#systems"
+        <Link
+          to="/gpus"
           className={`inline-flex items-center gap-2 rounded-full font-semibold transition-colors ${compact ? "px-6 py-2.5 text-sm" : "px-7 py-3.5 text-lg"}`}
           style={{ border: "1px solid var(--glass-border)" }}
         >
           查看運算資源
-        </a>
+        </Link>
       </div>
     </div>
   );
 }
 
-function LiveComputeCore({ live }: { live: ReturnType<typeof useLiveTelemetry> }) {
-  const load = live.busyRatio ?? 0.18;
-  const loadLabel = live.busyRatio == null ? "AWAITING LIVE LINK" : `${Math.round(load * 100)}% ACTIVE LOAD`;
-  return (
-    <motion.div
-      className="live-compute-core"
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.7, ...REVEAL }}
-      style={{ "--core-load": load } as React.CSSProperties}
-      aria-label={`即時運算核心，${loadLabel}`}
-    >
-      <div className="core-orbit core-orbit-a"><i /><i /><i /></div>
-      <div className="core-orbit core-orbit-b"><i /><i /></div>
-      <div className="core-reactor"><span /></div>
-      <div className="core-readout core-readout-left">
-        <small>COMPUTE FABRIC</small>
-        <strong>{live.nodesOnline ?? "—"} NODES</strong>
-      </div>
-      <div className="core-readout core-readout-right">
-        <small>GPU TELEMETRY</small>
-        <strong>{live.gpuOnline ?? "—"} ONLINE</strong>
-      </div>
-      <div className="core-load-label">{loadLabel}</div>
-    </motion.div>
-  );
+function HomeLiveOverview({ live }: { live: ReturnType<typeof useLiveTelemetry> }) {
+  return <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .45, duration: .65 }} className="home-live-overview">
+    <div className="home-live-intro"><span className="home-live-kicker"><span /> LIVE LAB</span><strong>實驗室算力，現在的狀態</strong><p>公開的即時遙測與設備盤點。數值來自實際採樣，未接入的機器保留連線狀態。</p></div>
+    <div className="home-live-numbers" aria-label="算力即時摘要">
+      <div><span>GPU 即時回報</span><strong>{live.gpuOnline ?? "—"}<small> / {live.gpuTotal ?? "—"} 張</small></strong></div>
+      <div><span>實體運算機器</span><strong>{live.nodesOnline ?? "—"}<small> 台</small></strong></div>
+      <div><span>端點可連線</span><strong>{live.endpoints?.up ?? "—"}<small> / {live.endpoints?.total ?? "—"}</small></strong></div>
+    </div>
+    <div className="home-live-actions"><Link to="/gpus">查看節點監控 <ArrowUpRight size={16} /></Link><Link to="/infrastructure">叢集基礎設施 <ArrowUpRight size={16} /></Link></div>
+  </motion.div>;
 }
 
 function Home() {
@@ -719,42 +427,7 @@ function Home() {
         <CinematicBackdrop />
         <div className="home-hero-inner relative mx-auto max-w-7xl px-5 pb-20 pt-16 sm:px-8 sm:pb-28 sm:pt-20 md:pb-36 md:pt-24">
           <HeroBody live={live} />
-          <LiveComputeCore live={live} />
-
-          {/* mobile / tablet: simple stacked quick links */}
-          <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-3 lg:hidden">
-            <MobileQuickLink to="/gpus" icon={Cpu} label="算力監控" detail={live.gpuOnline != null ? `${live.gpuOnline} 顆 GPU 在線` : "即時監控"} />
-            <MobileQuickLink to="/infrastructure" icon={Server} label="叢集基礎設施" detail={live.nodesOnline != null ? `${live.nodesOnline} 個盤點節點` : "資源盤點"} />
-            <MobileQuickLink href="#research" icon={BrainCircuit} label="核心研究" detail="LLM · K8s · CubeCOS" />
-          </div>
-
-          {/* desktop: terminal readout + hoverable floating panels */}
-          <ControlDeck
-            live={live}
-            items={[
-              {
-                to: "/gpus",
-                label: "算力監控",
-                category: "即時監控 / PROMETHEUS",
-                detail: live.gpuOnline != null ? `目前 ${live.gpuOnline} 顆 GPU 在線,即時回報使用率、溫度與功耗。` : "實驗室算力與 GPU 使用率、溫度、功耗。",
-                bars: [30, 55, 42, 78, 60, 90],
-              },
-              {
-                to: "/infrastructure",
-                label: "叢集基礎設施",
-                category: "叢集盤點 / CUBECOS",
-                detail: live.nodesOnline != null ? `盤點 ${live.nodesOnline} 個實體節點，涵蓋 CubeCOS 超融合雲與 Proxmox 叢集。` : "CubeCOS 超融合雲、Proxmox 虛擬化叢集與備份系統總覽。",
-                bars: [50, 35, 70, 45, 85, 55],
-              },
-              {
-                href: "#research",
-                label: "核心研究",
-                category: "研究領域 / RESEARCH",
-                detail: "LLM 微調與多模態、實體機與邊緣 Kubernetes、CubeCOS 雲端架構。",
-                bars: [65, 80, 45, 92, 38, 70],
-              },
-            ]}
-          />
+          <HomeLiveOverview live={live} />
         </div>
       </header>
 
@@ -797,32 +470,6 @@ function Home() {
         </section>
 
 
-
-        <div className="divider" />
-
-        {/* Live systems — the site's real differentiator */}
-        <section id="systems" className="home-section py-20 sm:py-28">
-          <SectionEyebrow>公開監控</SectionEyebrow>
-          <h2 className="mt-3 max-w-2xl text-[clamp(1.75rem,4vw,2.75rem)] font-medium leading-tight">
-            運算資源狀態，任何人都能查看
-          </h2>
-          <p className="mt-4 max-w-xl text-lg" style={{ color: "var(--text-dim)" }}>
-            查看全實驗室的運算規模、叢集盤點，以及有接遙測的 GPU 即時負載。
-          </p>
-
-          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <SystemLinkCard
-              to="/infrastructure"
-              title="叢集基礎設施"
-              desc="CubeCOS 超融合雲、Proxmox 虛擬化叢集與備份系統的容量與健康總覽。"
-            />
-            <SystemLinkCard
-              to="/gpus"
-              title="算力監控"
-              desc="全實驗室算力盤點與 GPU 最新採樣使用率、溫度及功耗，每 5 秒更新。"
-            />
-          </div>
-        </section>
 
         <div className="divider" />
 
@@ -932,23 +579,6 @@ function Home() {
       <Footer />
     </div>
   );
-}
-
-function MobileQuickLink({
-  to, href, icon: Icon, label, detail,
-}: { to?: string; href?: string; icon: React.ComponentType<{ className?: string }>; label: string; detail: string }) {
-  const inner = (
-    <div className="glass-tile flex items-center gap-3 px-4 py-4">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl" style={{ background: "var(--brand-soft)", color: "var(--brand-light)" }}>
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="min-w-0">
-        <div className="truncate text-base font-semibold">{label}</div>
-        <div className="truncate text-sm" style={{ color: "var(--text-faint)" }}>{detail}</div>
-      </div>
-    </div>
-  );
-  return to ? <Link to={to}>{inner}</Link> : <a href={href}>{inner}</a>;
 }
 
 function SectionEyebrow({ children, center }: { children: React.ReactNode; center?: boolean }) {

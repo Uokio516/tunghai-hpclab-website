@@ -10,7 +10,7 @@ export function PeoplePage() {
     <PageShell eyebrow="People" title="研究成員" lede="由人、想法與實驗構成的研究網絡。">
       <section className="mx-auto max-w-7xl px-6 pb-28 sm:px-10 sm:pb-40">
         {pi && (
-          <div className="border-t pt-10" style={{ borderColor: "rgba(255,255,255,0.12)" }}>
+          <div className="border-t pt-10" style={{ borderColor: "var(--border)" }}>
             <p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">
               Principal Investigator
             </p>
@@ -60,7 +60,7 @@ export function PeoplePage() {
                         rel="noreferrer noopener"
                         data-cursor-hover
                         className="text-sm underline underline-offset-4 transition-opacity hover:opacity-70"
-                        style={{ color: "#c9b8a0" }}
+                        style={{ color: "var(--brand-light)" }}
                       >
                         DBLP
                       </a>
@@ -70,7 +70,7 @@ export function PeoplePage() {
                         rel="noreferrer noopener"
                         data-cursor-hover
                         className="text-sm underline underline-offset-4 transition-opacity hover:opacity-70"
-                        style={{ color: "#c9b8a0" }}
+                        style={{ color: "var(--brand-light)" }}
                       >
                         ORCID
                       </a>
@@ -80,7 +80,7 @@ export function PeoplePage() {
                         rel="noreferrer noopener"
                         data-cursor-hover
                         className="text-sm underline underline-offset-4 transition-opacity hover:opacity-70"
-                        style={{ color: "#c9b8a0" }}
+                        style={{ color: "var(--brand-light)" }}
                       >
                         ResearchGate
                       </a>
@@ -92,7 +92,7 @@ export function PeoplePage() {
           </div>
         )}
 
-        <div className="mt-20 border-t pt-10" style={{ borderColor: "rgba(255,255,255,0.12)" }}>
+        <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}>
           <p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">
             Graduate Students &amp; Researchers
           </p>
@@ -101,7 +101,7 @@ export function PeoplePage() {
           ) : (
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {students.map((s) => (
-                <li key={s.id} className="rounded-xl border p-6" style={{ borderColor: "rgba(255,255,255,0.14)" }}>
+                <li key={s.id} className="rounded-xl border p-6" style={{ borderColor: "var(--border)" }}>
                   <p className="text-lg font-medium">{s.nameZh}</p>
                   <p className="mt-1 text-sm uppercase tracking-[0.08em] opacity-60">{s.nameEn}</p>
                   <p className="mt-3 text-sm opacity-70">{s.titleZh}</p>

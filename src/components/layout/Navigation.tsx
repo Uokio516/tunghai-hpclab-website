@@ -9,7 +9,7 @@ export function Navigation() {
   const [light, setLight] = useState(false);
   useEffect(() => {
     const saved = localStorage.getItem("hpclab-theme");
-    const isLight = saved === "light" || (!saved && window.matchMedia("(prefers-color-scheme: light)").matches);
+    const isLight = saved === "light";
     setLight(isLight);
     document.documentElement.dataset.theme = isLight ? "light" : "dark";
   }, []);

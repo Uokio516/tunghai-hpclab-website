@@ -4,6 +4,8 @@
 
 🔗 **Live / 線上：** <https://hpclab.thu.edu.tw>
 
+📘 **維護入口：** [網站架構與維護手冊](docs/website-architecture.md)
+
 **English** ｜ **[中文](#中文版)**
 
 ---

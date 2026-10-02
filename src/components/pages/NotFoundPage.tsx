@@ -9,7 +9,7 @@ export function NotFoundPage() {
           to="/"
           data-cursor-hover
           className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 text-sm font-medium uppercase tracking-[0.12em] transition-transform hover:scale-[1.03]"
-          style={{ background: "#c9b8a0", color: "#05070b" }}
+          style={{ background: "var(--brand-light)", color: "var(--brand-contrast)" }}
         >
           回到首頁
         </Link>

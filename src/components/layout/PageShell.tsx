@@ -16,7 +16,7 @@ interface PageShellProps {
    rather than layering a custom one without `cursor-none` to match). */
 export function PageShell({ eyebrow, title, lede, children }: PageShellProps) {
   return (
-    <div className="content-page min-h-screen" style={{ background: "#05070b", color: "#f3f4f6" }}>
+    <div className="content-page min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <Navigation />
 
       <header className="content-page-hero mx-auto max-w-7xl px-6 pt-36 pb-14 sm:px-10 sm:pt-44 sm:pb-20">
@@ -60,7 +60,7 @@ export function EmptyState({ message }: { message: string }) {
   return (
     <div
       className="rounded-xl border border-dashed px-6 py-14 text-center"
-      style={{ borderColor: "rgba(255,255,255,0.18)" }}
+      style={{ borderColor: "var(--border-strong)" }}
     >
       <p className="text-sm opacity-60">{message}</p>
     </div>

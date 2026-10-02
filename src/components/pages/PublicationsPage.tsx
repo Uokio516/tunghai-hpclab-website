@@ -33,7 +33,7 @@ export function PublicationsPage() {
               <div key={year} className="mb-16">
                 <h2
                   className="mb-6 border-b pb-3 font-mono text-2xl tabular-nums sm:text-3xl"
-                  style={{ borderColor: "rgba(255,255,255,0.12)", color: "#c9b8a0" }}
+                  style={{ borderColor: "var(--border)", color: "var(--brand-light)" }}
                 >
                   {year}
                 </h2>
@@ -45,7 +45,7 @@ export function PublicationsPage() {
                         {p.authors.join(", ")}
                       </p>
                       <p className="mt-1.5 text-sm opacity-75">
-                        <span style={{ color: "#c9b8a0" }}>{p.venue}</span>
+                        <span style={{ color: "var(--brand-light)" }}>{p.venue}</span>
                         {citationDetail(p) && <span className="opacity-70"> · {citationDetail(p)}</span>}
                       </p>
                     </li>
@@ -61,7 +61,7 @@ export function PublicationsPage() {
                 rel="noreferrer noopener"
                 data-cursor-hover
                 className="ml-2 underline underline-offset-4 transition-opacity hover:opacity-70"
-                style={{ color: "#c9b8a0" }}
+                style={{ color: "var(--brand-light)" }}
               >
                 DBLP
               </a>

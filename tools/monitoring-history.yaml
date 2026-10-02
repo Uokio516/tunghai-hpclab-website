@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hpc-lab-history
+  namespace: default
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hpc-lab-history
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: hpc-lab-history
+  template:
+    metadata:
+      labels:
+        app: hpc-lab-history
+    spec:
+      containers:
+        - name: history
+          image: pokai516/hpc-lab:latest
+          imagePullPolicy: Always
+          command: ["npx", "tsx", "tools/history-service.ts"]
+          ports:
+            - containerPort: 3001
+          env:
+            - name: PORT
+              value: "3001"
+            - name: HISTORY_SOURCE_URL
+              value: "http://hpc-lab-service/api/gpus"
+            - name: HISTORY_DB_PATH
+              value: "/app/history/metrics.sqlite"
+          volumeMounts:
+            - name: data
+              mountPath: /app/history
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 25m
+              memory: 96Mi
+            limits:
+              cpu: 300m
+              memory: 384Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hpc-lab-history
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hpc-lab-history
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: hpc-lab-history
+  ports:
+    - port: 3001
+      targetPort: 3001

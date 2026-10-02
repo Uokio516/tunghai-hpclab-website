@@ -116,18 +116,18 @@ section[id] { scroll-margin-top:24px; }
   --ink-glass-strong: rgba(255, 255, 255, 0.06);
   --ink-scrim: rgba(8, 8, 8, 0.64);
 
-  --paper: #f4f1ea;
-  --paper-raised: #fbfaf6;
-  --paper-raised-2: #ffffff;
-  --paper-border: #e1dcce;
-  --paper-border-strong: #cdc5b0;
-  --paper-text: #1c1912;
-  --paper-text-dim: #5e594c;
-  --paper-text-faint: #6b6559; /* raised for AA contrast on all light surfaces */
+  --paper: #e8e2d8;
+  --paper-raised: #f0ebe3;
+  --paper-raised-2: #e9e3d9;
+  --paper-border: #cfc5b7;
+  --paper-border-strong: #b9ac99;
+  --paper-text: #251f18;
+  --paper-text-dim: #554d43;
+  --paper-text-faint: #655b4f;
   --paper-glass: rgba(10, 10, 10, 0.03);
   --paper-glass-border: rgba(10, 10, 10, 0.08);
   --paper-glass-strong: rgba(10, 10, 10, 0.05);
-  --paper-scrim: rgba(255, 255, 255, 0.82);
+  --paper-scrim: rgba(232, 226, 216, 0.9);
 
   --bg: var(--ink);
   --surface: var(--ink-raised);
@@ -147,6 +147,7 @@ section[id] { scroll-margin-top:24px; }
   /* gold / bronze accent family */
   --brand: #a78b71;
   --brand-light: #c9b8a0;
+  --brand-contrast: #0a0a0a;
   --brand-hover: #e8d5b7;
   --brand-rgb: 167, 139, 113;
   --brand-soft: rgba(167, 139, 113, 0.12);
@@ -167,31 +168,7 @@ section[id] { scroll-margin-top:24px; }
   color-scheme: dark;
 }
 
-/* Light mode follows OS preference by default... */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: var(--paper);
-    --surface: var(--paper-raised);
-    --surface-2: var(--paper-raised-2);
-    --border: var(--paper-border);
-    --border-strong: var(--paper-border-strong);
-    --text: var(--paper-text);
-    --text-dim: var(--paper-text-dim);
-    --text-faint: var(--paper-text-faint);
-    --glass: var(--paper-glass);
-    --glass-border: var(--paper-glass-border);
-    --glass-strong: var(--paper-glass-strong);
-    --scrim: var(--paper-scrim);
-    --dot-opacity: 0.06;
-    --dot-color: 10, 10, 10;
-    --brand: #8f6f4f;
-    --brand-light: #6f5638;
-    --brand-hover: #5c4730;
-    --shadow: 0 1px 2px rgba(30, 25, 15, 0.05), 0 16px 36px rgba(30, 25, 15, 0.07);
-    color-scheme: light;
-  }
-}
-/* ...but a manual toggle (data-theme on <html>) always wins. */
+/* First visit is dark; an explicit saved choice can select the softer light palette. */
 :root[data-theme="dark"] {
   --bg: var(--ink);
   --surface: var(--ink-raised);
@@ -230,6 +207,7 @@ section[id] { scroll-margin-top:24px; }
   --dot-color: 10, 10, 10;
   --brand: #8f6f4f;
   --brand-light: #6f5638;
+  --brand-contrast: #f8f4ed;
   --brand-hover: #5c4730;
   --shadow: 0 1px 2px rgba(30, 25, 15, 0.05), 0 16px 36px rgba(30, 25, 15, 0.07);
   color-scheme: light;
