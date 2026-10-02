@@ -59,6 +59,9 @@ def main():
             "gpus": m["gpus"],
             "virtual": m["virtual"],
             "reachable": reachable,
+            # Ports that answered during the sweep. The server re-probes these at
+            # runtime so the page shows live up/down rather than a frozen verdict.
+            "ports": (r or {}).get("ports", []),
             # No IP recorded at all means the sheet never had one; those boxes are
             # the ones that were moved and re-cabled, so they stay hidden too.
             "include": reachable,

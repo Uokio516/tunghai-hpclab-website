@@ -21,6 +21,7 @@ type InventoryMachine = {
   location: string; group: string; groupName: string;
   cpu: string | null; cpuThreads: number | null; ramGB: number | null;
   gpus: InventoryGpu[]; virtual: boolean; countsForCapacity: boolean; edge: boolean;
+  online: boolean | null; checkedAt: string | null; lastSeen: string | null; latencyMs: number | null;
 };
 type Data = {
   updatedAt: string; source: string;
@@ -28,6 +29,7 @@ type Data = {
     machinesTotal: number; machinesOnline: number; gpusOnline: number; gpusBusy: number;
     machinesTracked?: number; gpusTotal?: number; vramTotalGB?: number;
     cpuThreadsTotal?: number; ramTotalGB?: number; edgeDevices?: number;
+    hostsUp?: number; hostsTotal?: number; probedAt?: string | null;
   };
   gpuModels?: { model: string; count: number; vramGB: number | null }[];
   machines: Machine[];
@@ -103,7 +105,13 @@ export function GpuFleet() {
   const inventoryGroups = (() => {
     const order = ["圖書館機房", "ST430 機房", "叢集實體節點", "ST312 研究室", "ST429 研究室", "辦公室"];
     const by = new Map<string, InventoryMachine[]>();
-    (data?.inventory?.machines ?? []).forEach((m) => {
+    const matches = (m: InventoryMachine) => {
+      if (filter === "issues") return m.online === false;
+      if (filter === "active") return false; // no GPU utilisation telemetry for this tier
+      if (filter === "idle") return m.online === true;
+      return true;
+    };
+    (data?.inventory?.machines ?? []).filter(matches).forEach((m) => {
       const k = m.groupName || "其他";
       by.set(k, [...(by.get(k) ?? []), m]);
     });
@@ -129,7 +137,12 @@ export function GpuFleet() {
               <Kpi icon={Cpu} label="GPU 總數" value={String(data.summary.gpusTotal ?? data.summary.gpusOnline)} sub={data.summary.vramTotalGB ? `${data.summary.vramTotalGB} GB 顯存` : undefined} />
               <Kpi icon={Server} label="運算機器" value={String(data.summary.machinesTracked ?? data.summary.machinesTotal)} sub={data.summary.edgeDevices ? `另有 ${data.summary.edgeDevices} 台邊緣裝置` : undefined} />
               <Kpi icon={HardDrive} label="CPU 執行緒" value={String(data.summary.cpuThreadsTotal ?? 0)} sub={data.summary.ramTotalGB ? `${(data.summary.ramTotalGB / 1024).toFixed(1)} TB 記憶體` : undefined} />
-              <Kpi icon={Activity} label="即時遙測" value={`${data.summary.machinesOnline}/${data.summary.machinesTotal}`} sub={`使用中 ${data.summary.gpusBusy} · 閒置 ${Math.max(0, data.summary.gpusOnline - data.summary.gpusBusy)}`} />
+              <Kpi
+                icon={Activity}
+                label="機器在線"
+                value={data.summary.hostsTotal != null ? `${data.summary.hostsUp}/${data.summary.hostsTotal}` : `${data.summary.machinesOnline}/${data.summary.machinesTotal}`}
+                sub={`深度遙測 ${data.summary.machinesOnline}/${data.summary.machinesTotal} · 使用中 GPU ${data.summary.gpusBusy}`}
+              />
             </div>
 
             {data.gpuModels && data.gpuModels.length > 0 && (
@@ -145,7 +158,13 @@ export function GpuFleet() {
             )}
 
             <div className="metric-arcs">
-              <MetricArc value={data.summary.machinesOnline} max={data.summary.machinesTotal} label="Host availability" display={`${Math.round(data.summary.machinesOnline / Math.max(1, data.summary.machinesTotal) * 100)}%`} color="var(--good)" />
+              <MetricArc
+                value={data.summary.hostsUp ?? data.summary.machinesOnline}
+                max={data.summary.hostsTotal ?? data.summary.machinesTotal}
+                label="Host availability"
+                display={`${Math.round(((data.summary.hostsUp ?? data.summary.machinesOnline) / Math.max(1, data.summary.hostsTotal ?? data.summary.machinesTotal)) * 100)}%`}
+                color="var(--good)"
+              />
               <MetricArc value={data.summary.gpusBusy} max={data.summary.gpusOnline} label="Fleet load" display={`${Math.round(data.summary.gpusBusy / Math.max(1, data.summary.gpusOnline) * 100)}%`} color="var(--warn)" />
               <MetricArc value={data.machines.filter((m) => m.telemetryStatus === "collector-error").length} max={data.summary.machinesTotal} label="Telemetry issues" display={String(data.machines.filter((m) => m.telemetryStatus === "collector-error").length)} color="var(--critical)" />
             </div>
@@ -180,8 +199,8 @@ export function GpuFleet() {
                     <p className="monitor-eyebrow">Inventory · no exporter yet</p>
                     <h2 className="mt-1 text-2xl font-medium not-italic">其餘已盤點算力</h2>
                     <p className="mt-1.5 text-sm" style={{ color: "var(--text-dim)" }}>
-                      這些機器尚未安裝遙測 exporter，僅列出規格；數值來自裝置清冊，
-                      最後盤點 {data.inventory?.updatedAt}。
+                      這些機器尚未安裝 GPU exporter，運行狀態由伺服器每 60 秒連線探測，
+                      規格取自裝置清冊（{data.inventory?.updatedAt}）。
                     </p>
                   </div>
                 </div>
@@ -193,7 +212,7 @@ export function GpuFleet() {
                         {groupName}
                       </span>
                       <span className="text-xs tabular-nums" style={{ color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>
-                        {items.length}
+                        {items.filter((m) => m.online).length}/{items.length} 在線
                       </span>
                       <span className="h-px flex-1" style={{ background: "var(--border)" }} />
                     </div>
@@ -357,7 +376,7 @@ function InventoryCard({ m }: { m: InventoryMachine }) {
   ].filter(Boolean) as { k: string; v: string }[];
 
   return (
-    <div className="inventory-card">
+    <div className="inventory-card" style={{ opacity: m.online === false ? 0.55 : 1 }}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="truncate text-base font-bold">{m.label}</div>
@@ -365,7 +384,19 @@ function InventoryCard({ m }: { m: InventoryMachine }) {
             {[m.type, m.location].filter(Boolean).join(" · ")}
           </div>
         </div>
-        <span className="inventory-badge">已盤點</span>
+        <span
+          className="inventory-badge inline-flex items-center gap-1.5"
+          style={m.online == null ? undefined : { color: m.online ? "var(--good)" : "var(--text-faint)" }}
+        >
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{
+              background: m.online == null ? "var(--text-faint)" : m.online ? "var(--good)" : "var(--critical)",
+              boxShadow: m.online ? "0 0 0 2.5px var(--good-soft)" : "none",
+            }}
+          />
+          {m.online == null ? "探測中" : m.online ? "在線" : "離線"}
+        </span>
       </div>
 
       {m.gpus.length > 0 && (
@@ -385,6 +416,12 @@ function InventoryCard({ m }: { m: InventoryMachine }) {
               {g.passthrough ? " · 直通" : ""}
             </span>
           ))}
+        </div>
+      )}
+
+      {m.online === false && m.lastSeen && (
+        <div className="mt-2 text-xs" style={{ color: "var(--text-faint)" }}>
+          最後回應 {new Date(m.lastSeen).toLocaleTimeString("zh-TW", { hour12: false })}
         </div>
       )}
 

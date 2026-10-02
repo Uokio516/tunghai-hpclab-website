@@ -115,6 +115,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -143,6 +144,9 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -171,6 +175,11 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        30678,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -199,6 +208,12 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443,
+        9100
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -227,6 +242,9 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        30678
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -255,6 +273,11 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -283,6 +306,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -311,6 +338,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        30678,
+        80
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -339,6 +370,9 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -367,6 +401,11 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -395,6 +434,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        30678,
+        80
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -423,6 +466,9 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        30678
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -451,6 +497,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        30678,
+        80
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -479,6 +529,9 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        30678
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -507,6 +560,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -535,6 +589,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -563,6 +618,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -584,6 +640,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -612,6 +669,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -640,6 +698,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -668,6 +727,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -696,6 +756,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -724,6 +785,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -752,6 +814,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -780,6 +843,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -808,6 +875,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -836,6 +904,11 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -857,6 +930,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -878,6 +952,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -899,6 +974,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -920,6 +996,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -941,6 +1018,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -962,6 +1040,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -983,6 +1062,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1004,6 +1084,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1025,6 +1106,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1053,6 +1135,12 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443,
+        9100
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1081,6 +1169,11 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        443,
+        9100
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1109,6 +1202,12 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443,
+        9100
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1130,6 +1229,10 @@
       "gpus": [],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        8006
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1158,6 +1261,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        8006
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1186,6 +1293,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        8006
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1214,6 +1325,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        8006
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1235,6 +1350,10 @@
       "gpus": [],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        8006
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1256,6 +1375,10 @@
       "gpus": [],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        8006
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1277,6 +1400,10 @@
       "gpus": [],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        8006
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1305,6 +1432,9 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1326,6 +1456,9 @@
       "gpus": [],
       "virtual": true,
       "reachable": true,
+      "ports": [
+        22
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": false,
@@ -1347,6 +1480,11 @@
       "gpus": [],
       "virtual": true,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": false,
@@ -1368,6 +1506,11 @@
       "gpus": [],
       "virtual": true,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": false,
@@ -1389,6 +1532,11 @@
       "gpus": [],
       "virtual": true,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": false,
@@ -1417,6 +1565,11 @@
       ],
       "virtual": true,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": false,
@@ -1445,6 +1598,11 @@
       ],
       "virtual": true,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": false,
@@ -1473,6 +1631,11 @@
       ],
       "virtual": true,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": false,
@@ -1501,6 +1664,10 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        8006
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1522,6 +1689,10 @@
       "gpus": [],
       "virtual": true,
       "reachable": true,
+      "ports": [
+        22,
+        80
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": false,
@@ -1550,6 +1721,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -1578,6 +1750,11 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1606,6 +1783,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -1634,6 +1812,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -1662,6 +1841,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "relocated",
       "countsForCapacity": false,
@@ -1683,6 +1863,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1704,6 +1885,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1725,6 +1907,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1746,6 +1929,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1774,6 +1958,9 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1795,6 +1982,7 @@
       "gpus": [],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1823,6 +2011,9 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,
@@ -1851,6 +2042,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1879,6 +2071,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1907,6 +2100,7 @@
       ],
       "virtual": false,
       "reachable": false,
+      "ports": [],
       "include": false,
       "excludeReason": "no-address",
       "countsForCapacity": false,
@@ -1935,6 +2129,11 @@
       ],
       "virtual": false,
       "reachable": true,
+      "ports": [
+        22,
+        80,
+        443
+      ],
       "include": true,
       "excludeReason": null,
       "countsForCapacity": true,

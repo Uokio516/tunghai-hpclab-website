@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import fs from "fs";
+import net from "net";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -167,8 +168,8 @@ async function startServer() {
     id: string; ip: string | null; label: string; owner: string; type: string; os: string | null;
     location: string; group: string; groupName: string;
     cpu: string | null; cpuThreads: number | null; ramGB: number | null;
-    gpus: InventoryGpu[]; virtual: boolean; reachable: boolean; include: boolean;
-    excludeReason: string | null; countsForCapacity: boolean; edge: boolean;
+    gpus: InventoryGpu[]; virtual: boolean; reachable: boolean; ports: number[];
+    include: boolean; excludeReason: string | null; countsForCapacity: boolean; edge: boolean;
   };
   type Inventory = {
     updatedAt: string; probedAt: string; source: string;
@@ -190,12 +191,83 @@ async function startServer() {
   // file for the next sync but never rendered.
   const shownInventory = (inv: Inventory) => inv.machines.filter((m) => m.include);
 
+  // Live reachability for the machines that have no exporter. Without this the page
+  // would be a frozen spec sheet; the lab wants it to read as monitoring, so each
+  // listed machine is re-probed on a timer and reports real up/down.
+  //
+  // A plain TCP connect, nothing sent, nothing logged into — the cheapest check that
+  // still distinguishes "powered on" from "not answering". ICMP would need a raw
+  // socket and root, which this container deliberately does not have.
+  const PROBE_INTERVAL_MS = 60_000;
+  const PROBE_TIMEOUT_MS = 1_500;
+  const PROBE_CONCURRENCY = 16;
+  const DEFAULT_PORTS = [22, 80, 443, 3389];
+  type Liveness = { online: boolean; checkedAt: string; lastSeen: string | null; latencyMs: number | null };
+  const liveness = new Map<string, Liveness>();
+
+  const tcpOpen = (host: string, port: number) =>
+    new Promise<boolean>((resolve) => {
+      const sock = new net.Socket();
+      let settled = false;
+      const done = (ok: boolean) => {
+        if (settled) return;
+        settled = true;
+        sock.destroy();
+        resolve(ok);
+      };
+      sock.setTimeout(PROBE_TIMEOUT_MS);
+      sock.once("connect", () => done(true));
+      sock.once("timeout", () => done(false));
+      sock.once("error", () => done(false));
+      sock.connect(port, host);
+    });
+
+  const probeHost = async (m: InventoryMachine): Promise<void> => {
+    if (!m.ip) return;
+    const ports = m.ports?.length ? m.ports : DEFAULT_PORTS;
+    const started = Date.now();
+    // First port to answer decides it; the rest are abandoned.
+    const online = (await Promise.all(ports.map((p) => tcpOpen(m.ip!, p)))).some(Boolean);
+    const prev = liveness.get(m.ip);
+    liveness.set(m.ip, {
+      online,
+      checkedAt: new Date().toISOString(),
+      lastSeen: online ? new Date().toISOString() : prev?.lastSeen ?? null,
+      latencyMs: online ? Date.now() - started : null,
+    });
+  };
+
+  const sweep = async () => {
+    const inv = loadInventory();
+    if (!inv) return;
+    const targets = inv.machines.filter((m) => m.include && m.ip);
+    for (let i = 0; i < targets.length; i += PROBE_CONCURRENCY) {
+      await Promise.all(targets.slice(i, i + PROBE_CONCURRENCY).map(probeHost));
+    }
+  };
+  // Kick off immediately so the first page load is not blank, then keep it warm.
+  void sweep();
+  const sweepTimer = setInterval(() => void sweep(), PROBE_INTERVAL_MS);
+  sweepTimer.unref?.();
+
+  const withLiveness = (m: InventoryMachine) => {
+    const { ip, ports, ...rest } = m;
+    const l = ip ? liveness.get(ip) : undefined;
+    return {
+      ...rest,
+      online: l?.online ?? null,
+      checkedAt: l?.checkedAt ?? null,
+      lastSeen: l?.lastSeen ?? null,
+      latencyMs: l?.latencyMs ?? null,
+    };
+  };
+
   app.get("/api/lab-inventory", (_req, res) => {
     const inv = loadInventory();
     if (!inv) return res.status(404).json({ error: "Inventory not available" });
     // Public-safe view: addresses stay server-side, same rule as /api/gpus.
     const { machines, ...rest } = inv;
-    res.json({ ...rest, machines: shownInventory(inv).map(({ ip, ...m }) => m) });
+    res.json({ ...rest, machines: shownInventory(inv).map(withLiveness) });
   });
 
   // Library GPU fleet live status (public). Queries the lab Prometheus server-side and
@@ -366,7 +438,7 @@ async function startServer() {
       const listed = inv
         ? shownInventory(inv)
             .filter((m) => !m.virtual && !(m.ip && liveIps.has(m.ip)))
-            .map(({ ip, ...m }) => m)
+            .map(withLiveness)
         : [];
 
       // Capacity across both tiers. Guest VMs and display-only cards are excluded so a
@@ -411,6 +483,10 @@ async function startServer() {
             sum(liveCapacity.map((m: any) => invByIp.get(m.ip)?.ramGB)) +
             sum(countable.map((m) => m.ramGB)),
           edgeDevices: listed.filter((m) => m.edge).length,
+          // Running state across both tiers, which is what the page is asked to show.
+          hostsUp: online.length + listed.filter((m) => m.online === true).length,
+          hostsTotal: list.length + listed.length,
+          probedAt: listed.find((m) => m.checkedAt)?.checkedAt ?? null,
           relocatedHidden: inv ? inv.machines.filter((m) => !m.include).length : dropped,
         },
         gpuModels,
