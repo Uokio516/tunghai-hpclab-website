@@ -1,0 +1,216 @@
+{
+  "targets": [
+    {
+      "machineId": "inv-09",
+      "capacityHostId": "inv-09",
+      "kind": "node",
+      "url": "http://140.128.101.67:9100/metrics"
+    },
+    {
+      "machineId": "inv-09",
+      "capacityHostId": "inv-09",
+      "kind": "nvidia",
+      "url": "http://140.128.101.67:9835/metrics"
+    },
+    {
+      "machineId": "inv-10",
+      "capacityHostId": "inv-10",
+      "kind": "node",
+      "url": "http://140.128.101.200:9100/metrics"
+    },
+    {
+      "machineId": "inv-10",
+      "capacityHostId": "inv-10",
+      "kind": "nvidia",
+      "url": "http://140.128.101.200:9835/metrics"
+    },
+    {
+      "machineId": "inv-12",
+      "capacityHostId": "inv-12",
+      "kind": "node",
+      "url": "http://140.128.101.199:9100/metrics"
+    },
+    {
+      "machineId": "inv-12",
+      "capacityHostId": "inv-12",
+      "kind": "nvidia",
+      "url": "http://140.128.101.199:9835/metrics"
+    },
+    {
+      "machineId": "inv-13",
+      "capacityHostId": "inv-13",
+      "kind": "node",
+      "url": "http://140.128.101.66:9100/metrics"
+    },
+    {
+      "machineId": "inv-13",
+      "capacityHostId": "inv-13",
+      "kind": "nvidia",
+      "url": "http://140.128.101.66:9835/metrics"
+    },
+    {
+      "machineId": "inv-25",
+      "capacityHostId": "inv-25",
+      "kind": "node",
+      "url": "http://172.23.2.149:9100/metrics",
+      "transport": "push"
+    },
+    {
+      "machineId": "inv-25",
+      "capacityHostId": "inv-25",
+      "kind": "nvidia",
+      "url": "http://172.23.2.149:9835/metrics",
+      "transport": "push"
+    },
+    {
+      "machineId": "inv-27",
+      "capacityHostId": "inv-27",
+      "kind": "node",
+      "url": "http://140.128.101.185:9100/metrics"
+    },
+    {
+      "machineId": "inv-27",
+      "capacityHostId": "inv-27",
+      "kind": "nvidia",
+      "url": "http://140.128.101.185:9835/metrics"
+    },
+    {
+      "machineId": "inv-40",
+      "capacityHostId": "inv-40",
+      "kind": "node",
+      "url": "http://172.24.13.171:9100/metrics"
+    },
+    {
+      "machineId": "inv-41",
+      "capacityHostId": "inv-41",
+      "kind": "node",
+      "url": "http://172.24.13.172:9100/metrics"
+    },
+    {
+      "machineId": "inv-42",
+      "capacityHostId": "inv-42",
+      "kind": "node",
+      "url": "http://172.24.13.173:9100/metrics"
+    },
+    {
+      "machineId": "inv-42",
+      "capacityHostId": "inv-42",
+      "kind": "nvidia",
+      "url": "http://172.24.13.252:9835/metrics"
+    },
+    {
+      "machineId": "inv-43",
+      "capacityHostId": "inv-43",
+      "kind": "node",
+      "url": "http://172.24.13.174:9100/metrics"
+    },
+    {
+      "machineId": "inv-44",
+      "capacityHostId": "inv-44",
+      "kind": "node",
+      "url": "http://172.24.13.175:9100/metrics"
+    },
+    {
+      "machineId": "inv-45",
+      "capacityHostId": "inv-45",
+      "kind": "node",
+      "url": "http://172.24.13.176:9100/metrics"
+    },
+    {
+      "machineId": "inv-46",
+      "capacityHostId": "inv-46",
+      "kind": "node",
+      "url": "http://172.24.13.177:9100/metrics"
+    },
+    {
+      "machineId": "inv-49",
+      "capacityHostId": "inv-49",
+      "kind": "node",
+      "url": "http://172.24.13.41:9100/metrics"
+    },
+    {
+      "machineId": "inv-50",
+      "capacityHostId": "inv-50",
+      "kind": "node",
+      "url": "http://172.24.13.42:9100/metrics"
+    },
+    {
+      "machineId": "inv-51",
+      "capacityHostId": "inv-51",
+      "kind": "node",
+      "url": "http://172.24.13.43:9100/metrics"
+    },
+    {
+      "machineId": "inv-52",
+      "capacityHostId": "inv-37",
+      "kind": "node",
+      "url": "http://172.24.13.247:9100/metrics"
+    },
+    {
+      "machineId": "inv-52",
+      "capacityHostId": "inv-37",
+      "kind": "nvidia",
+      "url": "http://172.24.13.247:9835/metrics"
+    },
+    {
+      "machineId": "inv-53",
+      "capacityHostId": "inv-38",
+      "kind": "node",
+      "url": "http://172.24.13.249:9100/metrics"
+    },
+    {
+      "machineId": "inv-53",
+      "capacityHostId": "inv-38",
+      "kind": "nvidia",
+      "url": "http://172.24.13.249:9835/metrics"
+    },
+    {
+      "machineId": "inv-54",
+      "capacityHostId": "inv-39",
+      "kind": "node",
+      "url": "http://172.24.13.244:9100/metrics"
+    },
+    {
+      "machineId": "inv-54",
+      "capacityHostId": "inv-39",
+      "kind": "nvidia",
+      "url": "http://172.24.13.244:9835/metrics"
+    },
+    {
+      "machineId": "inv-55",
+      "capacityHostId": "inv-55",
+      "kind": "node",
+      "url": "http://172.24.13.248:9100/metrics"
+    },
+    {
+      "machineId": "inv-56",
+      "capacityHostId": "inv-56",
+      "kind": "node",
+      "url": "http://140.128.101.179:9100/metrics"
+    },
+    {
+      "machineId": "inv-58",
+      "capacityHostId": "inv-58",
+      "kind": "node",
+      "url": "http://172.24.13.84:9100/metrics"
+    },
+    {
+      "machineId": "inv-58",
+      "capacityHostId": "inv-58",
+      "kind": "nvidia",
+      "url": "http://172.24.13.84:9835/metrics"
+    },
+    {
+      "machineId": "inv-72",
+      "capacityHostId": "inv-72",
+      "kind": "node",
+      "url": "http://172.24.13.244:9300/metrics"
+    },
+    {
+      "machineId": "inv-72",
+      "capacityHostId": "inv-72",
+      "kind": "nvidia",
+      "url": "http://172.24.13.244:9301/metrics"
+    }
+  ]
+}

@@ -6,7 +6,9 @@ import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import fs from "fs";
 import net from "net";
+import { timingSafeEqual } from "node:crypto";
 import { freshGpuTelemetry, sanitizeGpuTelemetry, type GpuTelemetry } from "./gpu-telemetry";
+import { ExporterCollector, loadExporterTargets } from "./exporter-collector";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +44,25 @@ function canonicalGpu(raw: string): string {
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+  const exporterCollector = new ExporterCollector(loadExporterTargets());
+
+  app.post("/api/internal/exporter-telemetry", (req, res, next) => {
+    const configured = process.env.EXPORTER_PUSH_TOKEN;
+    const supplied = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
+    if (!configured || !supplied) return res.status(401).json({ error: "Unauthorized" });
+    const expected = Buffer.from(configured), actual = Buffer.from(supplied);
+    if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) return res.status(401).json({ error: "Unauthorized" });
+    next();
+  }, express.json({ limit: "2mb" }), (req, res) => {
+    const { machineId, kind, metrics, sampledAt } = req.body ?? {};
+    if (typeof machineId !== "string" || !["node", "nvidia"].includes(kind) || typeof metrics !== "string"
+      || (sampledAt != null && typeof sampledAt !== "string")) return res.status(400).json({ error: "Invalid telemetry" });
+    if (!exporterCollector.ingestPush(machineId, kind, metrics, sampledAt)) return res.status(404).json({ error: "Telemetry target unavailable" });
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ ok: true });
+  }, (error: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    res.status(error?.type === "entity.too.large" ? 413 : 400).json({ error: "Invalid telemetry payload" });
+  });
 
   app.use(express.json());
 
@@ -169,6 +190,7 @@ async function startServer() {
   let capabilities: Capability[] = [];
   try { capabilities = JSON.parse(readSnapshot("gpu-capabilities") ?? "{}").machines ?? []; }
   catch { console.error("GPU capability metadata unavailable"); }
+  exporterCollector.start();
   const gpuTelemetry = new Map<string, GpuTelemetry[]>();
   const telemetryUrl = process.env.GPU_TELEMETRY_URL;
   let refreshingTelemetry = false;
@@ -291,16 +313,26 @@ async function startServer() {
     const { ip, ports, ...rest } = m;
     const l = ip ? liveness.get(ip) : undefined;
     const alias = capabilities.find(c => c.machineId === m.id)?.telemetryId;
-    const measurements = gpuTelemetry.get(m.id) ?? (alias ? gpuTelemetry.get(alias) : undefined);
+    const provider = gpuTelemetry.get(m.id) ?? (alias ? gpuTelemetry.get(alias) : undefined);
+    const direct = exporterCollector.snapshot(m.id);
+    const measurements = [...(direct?.gpus ?? []), ...(provider ?? [])]
+      .sort((a, b) => Date.parse(b.sampledAt ?? "") - Date.parse(a.sampledAt ?? ""));
+    const monitored = !!direct || measurements.some(gpu => gpu.sampledAt != null);
+    const sampledAt = [direct?.sampledAt, ...measurements.map(gpu => gpu.sampledAt)].filter(Boolean).sort().at(-1) ?? null;
     return {
       ...rest,
       gpus: m.gpus.map((gpu, index) => {
         const measurement = measurements?.find(g => g.index === String(index));
         return measurement ? { ...gpu, ...freshGpuTelemetry(measurement) } : gpu;
       }),
-      online: l?.online ?? null,
-      checkedAt: l?.checkedAt ?? null,
-      lastSeen: l?.lastSeen ?? null,
+      monitored,
+      telemetryStatus: direct?.telemetryStatus ?? (measurements.some(gpu => gpu.sampledAt && Date.now() - Date.parse(gpu.sampledAt) < 120_000) ? "healthy" : "awaiting-data"),
+      sampledAt, systemSampledAt: direct?.systemSampledAt ?? null,
+      cpuPercent: direct?.cpuPercent ?? null, ramUsed: direct?.ramUsed ?? null, ramTotal: direct?.ramTotal ?? null,
+      sharedMemory: direct?.sharedMemory ?? null,
+      online: direct?.telemetryStatus === "healthy" ? true : l?.online ?? null,
+      checkedAt: l?.checkedAt ?? direct?.checkedAt ?? null,
+      lastSeen: [l?.lastSeen, direct?.lastSeen].filter(Boolean).sort().at(-1) ?? null,
       latencyMs: l?.latencyMs ?? null,
     };
   };
@@ -318,48 +350,53 @@ async function startServer() {
   // Prometheus itself is not publicly reachable. The Prometheus location comes only from
   // the PROMETHEUS_URL env var (see .env.example) — no internal address is baked in.
   const PROM = process.env.PROMETHEUS_URL;
+  let lastPromMetrics: any[][] = [];
+  let lastPromCollectedAt: string | null = null;
   app.get("/api/gpus", async (_req, res) => {
     res.setHeader("Cache-Control", "no-store");
-    if (!PROM) {
+    if (!PROM && !exporterCollector.configured) {
       return res.status(503).json({ error: "GPU monitoring not configured" });
     }
     const promBase: string = PROM;
     const q = async (expr: string) => {
+      if (!promBase) return [];
       const r = await fetch(`${promBase}/api/v1/query?query=${encodeURIComponent(expr)}`, { signal: AbortSignal.timeout(8000) });
       if (!r.ok) throw new Error(`Prometheus HTTP ${r.status}`);
       const j: any = await r.json();
       if (j.status !== "success") throw new Error("Prometheus query failed");
       return (j?.data?.result ?? []) as any[];
     };
+    const publicText = (value: unknown) => typeof value === "string" && value.length <= 120 && !/\b(?:\d{1,3}\.){3}\d{1,3}\b|https?:\/\//.test(value) ? value : "";
     const gkey = (m: any) => `${m.instance}|${m.uuid ?? m.index ?? ""}`;
     const pick = (arr: any[], k: string) => {
       const f = arr.find((x) => gkey(x.metric) === k);
       return f ? Number(f.value[1]) : null;
     };
     try {
+      let prometheusStatus = PROM ? "healthy" : "not-configured";
+      let metrics: any[][];
+      try {
+        metrics = await Promise.all([
+          q("nvidia_smi_gpu_info"), q('up{job="gpu-nodes"}'),
+          q("nvidia_smi_utilization_gpu_ratio"), q("timestamp(nvidia_smi_utilization_gpu_ratio)"),
+          q("nvidia_smi_last_collect_success"), q("nvidia_smi_command_exit_code"),
+          q("nvidia_smi_memory_used_bytes"), q("nvidia_smi_memory_total_bytes"),
+          q("nvidia_smi_temperature_gpu"), q("nvidia_smi_power_draw_watts"),
+          q("nvidia_smi_power_limit_watts"), q("nvidia_smi_fan_speed_ratio"),
+          q('100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)'),
+          q("node_memory_MemTotal_bytes"), q("node_memory_MemAvailable_bytes"),
+        ]);
+        lastPromMetrics = metrics;
+        lastPromCollectedAt = new Date().toISOString();
+      } catch {
+        prometheusStatus = "unavailable";
+        metrics = lastPromMetrics.length ? lastPromMetrics : Array.from({ length: 15 }, () => []);
+      }
       const [
         info, up, util, sampledAt, collectSuccess, commandExitCode,
         memUsed, memTotal, temp, power, powerLimit, fan,
         cpuBusy, ramTotal, ramAvail,
-      ] = await Promise.all([
-        q("nvidia_smi_gpu_info"),
-        q('up{job="gpu-nodes"}'),
-        // Latest exporter sample, with its actual scrape time for freshness.
-        q("nvidia_smi_utilization_gpu_ratio"),
-        q("timestamp(nvidia_smi_utilization_gpu_ratio)"),
-        q("nvidia_smi_last_collect_success"),
-        q("nvidia_smi_command_exit_code"),
-        q("nvidia_smi_memory_used_bytes"),
-        q("nvidia_smi_memory_total_bytes"),
-        q("nvidia_smi_temperature_gpu"),
-        q("nvidia_smi_power_draw_watts"),
-        q("nvidia_smi_power_limit_watts"),
-        q("nvidia_smi_fan_speed_ratio"),
-        // system metrics from node_exporter (joined by IP below)
-        q('100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)'),
-        q("node_memory_MemTotal_bytes"),
-        q("node_memory_MemAvailable_bytes"),
-      ]);
+      ] = metrics;
 
       // node_exporter runs on a different port, so join on IP (strip :port)
       const byIp = (arr: any[]) => {
@@ -391,17 +428,20 @@ async function startServer() {
         const m = g.metric;
         const inst = m.instance as string;
         if (!machines[inst]) {
-          const ip = (m.hostname as string) || inst.split(":")[0];
+          // Exporter hostname may be a DNS/OS name; instance identifies the
+          // network endpoint used by the inventory and node exporter.
+          const ip = inst.split(":")[0];
           const ramTotalB = ramTotalByIp[ip];
           const ramAvailB = ramAvailByIp[ip];
+          const systemFresh = lastPromCollectedAt && Date.now() - Date.parse(lastPromCollectedAt) < 120_000;
           machines[inst] = {
             instance: inst,
             ip, // stripped before sending to the client, see publicList below
-            owner: m.owner || "",
-            location: m.location || "",
+            owner: publicText(m.owner),
+            location: publicText(m.location),
             online: (upBy[inst] ?? 0) === 1,
-            cpuPercent: cpuByIp[ip] != null ? Math.max(0, Math.min(100, cpuByIp[ip])) : null,
-            ramUsed: ramTotalB != null && ramAvailB != null ? ramTotalB - ramAvailB : null,
+            cpuPercent: systemFresh && cpuByIp[ip] != null ? Math.max(0, Math.min(100, cpuByIp[ip])) : null,
+            ramUsed: systemFresh && ramTotalB != null && ramAvailB != null ? ramTotalB - ramAvailB : null,
             ramTotal: ramTotalB ?? null,
             gpus: [],
           };
@@ -412,19 +452,19 @@ async function startServer() {
           && machines[inst].online && collectSuccessBy[inst] !== 0;
         machines[inst].gpus.push({
           index: m.index,
-          name: m.name,
-          model: m.gpu,
-          driver: m.driver_version,
+          name: publicText(m.name),
+          model: publicText(m.gpu),
+          driver: publicText(m.driver_version),
           util: fresh ? pick(util, k) : null,
           utilAvailable: true,
           utilUnavailableReason: fresh ? null : "awaiting-data",
           sampledAt: sampleTime != null ? new Date(sampleTime * 1000).toISOString() : null,
-          memUsed: pick(memUsed, k),
+          memUsed: fresh ? pick(memUsed, k) : null,
           memTotal: pick(memTotal, k),
-          temp: pick(temp, k),
-          power: pick(power, k),
+          temp: fresh ? pick(temp, k) : null,
+          power: fresh ? pick(power, k) : null,
           powerLimit: pick(powerLimit, k),
-          fan: pick(fan, k),
+          fan: fresh ? pick(fan, k) : null,
         });
       });
       // include targets that are down (no gpu_info) so they show as offline
@@ -486,9 +526,10 @@ async function startServer() {
         label: m.owner || `機器 ${i + 1}`,
         location: m.location || "",
         online: m.online,
-        telemetryStatus: collectSuccessBy[m.instance] === 0 ? "collector-error" : m.gpus.some((g: any) => g.util != null) ? "healthy" : "awaiting-data",
+        telemetryStatus: prometheusStatus === "unavailable" || collectSuccessBy[m.instance] === 0 ? "collector-error" : m.gpus.some((g: any) => g.util != null) ? "healthy" : "awaiting-data",
         telemetryCode: collectSuccessBy[m.instance] === 0 ? commandExitCodeBy[m.instance] ?? null : m.telemetryCode ?? null,
         cpuPercent: m.cpuPercent,
+        systemSampledAt: lastPromCollectedAt,
         ramUsed: m.ramUsed,
         ramTotal: m.ramTotal,
         gpus: m.gpus,
@@ -498,8 +539,9 @@ async function startServer() {
       const liveIps = new Set(list.map((m: any) => m.ip));
       const listed = inv
         ? shownInventory(inv)
-            .filter((m) => !m.virtual && !(m.ip && liveIps.has(m.ip)))
+            .filter((m) => !(m.ip && liveIps.has(m.ip)) && (!m.virtual || exporterCollector.snapshot(m.id)))
             .map(withLiveness)
+            .map(machine => machine.virtual ? { ...machine, gpus: [] } : machine)
         : [];
 
       // Capacity across both tiers. Guest VMs and display-only cards are excluded so a
@@ -522,26 +564,32 @@ async function startServer() {
       countable.forEach((m) =>
         m.gpus.filter((g) => g.class !== "display-only" && g.class !== "edge").forEach((g) => addModel(g.model, g.vramGB))
       );
-      const gpuModels = [...byModel.values()].sort((a, b) => (b.vramGB ?? 0) - (a.vramGB ?? 0) || a.model.localeCompare(b.model));
+      // Hardware capacity is inventory-derived, independent of exporter count,
+      // temporary failures and passthrough VM scrape endpoints.
+      const gpuModels = (inv?.gpuModels?.length ? inv.gpuModels.map(({ model, count, vramGB }) => ({ model, count, vramGB })) : [...byModel.values()])
+        .sort((a, b) => (b.vramGB ?? 0) - (a.vramGB ?? 0) || a.model.localeCompare(b.model));
       const sum = (ns: (number | null | undefined)[]) => ns.reduce((t: number, n) => t + (n ?? 0), 0);
+      const monitoredInventory = listed.filter(m => m.monitored);
+      const listedGpuOnline = listed.filter(m => m.online && !m.edge).flatMap(m => m.gpus.filter(g => g.class !== "display-only" && g.sampledAt && Date.now() - Date.parse(g.sampledAt) < 120_000));
 
       res.json({
         updatedAt: new Date().toISOString(),
-        source: inv ? "prometheus+inventory" : "prometheus",
+        source: inv ? "prometheus+exporters+inventory" : "prometheus",
+        prometheusStatus,
         summary: {
-          machinesTotal: list.length,
-          machinesOnline: online.length,
-          gpusOnline: gpuCount,
-          gpusBusy: busy,
+          machinesTotal: list.length + monitoredInventory.length,
+          machinesOnline: online.length + monitoredInventory.filter(m => m.telemetryStatus === "healthy").length,
+          gpusOnline: gpuCount + listedGpuOnline.length,
+          gpusBusy: busy + listedGpuOnline.filter(g => (g.util ?? 0) >= .2).length,
           // Whole-lab figures spanning the live and the listed tier.
-          machinesTracked: liveCapacity.length + countable.length,
-          gpusTotal: gpuModels.reduce((n, e) => n + e.count, 0),
-          vramTotalGB: gpuModels.reduce((n, e) => n + e.count * (e.vramGB ?? 0), 0),
+          machinesTracked: inv?.totals?.machines ?? liveCapacity.length + countable.length,
+          gpusTotal: inv?.totals?.gpus ?? gpuModels.reduce((n, e) => n + e.count, 0),
+          vramTotalGB: inv?.totals?.vramGB ?? gpuModels.reduce((n, e) => n + e.count * (e.vramGB ?? 0), 0),
           cpuThreadsTotal:
-            sum(liveCapacity.map((m: any) => invByIp.get(m.ip)?.cpuThreads)) +
+            inv?.totals?.cpuThreads ?? sum(liveCapacity.map((m: any) => invByIp.get(m.ip)?.cpuThreads)) +
             sum(countable.map((m) => m.cpuThreads)),
           ramTotalGB:
-            sum(liveCapacity.map((m: any) => invByIp.get(m.ip)?.ramGB)) +
+            inv?.totals?.ramGB ?? sum(liveCapacity.map((m: any) => invByIp.get(m.ip)?.ramGB)) +
             sum(countable.map((m) => m.ramGB)),
           edgeDevices: listed.filter((m) => m.edge).length,
           // Running state across both tiers, which is what the page is asked to show.

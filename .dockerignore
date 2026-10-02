@@ -5,3 +5,7 @@ dist
 *.sqlite
 .env
 database.sqlite
+**/__pycache__
+**/*.pyc
+docs/SPEC-a100-mig-telemetry.md
+.git

@@ -11,12 +11,14 @@ type Gpu = MigInfo & {
   util: number | null; memUsed: number | null; memTotal: number | null;
   temp: number | null; power: number | null; powerLimit: number | null; fan: number | null;
   sampledAt?: string | null;
+  class?: string;
 };
 type Machine = {
   id: string; label: string; location: string;
   online: boolean; cpuPercent: number | null; ramUsed: number | null; ramTotal: number | null;
   telemetryStatus?: "healthy" | "collector-error" | "awaiting-data";
   telemetryCode?: number | null;
+  systemSampledAt?: string | null;
   gpus: Gpu[];
 };
 type InventoryGpu = MigInfo & { model: string; vramGB: number | null; class: string; passthrough: boolean };
@@ -26,9 +28,14 @@ type InventoryMachine = {
   cpu: string | null; cpuThreads: number | null; ramGB: number | null;
   gpus: InventoryGpu[]; virtual: boolean; countsForCapacity: boolean; edge: boolean;
   online: boolean | null; checkedAt: string | null; lastSeen: string | null; latencyMs: number | null;
+  monitored?: boolean; telemetryStatus?: "healthy" | "collector-error" | "awaiting-data";
+  sampledAt?: string | null; systemSampledAt?: string | null;
+  cpuPercent?: number | null; ramUsed?: number | null; ramTotal?: number | null;
+  sharedMemory?: { used: number | null; total: number | null; sampledAt: string } | null;
 };
 type Data = {
   updatedAt: string; source: string;
+  prometheusStatus?: string;
   summary: {
     machinesTotal: number; machinesOnline: number; gpusOnline: number; gpusBusy: number;
     machinesTracked?: number; gpusTotal?: number; vramTotalGB?: number;
@@ -119,9 +126,11 @@ export function GpuFleet() {
     const order = ["圖書館機房", "ST430 機房", "叢集實體節點", "ST312 研究室", "ST429 研究室", "辦公室"];
     const by = new Map<string, InventoryMachine[]>();
     const matches = (m: InventoryMachine) => {
-      if (filter === "issues") return m.online === false;
-      if (filter === "active") return false; // no GPU utilisation telemetry for this tier
-      if (filter === "idle") return false; // Reachability cannot establish GPU idleness.
+      const gpus = m.gpus.filter(g => g.class !== "display-only");
+      const current = (g: InventoryGpu) => !!g.sampledAt && now - Date.parse(g.sampledAt) < 120_000;
+      if (filter === "issues") return m.online === false || !!m.monitored && m.telemetryStatus !== "healthy";
+      if (filter === "active") return gpus.some(g => current(g) && (g.util ?? 0) >= .2) || !gpus.length && (m.cpuPercent ?? 0) >= 20;
+      if (filter === "idle") return m.online === true && (gpus.length ? gpus.every(g => current(g) && g.util != null && g.util < .2) : m.cpuPercent != null && m.cpuPercent < 20);
       return true;
     };
     (data?.inventory?.machines ?? []).filter(matches).forEach((m) => {
@@ -135,7 +144,7 @@ export function GpuFleet() {
 
   return (
     <MonitoringChrome
-      eyebrow="Lab Compute Fleet · Prometheus + Inventory"
+      eyebrow="Lab Compute Fleet · Live Telemetry"
       title={<>實驗室<span style={{ color: "var(--brand-light)" }}>全部算力</span></>}
       description="即時 GPU 遙測與全實驗室算力盤點。使用率採最新一次採樣；未接遙測的機器提供連線狀態與規格。"
       live={!!data && !error && !!at && now - at.getTime() < 20_000}
@@ -144,6 +153,7 @@ export function GpuFleet() {
         {error && !data && <div className="panel p-8 text-center text-base" style={{ color: "var(--critical)" }}>監控資料暫時無法讀取。</div>}
         {!error && !data && <div className="panel animate-pulse p-8 text-center text-base" style={{ color: "var(--text-dim)" }}>載入中…</div>}
         {data && (error || (at && now - at.getTime() > 20_000)) && <p role="alert" className="monitor-notice">資料更新中斷，以下保留上次結果。系統會自動重試。</p>}
+        {data?.prometheusStatus === "unavailable" && <p role="alert" className="monitor-notice">Prometheus 來源暫時無法更新；其他機器的即時監控持續運作。保留的測量會標示採樣時間，過期後顯示未知。</p>}
 
         {data && (
           <>
@@ -203,11 +213,11 @@ export function GpuFleet() {
               <>
                 <div className="monitor-toolbar mt-14">
                   <div>
-                    <p className="monitor-eyebrow">Inventory · no exporter yet</p>
-                    <h2 className="mt-1 text-2xl font-medium not-italic">其餘已盤點算力</h2>
+                    <p className="monitor-eyebrow">Fleet · Exporters + Inventory</p>
+                    <h2 className="mt-1 text-2xl font-medium not-italic">全實驗室運行監控</h2>
                     <p className="mt-1.5 text-sm" style={{ color: "var(--text-dim)" }}>
-                      這些機器尚未安裝 GPU exporter，運行狀態由伺服器每 60 秒連線探測，
-                      規格取自裝置清冊（{data.inventory?.updatedAt}）。
+                      已接 exporter 的機器每 5 秒收集 CPU、記憶體與 GPU 遙測；其餘機器每 60 秒探測連線。
+                      VM 的 GPU 遙測合併到實體主機，容量依裝置清冊計算（{data.inventory?.updatedAt}）。
                     </p>
                   </div>
                 </div>
@@ -224,7 +234,7 @@ export function GpuFleet() {
                       <span className="h-px flex-1" style={{ background: "var(--border)" }} />
                     </div>
                     <div className="inventory-grid">
-                      {items.map((m) => <InventoryCard key={m.id} m={m} />)}
+                      {items.map((m) => <InventoryCard key={m.id} m={m} now={now} />)}
                     </div>
                   </section>
                 ))}
@@ -234,7 +244,7 @@ export function GpuFleet() {
             {visibleMachines.length === 0 && inventoryGroups.length === 0 && <p className="panel p-8 text-center" style={{ color: "var(--text-dim)" }}>目前沒有符合篩選條件的機器。</p>}
 
             <p className="mt-9 text-center text-sm" style={{ color: "var(--text-faint)" }}>
-              即時資料 Prometheus · nvidia_gpu_exporter · node_exporter　｜　規格資料 實驗室裝置清冊
+              即時資料 Prometheus · NVIDIA／Jetson exporter · node_exporter　｜　規格資料 實驗室裝置清冊
             </p>
           </>
         )}
@@ -243,41 +253,49 @@ export function GpuFleet() {
 }
 
 function FleetTable({ machines, inventory, now }: { machines: Machine[]; inventory: InventoryMachine[]; now: number }) {
+  const fresh = (stamp?: string | null) => !!stamp && now - Date.parse(stamp) >= -30_000 && now - Date.parse(stamp) < 120_000;
+  const hostMemory = (m: { ramUsed?: number | null; ramTotal?: number | null; systemSampledAt?: string | null }) => m.ramTotal
+    ? `${fresh(m.systemSampledAt) && m.ramUsed != null ? (m.ramUsed / GB).toFixed(1) : "—"} / ${(m.ramTotal / GB).toFixed(0)} GB` : "—";
   const rows = [
     ...machines.flatMap((m) => (m.gpus.length ? m.gpus : [null]).map((g) => ({
       key: `${m.id}-${g?.index ?? "host"}`, label: m.label, location: m.location,
       status: !m.online ? "離線" : m.telemetryStatus === "collector-error" ? "遙測異常" : "在線",
       model: `${g?.model ?? "—"}${g?.migEnabled ? " · MIG" : ""}`, util: g && g.utilAvailable !== false && g.sampledAt && now - Date.parse(g.sampledAt) < 120_000 ? g.util : null,
       memory: g?.memTotal ? `${g.memUsed == null ? "—" : (g.memUsed / GB).toFixed(1)} / ${(g.memTotal / GB).toFixed(0)} GB` : "—",
-      cpu: m.cpuPercent == null ? "—" : formatPercent(m.cpuPercent),
+      cpu: fresh(m.systemSampledAt) && m.cpuPercent != null ? formatPercent(m.cpuPercent) : "—", ram: hostMemory(m),
       updated: g?.sampledAt ? new Date(g.sampledAt).toLocaleTimeString("zh-TW", { hour12: false }) : "等待採樣",
       note: g?.migEnabled ? `MIG · ${g.migProfile ?? "配置待讀取"}` : g?.sampledAt && now - Date.parse(g.sampledAt) >= 120_000 ? "資料已過期" : "即時遙測",
       utilNote: g?.migEnabled ? "MIG 不提供整卡使用率" : null,
       temperature: g?.sampledAt && now - Date.parse(g.sampledAt) < 120_000 && g.temp != null ? `${g.temp}°C` : "—",
       power: g?.sampledAt && now - Date.parse(g.sampledAt) < 120_000 && g.power != null ? `${g.power.toFixed(1)} W` : "—",
     }))),
-    ...inventory.map((m) => ({
-      key: m.id, label: m.label, location: m.location || m.groupName,
-      status: m.online == null ? "探測中" : m.online ? "在線" : "離線",
-      model: m.gpus.map((g) => `${g.model}${g.migEnabled ? ` · MIG ${g.migProfile ?? `${g.migSlices?.length ?? 0} 切片`}` : ""}${g.class === "display-only" ? "（顯示用）" : ""}`).join("、") || "—",
-      util: null, memory: m.gpus.filter((g) => g.class !== "display-only").map((g) => g.memTotal ? `${g.memUsed == null ? "—" : (g.memUsed / GB).toFixed(1)} / ${(g.memTotal / GB).toFixed(0)} GB` : g.vramGB ? `${g.vramGB} GB` : "—").join("、") || "—",
-      cpu: m.cpuThreads ? `${m.cpuThreads} 緒` : "—",
-      updated: m.checkedAt ? new Date(m.checkedAt).toLocaleTimeString("zh-TW", { hour12: false }) : "等待探測",
-      note: `規格／連線探測${m.online && m.latencyMs != null ? ` · ${m.latencyMs} ms` : ""}${m.online === false ? ` · 最後回應 ${m.lastSeen ? new Date(m.lastSeen).toLocaleString("zh-TW", { hour12: false }) : "尚無紀錄"}` : ""}`,
-      utilNote: m.gpus.some(g => g.migEnabled) ? "MIG 不提供整卡使用率" : null,
-      temperature: m.gpus.map(g => g.sampledAt && now - Date.parse(g.sampledAt) < 120_000 && g.temp != null ? `${g.temp}°C` : "—").join("、") || "—",
-      power: m.gpus.map(g => g.sampledAt && now - Date.parse(g.sampledAt) < 120_000 && g.power != null ? `${g.power.toFixed(1)} W` : "—").join("、") || "—",
+    ...inventory.flatMap((m) => (m.gpus.length ? m.gpus : [null]).map((g, index) => {
+      const stamp = g?.sampledAt ?? m.systemSampledAt ?? m.sampledAt ?? m.checkedAt;
+      return {
+        key: `${m.id}-${index}`, label: `${m.label}${m.virtual ? " · VM" : ""}`, location: m.location || m.groupName,
+        status: m.online === false ? "離線" : m.monitored && m.telemetryStatus === "collector-error" ? "遙測異常" : m.online == null ? "探測中" : "在線",
+        model: g ? `${g.model}${g.migEnabled ? ` · MIG ${g.migProfile ?? `${g.migSlices?.length ?? 0} 切片`}` : ""}${g.class === "display-only" ? "（顯示用）" : ""}` : "CPU",
+        util: g && fresh(g.sampledAt) && g.utilAvailable !== false ? g.util ?? null : null,
+        memory: g?.class === "edge" ? "與系統共享" : g?.memTotal
+          ? `${fresh(g.sampledAt) && g.memUsed != null ? (g.memUsed / GB).toFixed(1) : "—"} / ${(g.memTotal / GB).toFixed(0)} GB` : g?.vramGB ? `${g.vramGB} GB` : "—",
+        cpu: fresh(m.systemSampledAt) && m.cpuPercent != null ? formatPercent(m.cpuPercent) : m.cpuThreads ? `${m.cpuThreads} 緒` : "—", ram: hostMemory(m),
+        updated: stamp ? new Date(stamp).toLocaleTimeString("zh-TW", { hour12: false }) : "等待採樣",
+        note: `${m.monitored ? fresh(g?.sampledAt ?? m.sampledAt) ? "即時遙測" : "等待採樣／資料已過期" : "規格／連線探測"}${m.virtual ? " · 容量已計於實體主機" : ""}${m.online === false ? ` · 最後回應 ${m.lastSeen ? new Date(m.lastSeen).toLocaleString("zh-TW", { hour12: false }) : "尚無紀錄"}` : ""}`,
+        utilNote: g?.migEnabled ? "MIG 不提供整卡使用率" : g?.utilAvailable === false ? "不支援使用率" : null,
+        temperature: g && fresh(g.sampledAt) && g.temp != null ? `${g.temp}°C` : "—",
+        power: g && fresh(g.sampledAt) && g.power != null ? `${g.power.toFixed(1)} W` : "—",
+      };
     })),
   ];
   return <div className="fleet-table-scroll" tabIndex={0} role="region" aria-label="算力監控表，可水平捲動">
     <table className="fleet-table">
       <caption>最新算力與運行狀態 · 未接 GPU 遙測的機器不推估使用率</caption>
-      <thead><tr>{["機器／位置", "狀態", "GPU／MIG 配置", "GPU 使用率", "顯存使用／容量", "溫度", "功耗", "CPU 使用率／規格", "採樣／探測時間"].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
+      <thead><tr>{["機器／位置", "狀態", "GPU／MIG 配置", "GPU 使用率", "顯存使用／容量", "溫度", "功耗", "CPU 使用率／規格", "系統記憶體", "採樣／探測時間"].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
       <tbody>{rows.map((r) => <tr key={r.key} data-offline={r.status === "離線"}>
         <th scope="row">{r.label}<small>{r.location}</small></th>
         <td><span className="table-status" data-status={r.status}>{r.status}</span></td>
         <td>{r.model}</td><td>{r.utilNote ?? (r.util == null ? "—" : formatPercent(r.util * 100))}</td>
-        <td>{r.memory}</td><td>{r.temperature}</td><td>{r.power}</td><td>{r.cpu}</td><td>{r.updated}<small>{r.note}</small></td>
+        <td>{r.memory}</td><td>{r.temperature}</td><td>{r.power}</td><td>{r.cpu}</td><td>{r.ram}</td><td>{r.updated}<small>{r.note}</small></td>
       </tr>)}</tbody>
     </table>
   </div>;
@@ -319,34 +337,7 @@ function MachineCard({ m, delay }: { m: Machine; delay: number }) {
         </span>
       </div>
 
-      {m.online && (m.cpuPercent != null || m.ramTotal != null) && (
-        <div className="grid grid-cols-2 gap-5 p-5" style={{ borderBottom: "1px solid var(--border)" }}>
-          {m.cpuPercent != null && (
-            <div>
-              <div className="mb-1.5 flex items-baseline justify-between text-sm">
-                <span style={{ color: "var(--text-dim)" }}>CPU</span>
-                <span className="font-semibold tabular-nums" style={{ fontFamily: "var(--font-mono)" }}>{formatPercent(m.cpuPercent)}</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
-                <div className="h-full rounded-full" style={{ width: `${m.cpuPercent}%`, background: loadColor(m.cpuPercent / 100) }} />
-              </div>
-            </div>
-          )}
-          {m.ramTotal != null && (
-            <div>
-              <div className="mb-1.5 flex items-baseline justify-between text-sm">
-                <span style={{ color: "var(--text-dim)" }}>記憶體</span>
-                <span className="tabular-nums" style={{ fontFamily: "var(--font-mono)", color: "var(--text-dim)" }}>
-                  {m.ramUsed != null ? `${(m.ramUsed / GB).toFixed(0)} / ${(m.ramTotal / GB).toFixed(0)} GB` : "—"}
-                </span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
-                <div className="h-full rounded-full" style={{ background: "var(--brand)", width: `${m.ramUsed != null ? (m.ramUsed / m.ramTotal) * 100 : 0}%` }} />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      {m.online && <div className="p-5" style={{ borderBottom: "1px solid var(--border)" }}><SystemMeters m={m} /></div>}
 
       {m.online && m.gpus.length > 0 ? (
         <div>
@@ -377,15 +368,18 @@ function MachineCard({ m, delay }: { m: Machine; delay: number }) {
 function GpuRow({ g, last }: { g: Gpu; last: boolean }) {
   if (g.migEnabled) return <div className="p-5"><MigPanel gpu={g} /></div>;
   const stale = !g.sampledAt || Date.now() - Date.parse(g.sampledAt) > 120_000;
-  const util = stale ? null : g.util;
-  const memPct = g.memUsed != null && g.memTotal ? g.memUsed / g.memTotal : 0;
+  const util = stale || g.utilAvailable === false ? null : g.util;
+  const memUsed = stale ? null : g.memUsed;
+  const temp = stale ? null : g.temp;
+  const power = stale ? null : g.power;
+  const memPct = memUsed != null && g.memTotal ? memUsed / g.memTotal : 0;
   return (
     <div className="p-5" style={!last ? { borderBottom: "1px solid var(--border)" } : undefined}>
       <div className="mb-2.5 flex items-center justify-between text-sm">
         <span className="tabular-nums" style={{ fontFamily: "var(--font-mono)", color: "var(--text-dim)" }}>GPU {g.index}</span>
         <div className="flex items-center gap-3.5 tabular-nums" style={{ fontFamily: "var(--font-mono)" }}>
-          <span style={{ color: tempColor(g.temp) }}>{g.temp != null ? `${g.temp}°C` : "—"}</span>
-          <span style={{ color: "var(--text-dim)" }}>{g.power != null ? `${Math.round(g.power)}W` : "—"}</span>
+          <span style={{ color: tempColor(temp) }}>{temp != null ? `${temp}°C` : "—"}</span>
+          <span style={{ color: "var(--text-dim)" }}>{power != null ? `${Math.round(power)}W` : "—"}</span>
           {g.fan != null && <span style={{ color: "var(--text-faint)" }}>風扇 {Math.round(g.fan * 100)}%</span>}
         </div>
       </div>
@@ -395,7 +389,7 @@ function GpuRow({ g, last }: { g: Gpu; last: boolean }) {
           使用率 <small style={{ color: "var(--text-faint)" }}>最新採樣</small>
         </span>
         <span className="font-semibold tabular-nums" style={{ fontFamily: "var(--font-mono)" }}>
-          {util == null ? "—" : formatPercent(util * 100)}
+          {g.utilAvailable === false ? "不支援" : util == null ? "—" : formatPercent(util * 100)}
         </span>
       </div>
       <div className="mb-3 h-2.5 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
@@ -405,15 +399,15 @@ function GpuRow({ g, last }: { g: Gpu; last: boolean }) {
         {g.sampledAt ? `採樣 ${new Date(g.sampledAt).toLocaleTimeString("zh-TW", { hour12: false })}${stale ? " · 資料已過期" : ""}` : "等待遙測資料"}
       </p>
 
-      <div className="mb-1.5 flex items-baseline justify-between text-sm">
+      {g.class === "edge" ? <p className="text-xs" style={{ color: "var(--text-faint)" }}>GPU 與 CPU 共享系統記憶體</p> : <><div className="mb-1.5 flex items-baseline justify-between text-sm">
         <span style={{ color: "var(--text-dim)" }}>記憶體</span>
         <span className="tabular-nums" style={{ fontFamily: "var(--font-mono)", color: "var(--text-dim)" }}>
-          {g.memUsed != null && g.memTotal ? `${(g.memUsed / GB).toFixed(1)} / ${(g.memTotal / GB).toFixed(0)} GB` : "—"}
+          {memUsed != null && g.memTotal ? `${(memUsed / GB).toFixed(1)} / ${(g.memTotal / GB).toFixed(0)} GB` : "—"}
         </span>
       </div>
       <div className="h-2.5 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
         <div className="h-full rounded-full" style={{ width: `${memPct * 100}%`, background: "var(--brand)" }} />
-      </div>
+      </div></>}
     </div>
   );
 }
@@ -454,7 +448,25 @@ function MigPanel({ gpu }: { gpu: MigInfo & { model?: string; vramGB?: number | 
   </div>;
 }
 
-function InventoryCard({ m }: { m: InventoryMachine }) {
+function SystemMeters({ m, now = Date.now() }: { m: { cpuPercent?: number | null; ramUsed?: number | null; ramTotal?: number | null; systemSampledAt?: string | null }; now?: number }) {
+  const fresh = !!m.systemSampledAt && now - Date.parse(m.systemSampledAt) < 120_000;
+  const cpu = fresh ? m.cpuPercent : null;
+  const used = fresh ? m.ramUsed : null;
+  if (m.cpuPercent == null && m.ramTotal == null) return null;
+  return <div className="mt-3 grid grid-cols-2 gap-4 text-xs">
+    <div>
+      <div className="mb-1.5 flex justify-between gap-2"><span style={{ color: "var(--text-dim)" }}>CPU 使用率</span><strong>{cpu != null ? formatPercent(cpu) : "—"}</strong></div>
+      <div className="h-2 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}><div className="h-full rounded-full transition-all" style={{ width: `${cpu ?? 0}%`, background: loadColor(cpu != null ? cpu / 100 : null) }} /></div>
+    </div>
+    <div>
+      <div className="mb-1.5 flex justify-between gap-2"><span style={{ color: "var(--text-dim)" }}>系統記憶體</span><strong>{used != null && m.ramTotal ? `${(used / GB).toFixed(1)} / ${(m.ramTotal / GB).toFixed(0)} GB` : "—"}</strong></div>
+      <div className="h-2 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}><div className="h-full rounded-full transition-all" style={{ width: `${used != null && m.ramTotal ? Math.min(100, used / m.ramTotal * 100) : 0}%`, background: "var(--brand)" }} /></div>
+    </div>
+    <p className="col-span-2" style={{ color: "var(--text-faint)" }}>{m.systemSampledAt ? `系統採樣 ${new Date(m.systemSampledAt).toLocaleTimeString("zh-TW", { hour12: false })}${fresh ? "" : " · 資料已過期"}` : "等待系統採樣"}</p>
+  </div>;
+}
+
+function InventoryCard({ m, now }: { m: InventoryMachine; now: number }) {
   const specs = [
     m.cpu && { k: "CPU", v: m.cpuThreads ? `${m.cpu} · ${m.cpuThreads}T` : m.cpu },
     m.ramGB && { k: "RAM", v: `${m.ramGB} GB` },
@@ -465,7 +477,7 @@ function InventoryCard({ m }: { m: InventoryMachine }) {
     <div className="inventory-card" style={{ opacity: m.online === false ? 0.55 : 1 }}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="truncate text-base font-bold">{m.label}</div>
+          <div className="truncate text-base font-bold">{m.label}{m.virtual ? " · VM" : ""}</div>
           <div className="mt-0.5 text-xs" style={{ color: "var(--text-faint)" }}>
             {[m.type, m.location].filter(Boolean).join(" · ")}
           </div>
@@ -510,6 +522,23 @@ function InventoryCard({ m }: { m: InventoryMachine }) {
           連線延遲 {m.latencyMs} ms
         </div>
       )}
+
+      {m.monitored && <div className="mt-3 text-xs" style={{ color: m.telemetryStatus === "healthy" ? "var(--good)" : "var(--warn)" }}>
+        {m.telemetryStatus === "healthy" ? "即時監控" : m.telemetryStatus === "collector-error" ? "遙測暫時無法更新" : "等待 exporter 採樣"}
+        {m.virtual ? " · 容量已計於實體主機" : ""}
+      </div>}
+
+      <SystemMeters m={m} now={now} />
+
+      {m.sharedMemory && m.ramTotal == null && <p className="mt-2 text-xs" style={{ color: "var(--text-dim)" }}>
+        共享記憶體 {m.sharedMemory.used != null && now - Date.parse(m.sharedMemory.sampledAt) < 120_000 ? `${(m.sharedMemory.used / GB).toFixed(1)} / ${((m.sharedMemory.total ?? 0) / GB).toFixed(1)} GB` : "等待採樣"}
+      </p>}
+
+      {m.gpus.filter(gpu => !gpu.migEnabled && gpu.sampledAt && gpu.class !== "display-only").map((gpu, index) => <GpuRow key={`gpu-${index}`} last={true} g={{
+        ...gpu, index: gpu.index ?? String(index), name: gpu.model, model: gpu.model, driver: "",
+        util: gpu.util ?? null, memUsed: gpu.memUsed ?? null, memTotal: gpu.memTotal ?? null,
+        temp: gpu.temp ?? null, power: gpu.power ?? null, powerLimit: gpu.powerLimit ?? null, fan: null,
+      }} />)}
 
       {m.gpus.filter(gpu => gpu.migEnabled).map((gpu, index) => <MigPanel key={`mig-${index}`} gpu={gpu} />)}
 

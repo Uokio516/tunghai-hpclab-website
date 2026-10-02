@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hpclab-gpu-exporter-gpu-cluster
+  namespace: default
+  labels:
+    app: hpclab-gpu-exporter-gpu-cluster
+spec:
+  selector:
+    matchLabels:
+      app: hpclab-gpu-exporter-gpu-cluster
+  template:
+    metadata:
+      labels:
+        app: hpclab-gpu-exporter-gpu-cluster
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [pk-gpu-pve3, pk-3060, pk-5090]
+      runtimeClassName: nvidia
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 10
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gpu-exporter
+          image: docker.io/utkuozdemir/nvidia_gpu_exporter:1.15.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - --web.listen-address=0.0.0.0:9835
+            - --collect.interval=5s
+            - --collect.timeout=4s
+            - --log.level=warn
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: compute,utility
+          ports:
+            - name: gpu-metrics
+              containerPort: 9835
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+              add: [SYS_ADMIN]
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: gpu-metrics
+            initialDelaySeconds: 3
+            periodSeconds: 10

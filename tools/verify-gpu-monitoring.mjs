@@ -87,7 +87,9 @@ try {
   collectSuccess = 1; up = 0;
   assert.equal((await read()).machines[0].gpus[0].util, null);
   failure = true;
-  assert.equal((await fetch(endpoint)).status, 502);
+  const degraded = await read();
+  assert.equal(degraded.prometheusStatus, 'unavailable');
+  assert.ok(degraded.inventory.machines.length > 0, 'One unavailable source hid the independent inventory');
   failure = false; up = 1;
   assert.equal((await read()).machines[0].gpus[0].util, .86);
   const inventory = await (await fetch(`http://127.0.0.1:${port}/api/lab-inventory`)).json();

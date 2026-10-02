@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hpclab-node-exporter-gpu-cluster
+  namespace: default
+  labels:
+    app: hpclab-node-exporter-gpu-cluster
+spec:
+  selector:
+    matchLabels:
+      app: hpclab-node-exporter-gpu-cluster
+  template:
+    metadata:
+      labels:
+        app: hpclab-node-exporter-gpu-cluster
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [pk-3060, pk-5090]
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 10
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: node-exporter
+          image: quay.io/prometheus/node-exporter:v1.12.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - --web.listen-address=0.0.0.0:9100
+            - --collector.disable-defaults
+            - --collector.cpu
+            - --collector.meminfo
+            - --collector.loadavg
+          ports:
+            - name: node-metrics
+              containerPort: 9100
+          resources:
+            requests:
+              cpu: 10m
+              memory: 24Mi
+            limits:
+              cpu: 100m
+              memory: 96Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: node-metrics
+            initialDelaySeconds: 3
+            periodSeconds: 10
