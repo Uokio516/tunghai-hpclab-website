@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { RefreshCw, Cpu, Server, Activity, HardDrive, AlertTriangle, MemoryStick } from "lucide-react";
-import { MetricArc, MonitoringChrome } from "./MonitoringChrome";
+import { MonitoringChrome } from "./MonitoringChrome";
 
 type Gpu = {
   index: string; name: string; model: string; driver: string;
-  util: number | null; utilPeak1h?: number | null; memUsed: number | null; memTotal: number | null;
+  util: number | null; memUsed: number | null; memTotal: number | null;
   temp: number | null; power: number | null; powerLimit: number | null; fan: number | null;
+  sampledAt?: string | null;
 };
 type Machine = {
   id: string; label: string; location: string;
@@ -36,7 +37,7 @@ type Data = {
   inventory?: { updatedAt: string; probedAt: string; machines: InventoryMachine[] } | null;
 };
 
-const REFRESH_MS = 12_000;
+const REFRESH_MS = 5_000;
 const GB = 1024 ** 3;
 
 // load → colour (idle→busy). A separate, more saturated scale from the
@@ -65,22 +66,29 @@ export function GpuFleet() {
   const [error, setError] = useState(false);
   const [at, setAt] = useState<Date | null>(null);
   const [filter, setFilter] = useState<"all" | "active" | "idle" | "issues">("all");
+  const [view, setView] = useState<"cards" | "table">("cards");
+  const [now, setNow] = useState(Date.now());
   const visible = useRef(true);
 
   useEffect(() => {
     let alive = true;
+    let loading = false;
+    const controller = new AbortController();
     const load = async () => {
-      if (!visible.current) return;
+      if (!visible.current || loading) return;
+      loading = true;
       try {
-        const r = await fetch("/api/gpus", { cache: "no-store" });
+        const r = await fetch("/api/gpus", { cache: "no-store", signal: controller.signal });
         if (!r.ok) throw new Error(String(r.status));
         const j = (await r.json()) as Data;
         if (!alive) return;
         setData(j); setError(false); setAt(new Date());
       } catch { if (alive) setError(true); }
+      finally { loading = false; }
     };
     load();
     const t = setInterval(load, REFRESH_MS);
+    const clock = setInterval(() => setNow(Date.now()), 1000);
     const onVisibility = () => {
       visible.current = document.visibilityState === "visible";
       if (visible.current) load();
@@ -89,14 +97,16 @@ export function GpuFleet() {
     return () => {
       alive = false;
       clearInterval(t);
+      clearInterval(clock);
+      controller.abort();
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 
   const visibleMachines = data?.machines.filter((machine) => {
-    if (filter === "issues") return !machine.online || machine.telemetryStatus === "collector-error";
+    if (filter === "issues") return !machine.online || machine.telemetryStatus !== "healthy";
     if (filter === "active") return machine.gpus.some((gpu) => (gpu.util ?? 0) >= 0.2);
-    if (filter === "idle") return machine.online && machine.gpus.length > 0 && machine.gpus.every((gpu) => (gpu.util ?? 0) < 0.2);
+    if (filter === "idle") return machine.online && machine.gpus.length > 0 && machine.gpus.every((gpu) => gpu.util != null && gpu.util < 0.2);
     return true;
   }) ?? [];
 
@@ -108,7 +118,7 @@ export function GpuFleet() {
     const matches = (m: InventoryMachine) => {
       if (filter === "issues") return m.online === false;
       if (filter === "active") return false; // no GPU utilisation telemetry for this tier
-      if (filter === "idle") return m.online === true;
+      if (filter === "idle") return false; // Reachability cannot establish GPU idleness.
       return true;
     };
     (data?.inventory?.machines ?? []).filter(matches).forEach((m) => {
@@ -124,12 +134,13 @@ export function GpuFleet() {
     <MonitoringChrome
       eyebrow="Lab Compute Fleet · Prometheus + Inventory"
       title={<>實驗室<span style={{ color: "var(--brand-light)" }}>全部算力</span></>}
-      description="實驗室全部算力：有接遙測的機器顯示即時 GPU 負載、顯存、溫度與功耗；其餘已盤點的機器列出規格。搬移中而連不上的機器不列入。"
-      live
-      meta={<><div><RefreshCw className="mr-2 inline h-3 w-3" />12 秒輪詢</div><div>{at ? `Last sync ${at.toLocaleTimeString("zh-TW", { hour12: false })}` : "Connecting…"}</div><div>Prometheus · Exporters</div></>}
+      description="即時 GPU 遙測與全實驗室算力盤點。使用率採最新一次採樣；未接遙測的機器提供連線狀態與規格。"
+      live={!!data && !error && !!at && now - at.getTime() < 20_000}
+      meta={<><div><RefreshCw className="mr-2 inline h-3 w-3" />每 5 秒更新</div><div>{at ? `取得資料 ${at.toLocaleTimeString("zh-TW", { hour12: false })}` : "連線中…"}</div><div>主機連線每 60 秒探測</div></>}
     >
         {error && !data && <div className="panel p-8 text-center text-base" style={{ color: "var(--critical)" }}>監控資料暫時無法讀取。</div>}
         {!error && !data && <div className="panel animate-pulse p-8 text-center text-base" style={{ color: "var(--text-dim)" }}>載入中…</div>}
+        {data && (error || (at && now - at.getTime() > 20_000)) && <p role="alert" className="monitor-notice">資料更新中斷，以下保留上次結果。系統會自動重試。</p>}
 
         {data && (
           <>
@@ -157,22 +168,14 @@ export function GpuFleet() {
               </div>
             )}
 
-            <div className="metric-arcs">
-              <MetricArc
-                value={data.summary.hostsUp ?? data.summary.machinesOnline}
-                max={data.summary.hostsTotal ?? data.summary.machinesTotal}
-                label="Host availability"
-                display={`${Math.round(((data.summary.hostsUp ?? data.summary.machinesOnline) / Math.max(1, data.summary.hostsTotal ?? data.summary.machinesTotal)) * 100)}%`}
-                color="var(--good)"
-              />
-              <MetricArc value={data.summary.gpusBusy} max={data.summary.gpusOnline} label="Fleet load" display={`${Math.round(data.summary.gpusBusy / Math.max(1, data.summary.gpusOnline) * 100)}%`} color="var(--warn)" />
-              <MetricArc value={data.machines.filter((m) => m.telemetryStatus === "collector-error").length} max={data.summary.machinesTotal} label="Telemetry issues" display={String(data.machines.filter((m) => m.telemetryStatus === "collector-error").length)} color="var(--critical)" />
-            </div>
-
             <div className="monitor-toolbar">
               <div>
                 <p className="monitor-eyebrow">Compute nodes</p>
-                <h2 className="mt-1 text-2xl font-medium not-italic">工作站狀態</h2>
+                <h2 className="mt-1 text-2xl font-medium not-italic">算力總覽</h2>
+                <div className="mt-3 flex gap-2" role="group" aria-label="顯示方式">
+                  <button className="monitor-filter" aria-pressed={view === "cards"} data-active={view === "cards"} onClick={() => setView("cards")}>卡片</button>
+                  <button className="monitor-filter" aria-pressed={view === "table"} data-active={view === "table"} onClick={() => setView("table")}>表格</button>
+                </div>
               </div>
               <div className="monitor-filters">
                 {([
@@ -181,13 +184,14 @@ export function GpuFleet() {
                   ["idle", "閒置"],
                   ["issues", "需注意"],
                 ] as const).map(([id, label]) => (
-                  <button key={id} className="monitor-filter" data-active={filter === id} onClick={() => setFilter(id)}>
+                  <button key={id} className="monitor-filter" aria-pressed={filter === id} data-active={filter === id} onClick={() => setFilter(id)}>
                     {id === "issues" && <AlertTriangle className="mr-1 inline h-3 w-3" />}{label}
                   </button>
                 ))}
               </div>
             </div>
 
+            {view === "table" ? <FleetTable machines={visibleMachines} inventory={inventoryGroups.flatMap(([, items]) => items)} now={now} /> : <>
             <div className="machine-grid">
               {visibleMachines.map((m, i) => <MachineCard key={m.id} m={m} delay={i * 0.03} />)}
             </div>
@@ -223,6 +227,8 @@ export function GpuFleet() {
                 ))}
               </>
             )}
+            </>}
+            {visibleMachines.length === 0 && inventoryGroups.length === 0 && <p className="panel p-8 text-center" style={{ color: "var(--text-dim)" }}>目前沒有符合篩選條件的機器。</p>}
 
             <p className="mt-9 text-center text-sm" style={{ color: "var(--text-faint)" }}>
               即時資料 Prometheus · nvidia_gpu_exporter · node_exporter　｜　規格資料 實驗室裝置清冊
@@ -231,6 +237,41 @@ export function GpuFleet() {
         )}
     </MonitoringChrome>
   );
+}
+
+function FleetTable({ machines, inventory, now }: { machines: Machine[]; inventory: InventoryMachine[]; now: number }) {
+  const rows = [
+    ...machines.flatMap((m) => (m.gpus.length ? m.gpus : [null]).map((g) => ({
+      key: `${m.id}-${g?.index ?? "host"}`, label: m.label, location: m.location,
+      status: !m.online ? "離線" : m.telemetryStatus === "collector-error" ? "遙測異常" : "在線",
+      model: g?.model ?? "—", util: g && g.sampledAt && now - Date.parse(g.sampledAt) < 120_000 ? g.util : null,
+      memory: g?.memTotal ? `${g.memUsed == null ? "—" : (g.memUsed / GB).toFixed(1)} / ${(g.memTotal / GB).toFixed(0)} GB` : "—",
+      cpu: m.cpuPercent == null ? "—" : formatPercent(m.cpuPercent),
+      updated: g?.sampledAt ? new Date(g.sampledAt).toLocaleTimeString("zh-TW", { hour12: false }) : "等待採樣",
+      note: g?.sampledAt && now - Date.parse(g.sampledAt) >= 120_000 ? "資料已過期" : "即時遙測",
+    }))),
+    ...inventory.map((m) => ({
+      key: m.id, label: m.label, location: m.location || m.groupName,
+      status: m.online == null ? "探測中" : m.online ? "在線" : "離線",
+      model: m.gpus.map((g) => `${g.model}${g.class === "display-only" ? "（顯示用）" : ""}`).join("、") || "—",
+      util: null, memory: m.gpus.filter((g) => g.class !== "display-only").map((g) => g.vramGB ? `${g.vramGB} GB` : "—").join("、") || "—",
+      cpu: m.cpuThreads ? `${m.cpuThreads} 緒` : "—",
+      updated: m.checkedAt ? new Date(m.checkedAt).toLocaleTimeString("zh-TW", { hour12: false }) : "等待探測",
+      note: `規格／連線探測${m.online && m.latencyMs != null ? ` · ${m.latencyMs} ms` : ""}${m.online === false ? ` · 最後回應 ${m.lastSeen ? new Date(m.lastSeen).toLocaleString("zh-TW", { hour12: false }) : "尚無紀錄"}` : ""}`,
+    })),
+  ];
+  return <div className="fleet-table-scroll" tabIndex={0} role="region" aria-label="算力監控表，可水平捲動">
+    <table className="fleet-table">
+      <caption>最新算力與運行狀態 · 未接 GPU 遙測的機器不推估使用率</caption>
+      <thead><tr>{["機器／位置", "狀態", "GPU", "GPU 使用率", "顯存使用／容量", "CPU 使用率／規格", "採樣／探測時間"].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
+      <tbody>{rows.map((r) => <tr key={r.key} data-offline={r.status === "離線"}>
+        <th scope="row">{r.label}<small>{r.location}</small></th>
+        <td><span className="table-status" data-status={r.status}>{r.status}</span></td>
+        <td>{r.model}</td><td>{r.util == null ? "—" : formatPercent(r.util * 100)}</td>
+        <td>{r.memory}</td><td>{r.cpu}</td><td>{r.updated}<small>{r.note}</small></td>
+      </tr>)}</tbody>
+    </table>
+  </div>;
 }
 
 function Kpi({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string; sub?: string }) {
@@ -247,7 +288,7 @@ function Kpi({ icon: Icon, label, value, sub }: { icon: any; label: string; valu
 function MachineCard({ m, delay }: { m: Machine; delay: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay }}
+      initial={{ opacity: 0, y: 14 }} animate={{ opacity: m.online ? 1 : 0.6, y: 0 }} transition={{ duration: 0.4, delay }}
       className="machine-card-new"
       style={{ opacity: m.online ? 1 : 0.6 }}
     >
@@ -325,7 +366,8 @@ function MachineCard({ m, delay }: { m: Machine; delay: number }) {
 }
 
 function GpuRow({ g, last }: { g: Gpu; last: boolean }) {
-  const util = g.util ?? 0;
+  const stale = !g.sampledAt || Date.now() - Date.parse(g.sampledAt) > 120_000;
+  const util = stale ? null : g.util;
   const memPct = g.memUsed != null && g.memTotal ? g.memUsed / g.memTotal : 0;
   return (
     <div className="p-5" style={!last ? { borderBottom: "1px solid var(--border)" } : undefined}>
@@ -340,20 +382,18 @@ function GpuRow({ g, last }: { g: Gpu; last: boolean }) {
 
       <div className="mb-1.5 flex items-baseline justify-between text-sm">
         <span style={{ color: "var(--text-dim)" }}>
-          使用率 <small style={{ color: "var(--text-faint)" }}>1 分鐘平均</small>
+          使用率 <small style={{ color: "var(--text-faint)" }}>最新採樣</small>
         </span>
         <span className="font-semibold tabular-nums" style={{ fontFamily: "var(--font-mono)" }}>
-          {formatPercent(util * 100)}
-          {g.utilPeak1h != null && (
-            <small className="ml-2 font-normal" style={{ color: "var(--text-faint)" }}>
-              1h 峰值 {formatPercent(g.utilPeak1h * 100)}
-            </small>
-          )}
+          {util == null ? "—" : formatPercent(util * 100)}
         </span>
       </div>
       <div className="mb-3 h-2.5 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
-        <div className="h-full rounded-full transition-all" style={{ width: `${util * 100}%`, background: loadColor(util) }} />
+        <div className="h-full rounded-full transition-all" style={{ width: `${(util ?? 0) * 100}%`, background: loadColor(util) }} />
       </div>
+      <p className="mb-3 text-xs" style={{ color: "var(--text-faint)" }}>
+        {g.sampledAt ? `採樣 ${new Date(g.sampledAt).toLocaleTimeString("zh-TW", { hour12: false })}${stale ? " · 資料已過期" : ""}` : "等待遙測資料"}
+      </p>
 
       <div className="mb-1.5 flex items-baseline justify-between text-sm">
         <span style={{ color: "var(--text-dim)" }}>記憶體</span>

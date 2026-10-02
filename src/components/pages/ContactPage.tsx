@@ -1,9 +1,10 @@
 import { PageShell } from "../layout/PageShell";
 import { lab, professor } from "../../data/lab";
+import { Link } from "react-router-dom";
 
 export function ContactPage() {
   return (
-    <PageShell eyebrow="Contact" title="Let's explore what comes next.">
+    <PageShell eyebrow="Contact" title="聯絡我們" lede="歡迎討論研究合作、運算資源與加入實驗室的機會。">
       <section className="mx-auto max-w-7xl px-6 pb-28 sm:px-10 sm:pb-40">
         <div
           className="grid gap-10 border-t pt-10 sm:grid-cols-2 lg:grid-cols-3"
@@ -35,6 +36,7 @@ export function ContactPage() {
         </div>
 
         <div className="mt-14">
+          <Link to="/#contact" className="mr-4 mb-4 inline-flex items-center gap-3 rounded-full px-7 py-3.5 text-sm font-medium transition-transform hover:scale-[1.03]" style={{ background: "#c9b8a0", color: "#05070b" }}>傳送留言 ↗</Link>
           <a
             href={lab.website}
             target="_blank"

@@ -1,7 +1,7 @@
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import React, { lazy, Suspense, useEffect, useId, useRef, useState } from "react";
-import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Moon, Sun, BrainCircuit, ServerCog, CloudCog, ArrowUpRight, Cpu, Server } from "lucide-react";
+import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from "react-router-dom";
+import { BrainCircuit, ArrowUpRight, Cpu, Server } from "lucide-react";
 
 const AdminPanel = lazy(() =>
   import("./components/AdminPanel").then((m) => ({ default: m.AdminPanel }))
@@ -14,9 +14,6 @@ const GpuFleet = lazy(() =>
 );
 const HeroPreview = lazy(() =>
   import("./components/HeroPreview").then((m) => ({ default: m.HeroPreview }))
-);
-const ResearchPage = lazy(() =>
-  import("./components/pages/ResearchPage").then((m) => ({ default: m.ResearchPage }))
 );
 const ProjectsPage = lazy(() =>
   import("./components/pages/ProjectsPage").then((m) => ({ default: m.ProjectsPage }))
@@ -39,7 +36,10 @@ const NotFoundPage = lazy(() =>
 const ResearchNetwork3D = lazy(() =>
   import("./components/ResearchNetwork3D").then((m) => ({ default: m.ResearchNetwork3D }))
 );
-import { AmbientAudio } from "./components/AmbientAudio";
+import { Navigation } from "./components/layout/Navigation";
+import { Footer } from "./components/layout/Footer";
+import { projects } from "./data/projects";
+import { publications } from "./data/publications";
 import { WebGLBoundary } from "./components/ui/WebGLBoundary";
 import { ResearchAreaBanner } from "./components/ResearchAreaBanner";
 import { ImmersiveExperience } from "./components/ImmersiveExperience";
@@ -50,7 +50,6 @@ const FADE_MS = 500;
 const FADE_OUT_LEAD = 0.55;
 
 type FormStatus = "idle" | "sending" | "success" | "error";
-type Theme = "light" | "dark";
 
 function RouteFallback() {
   return (
@@ -88,7 +87,7 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
     <BrowserRouter>
-      <GlobalAudio />
+      <ScrollToSection />
       <ImmersiveExperience>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -128,7 +127,7 @@ export default function App() {
 
         {/* Content pages reached from the immersive menu. Each is its own
             lazy chunk, so none of them pull Three.js in. */}
-        <Route path="/research" element={<DarkRoute><ResearchPage /></DarkRoute>} />
+        <Route path="/research" element={<Navigate to="/#research" replace />} />
         <Route path="/projects" element={<DarkRoute><ProjectsPage /></DarkRoute>} />
         <Route path="/people" element={<DarkRoute><PeoplePage /></DarkRoute>} />
         <Route path="/publications" element={<DarkRoute><PublicationsPage /></DarkRoute>} />
@@ -145,50 +144,28 @@ export default function App() {
   );
 }
 
-function GlobalAudio() {
-  const { pathname } = useLocation();
-  return pathname === "/admin" ? null : <AmbientAudio />;
+function ScrollToSection() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) { window.scrollTo(0, 0); return; }
+    let scrollTimer: ReturnType<typeof setTimeout>;
+    const timer = window.setInterval(() => {
+      const target = document.getElementById(hash.slice(1));
+      if (target) {
+        window.clearInterval(timer);
+        scrollTimer = setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }), 500);
+      }
+    }, 100);
+    const timeout = window.setTimeout(() => window.clearInterval(timer), 5000);
+    return () => { window.clearInterval(timer); window.clearTimeout(timeout); clearTimeout(scrollTimer); };
+  }, [pathname, hash]);
+  return null;
 }
 
 /* ------------------------------------------------------------------ */
 /* Theme toggle — respects the OS by default, but a click persists an  */
 /* explicit choice (data-theme on <html>) that overrides it.           */
 /* ------------------------------------------------------------------ */
-function useTheme() {
-  const [theme, setTheme] = useState<Theme | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("hpclab-theme") as Theme | null;
-    if (saved) {
-      setTheme(saved);
-      document.documentElement.setAttribute("data-theme", saved);
-    }
-  }, []);
-
-  const toggle = () => {
-    const current =
-      theme ?? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-    const next: Theme = current === "dark" ? "light" : "dark";
-    setTheme(next);
-    document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("hpclab-theme", next);
-  };
-
-  return { theme, toggle };
-}
-
-function ThemeToggle({ theme, onToggle }: { theme: Theme | null; onToggle: () => void }) {
-  return (
-    <button
-      onClick={onToggle}
-      aria-label="切換明暗主題"
-      className="video-chip flex h-10 w-10 items-center justify-center transition-transform active:scale-90"
-    >
-      {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-    </button>
-  );
-}
-
 /* ------------------------------------------------------------------ */
 /* Cinematic video hero — two <video> elements crossfade into each     */
 /* other just before the loop point, so the background never hard-cuts.*/
@@ -500,7 +477,7 @@ function ControlDeck({ items, live }: { items: DeckItem[]; live: ReturnType<type
           </div>
 
           {/* Fixed height sized for the longest `detail` string (2 lines):
-              GPU 機房's detail is one line, the other two are two lines —
+              算力監控's detail is one line, the other two are two lines —
               without a fixed height this panel grew/shrank per hover,
               which (same grid row as the three cards) changed the whole
               row's height, which resized the hero, which resized the
@@ -559,7 +536,7 @@ function ControlDeck({ items, live }: { items: DeckItem[]; live: ReturnType<type
             <div className="flex items-center gap-3">
               {live.gpuHistory.length > 1 && <Sparkline values={live.gpuHistory} />}
               <span className="text-xs tabular-nums" style={{ color: "var(--text-faint)" }}>
-                {live.gpuOnline != null ? `${live.gpuOnline} GPU` : "—"} · {live.nodesOnline != null ? `${live.nodesOnline} 節點` : "—"} 在線
+                {live.gpuOnline != null ? `${live.gpuOnline} GPU 在線` : "—"} · {live.nodesOnline != null ? `${live.nodesOnline} 盤點節點` : "—"}
               </span>
             </div>
           </motion.div>
@@ -666,7 +643,7 @@ function HeroBody({
           className={`inline-flex items-center gap-2 rounded-full font-semibold transition-colors ${compact ? "px-6 py-2.5 text-sm" : "px-7 py-3.5 text-lg"}`}
           style={{ border: "1px solid var(--glass-border)" }}
         >
-          查看即時系統
+          查看運算資源
         </a>
       </div>
     </div>
@@ -702,9 +679,6 @@ function LiveComputeCore({ live }: { live: ReturnType<typeof useLiveTelemetry> }
 }
 
 function Home() {
-  const navigate = useNavigate();
-  const { theme, toggle } = useTheme();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [activeResearchId, setActiveResearchId] = useState<string | null>(null);
   const live = useLiveTelemetry();
@@ -736,109 +710,12 @@ function Home() {
     }
   };
 
-  const navLinks = [
-    { href: "/gpus", label: "GPU 監控" },
-    { href: "/infrastructure", label: "叢集資訊" },
-    { href: "#research", label: "研究領域" },
-    { href: "#systems", label: "即時系統" },
-    { href: "#contact", label: "聯絡我們" },
-  ];
-
   return (
     <div className="relative min-h-screen overflow-x-clip" style={{ background: "var(--bg)", color: "var(--text)" }}>
-      {/* Navigation */}
-      <nav className="nav-surface sticky top-0 z-50">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link to="/" className="flex items-center gap-3">
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-full border-2"
-              style={{ borderColor: "var(--brand)" }}
-            >
-              <div className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--brand)" }} />
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-xl font-bold italic" style={{ fontFamily: "var(--font-serif)" }}>HPC Lab</span>
-              <span className="mt-1 text-xs uppercase tracking-[0.15em]" style={{ color: "var(--text-faint)" }}>
-                Tunghai University
-              </span>
-            </div>
-          </Link>
-
-          <div className="hidden items-center gap-4 xl:flex">
-            {navLinks.map((l) => (
-              <a key={l.href} href={l.href} className="text-sm font-semibold uppercase tracking-[0.1em] transition-opacity hover:opacity-70">
-                {l.label}
-              </a>
-            ))}
-            <a
-              href="https://hpc.thu.edu.tw/profile/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-semibold uppercase tracking-[0.1em] transition-opacity hover:opacity-70"
-            >
-              指導教授
-            </a>
-            <ThemeToggle theme={theme} onToggle={toggle} />
-            <a
-              href="#contact"
-              className="rounded-full px-5 py-2.5 text-sm font-bold uppercase tracking-[0.08em] transition-transform active:scale-95"
-              style={{ background: "var(--text)", color: "var(--bg)" }}
-            >
-              聯絡我們
-            </a>
-          </div>
-
-          <div className="flex items-center gap-2 xl:hidden">
-            <ThemeToggle theme={theme} onToggle={toggle} />
-            <button
-              className="flex h-10 w-10 items-center justify-center"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="切換選單"
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
-
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden xl:hidden"
-              style={{ borderTop: "1px solid var(--border)" }}
-            >
-              <div className="flex flex-col gap-1 px-5 py-4 text-base">
-                {navLinks.map((l) => (
-                  <a
-                    key={l.href}
-                    href={l.href}
-                    className="rounded-lg px-2 py-2.5 font-medium transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {l.label}
-                  </a>
-                ))}
-                <a
-                  href="https://hpc.thu.edu.tw/profile/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg px-2 py-2.5 font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  指導教授
-                </a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+      <Navigation />
 
       {/* Hero */}
-      <header className="home-hero relative min-h-[92vh] overflow-hidden">
+      <header className="home-hero pt-[76px] relative min-h-[92vh] overflow-hidden">
         <CinematicBackdrop />
         <div className="home-hero-inner relative mx-auto max-w-7xl px-5 pb-20 pt-16 sm:px-8 sm:pb-28 sm:pt-20 md:pb-36 md:pt-24">
           <HeroBody live={live} />
@@ -846,8 +723,8 @@ function Home() {
 
           {/* mobile / tablet: simple stacked quick links */}
           <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-3 lg:hidden">
-            <MobileQuickLink to="/gpus" icon={Cpu} label="GPU 機房" detail={live.gpuOnline != null ? `${live.gpuOnline} 顆 GPU 在線` : "即時監控"} />
-            <MobileQuickLink to="/infrastructure" icon={Server} label="叢集基礎設施" detail={live.nodesOnline != null ? `${live.nodesOnline} 個節點在線` : "即時監控"} />
+            <MobileQuickLink to="/gpus" icon={Cpu} label="算力監控" detail={live.gpuOnline != null ? `${live.gpuOnline} 顆 GPU 在線` : "即時監控"} />
+            <MobileQuickLink to="/infrastructure" icon={Server} label="叢集基礎設施" detail={live.nodesOnline != null ? `${live.nodesOnline} 個盤點節點` : "資源盤點"} />
             <MobileQuickLink href="#research" icon={BrainCircuit} label="核心研究" detail="LLM · K8s · CubeCOS" />
           </div>
 
@@ -857,16 +734,16 @@ function Home() {
             items={[
               {
                 to: "/gpus",
-                label: "GPU 機房",
+                label: "算力監控",
                 category: "即時監控 / PROMETHEUS",
-                detail: live.gpuOnline != null ? `目前 ${live.gpuOnline} 顆 GPU 在線,即時回報使用率、溫度與功耗。` : "圖書館 GPU 工作站的即時使用率、溫度與功耗。",
+                detail: live.gpuOnline != null ? `目前 ${live.gpuOnline} 顆 GPU 在線,即時回報使用率、溫度與功耗。` : "實驗室算力與 GPU 使用率、溫度、功耗。",
                 bars: [30, 55, 42, 78, 60, 90],
               },
               {
                 to: "/infrastructure",
                 label: "叢集基礎設施",
-                category: "即時監控 / CUBECOS",
-                detail: live.nodesOnline != null ? `${live.nodesOnline} 個實體節點在線,涵蓋 CubeCOS 超融合雲與 Proxmox 叢集。` : "CubeCOS 超融合雲、Proxmox 虛擬化叢集與備份系統總覽。",
+                category: "叢集盤點 / CUBECOS",
+                detail: live.nodesOnline != null ? `盤點 ${live.nodesOnline} 個實體節點，涵蓋 CubeCOS 超融合雲與 Proxmox 叢集。` : "CubeCOS 超融合雲、Proxmox 虛擬化叢集與備份系統總覽。",
                 bars: [50, 35, 70, 45, 85, 55],
               },
               {
@@ -906,47 +783,20 @@ function Home() {
                     activeId={activeResearchId}
                     onActiveChange={setActiveResearchId}
                     busyRatio={live.busyRatio}
-                    onSelect={(id) => navigate(`/research?area=${encodeURIComponent(id)}`)}
+                    onSelect={setActiveResearchId}
                   />
                 </WebGLBoundary>
               </Suspense>
               <ResearchAreaBanner
                 activeId={activeResearchId}
                 onActiveChange={setActiveResearchId}
-                onSelect={(id) => navigate(`/research?area=${encodeURIComponent(id)}`)}
+                onSelect={setActiveResearchId}
               />
             </div>
           </div>
         </section>
 
-        {/* Featured applications — the three capability highlights, kept as-is */}
-        <section className="home-section py-20 sm:py-28">
-          <SectionEyebrow>重點應用</SectionEyebrow>
-          <h2 className="mt-3 max-w-2xl text-[clamp(1.75rem,4vw,2.75rem)] font-medium leading-tight">
-            從裸機叢集到大型語言模型，建構完整運算堆疊
-          </h2>
 
-          <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
-            <CapabilityCard
-              icon={BrainCircuit}
-              title="LLM 微調與多模態"
-              desc="專注於大型語言模型的技術微調與多模態研發，提升多維度數據處理能力。"
-              delay={0}
-            />
-            <CapabilityCard
-              icon={ServerCog}
-              title="實體機與邊緣 K8s"
-              desc="研究 Jetson 與各式伺服器實體機的 Kubernetes 叢集建構，優化異質資源調度。"
-              delay={0.08}
-            />
-            <CapabilityCard
-              icon={CloudCog}
-              title="CubeCOS 雲端架構"
-              desc="整合 Bigstack CubeCOS 系統，致力於容器架構與大規模分散式節點的效能提升。"
-              delay={0.16}
-            />
-          </div>
-        </section>
 
         <div className="divider" />
 
@@ -954,10 +804,10 @@ function Home() {
         <section id="systems" className="home-section py-20 sm:py-28">
           <SectionEyebrow>公開監控</SectionEyebrow>
           <h2 className="mt-3 max-w-2xl text-[clamp(1.75rem,4vw,2.75rem)] font-medium leading-tight">
-            即時系統狀態，任何人都能查看
+            運算資源狀態，任何人都能查看
           </h2>
           <p className="mt-4 max-w-xl text-lg" style={{ color: "var(--text-dim)" }}>
-            實驗室的叢集與 GPU 機房狀態並非黑箱——這兩個頁面直接讀取我們自己的監控資料。
+            查看全實驗室的運算規模、叢集盤點，以及有接遙測的 GPU 即時負載。
           </p>
 
           <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -968,38 +818,21 @@ function Home() {
             />
             <SystemLinkCard
               to="/gpus"
-              title="GPU 機房"
-              desc="圖書館全數 GPU 工作站的即時使用率、溫度與功耗，每 12 秒更新。"
+              title="算力監控"
+              desc="全實驗室算力盤點與 GPU 最新採樣使用率、溫度及功耗，每 5 秒更新。"
             />
           </div>
         </section>
 
         <div className="divider" />
 
-        {/* Stats */}
-        <section className="home-section py-20 sm:py-28">
-          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl md:grid-cols-4" style={{ background: "var(--border)" }}>
-            {[
-              { value: "15+", label: "年研究歷程" },
-              { value: "80+", label: "累計畢業生" },
-              { value: "3", label: "核心研究方向" },
-              { value: "50+", label: "學術論文發表" },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.06 }}
-                className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center"
-                style={{ background: "var(--surface)" }}
-              >
-                <div className="text-5xl font-semibold" style={{ fontFamily: "var(--font-mono)" }}>
-                  {stat.value}
-                </div>
-                <div className="text-base font-medium" style={{ color: "var(--text-dim)" }}>{stat.label}</div>
-              </motion.div>
-            ))}
+        <section className="home-section py-16 sm:py-24">
+          <SectionEyebrow>研究與團隊</SectionEyebrow>
+          <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.75rem)] font-medium">認識我們的工作</h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
+            <SystemLinkCard to="/projects" title="研究專案" desc={`探索 ${projects.length} 項代表性專案與應用成果。`} />
+            <SystemLinkCard to="/publications" title="論文著作" desc={`瀏覽目前收錄的 ${publications.length} 篇研究論文與發表資訊。`} />
+            <SystemLinkCard to="/people" title="研究成員" desc="認識指導教授、研究團隊與實驗室成員。" />
           </div>
         </section>
 
@@ -1096,40 +929,7 @@ function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer style={{ borderTop: "1px solid var(--border)" }}>
-        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
-            <div className="col-span-2 sm:col-span-1">
-              <div className="mb-3 flex items-center gap-2.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full" style={{ border: "1px solid var(--border-strong)" }}>
-                  <div className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--brand)" }} />
-                </div>
-                <span className="text-base font-bold italic" style={{ fontFamily: "var(--font-serif)" }}>HPC Lab</span>
-              </div>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--text-faint)" }}>
-                Tunghai University<br />台中市西屯區台灣大道四段1727號
-              </p>
-            </div>
-            <FooterCol title="網站">
-              <FooterLink href="#research">研究領域</FooterLink>
-              <FooterLink href="#systems">即時系統</FooterLink>
-              <FooterLink href="#contact">聯絡我們</FooterLink>
-            </FooterCol>
-            <FooterCol title="即時監控">
-              <FooterLink to="/infrastructure">叢集基礎設施</FooterLink>
-              <FooterLink to="/gpus">GPU 機房</FooterLink>
-            </FooterCol>
-            <FooterCol title="相關連結">
-              <FooterLink href="https://hpc.thu.edu.tw/profile/">指導教授</FooterLink>
-              <FooterLink href="https://www.thu.edu.tw/">東海大學</FooterLink>
-            </FooterCol>
-          </div>
-          <div className="mt-12 border-t pt-6 text-sm" style={{ borderColor: "var(--border)", color: "var(--text-faint)" }}>
-            © {new Date().getFullYear()} High Performance Computing Laboratory
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
@@ -1151,25 +951,6 @@ function MobileQuickLink({
   return to ? <Link to={to}>{inner}</Link> : <a href={href}>{inner}</a>;
 }
 
-function FooterCol({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="eyebrow mb-3" style={{ color: "var(--text-faint)" }}>{title}</div>
-      <div className="flex flex-col gap-2.5 text-sm">{children}</div>
-    </div>
-  );
-}
-
-function FooterLink({ to, href, children }: { to?: string; href?: string; children: React.ReactNode }) {
-  const cls = "w-fit transition-opacity hover:opacity-70";
-  if (to) return <Link to={to} className={cls}>{children}</Link>;
-  return (
-    <a href={href} target={href?.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className={cls}>
-      {children}
-    </a>
-  );
-}
-
 function SectionEyebrow({ children, center }: { children: React.ReactNode; center?: boolean }) {
   return (
     <p
@@ -1178,40 +959,6 @@ function SectionEyebrow({ children, center }: { children: React.ReactNode; cente
     >
       {children}
     </p>
-  );
-}
-
-function CapabilityCard({
-  icon: Icon,
-  title,
-  desc,
-  delay,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  desc: string;
-  delay: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, ...REVEAL }}
-      whileHover="hover"
-      className="panel group flex flex-col gap-4 p-7 transition-colors hover:border-[var(--brand-light)]"
-    >
-      <motion.div
-        variants={{ hover: { scale: 1.1 } }}
-        transition={STANDARD}
-        className="flex h-12 w-12 items-center justify-center rounded-xl"
-        style={{ background: "var(--brand-soft)", color: "var(--brand-light)" }}
-      >
-        <Icon className="h-5 w-5" />
-      </motion.div>
-      <h3 className="text-xl font-bold not-italic">{title}</h3>
-      <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>{desc}</p>
-    </motion.div>
   );
 }
 
@@ -1235,11 +982,11 @@ function SystemLinkCard({ to, title, desc }: { to: string; title: string; desc: 
           <p className="mt-3 text-[15px] leading-relaxed" style={{ color: "var(--text-dim)" }}>{desc}</p>
         </div>
         <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--brand)" }}>
-          <span className="relative flex h-2 w-2">
+          {to === "/gpus" && <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-40" style={{ background: "var(--good)" }} />
             <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: "var(--good)" }} />
-          </span>
-          即時資料
+          </span>}
+          {to === "/gpus" ? "即時監控" : to === "/infrastructure" ? "資源盤點" : "瀏覽內容"}
         </div>
       </motion.div>
     </Link>

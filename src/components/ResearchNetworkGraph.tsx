@@ -77,7 +77,7 @@ export function ResearchNetworkGraph({ compact = false, activeId: activeIdProp, 
           return (
             <Link
               key={area.id}
-              to={`/research#${area.id}`}
+              to={"/#research"}
               data-cursor-hover
               onMouseEnter={() => setActiveId(area.id)}
               onMouseLeave={() => setActiveId(null)}
@@ -116,7 +116,7 @@ export function ResearchNetworkGraph({ compact = false, activeId: activeIdProp, 
         {researchAreas.map((area) => (
           <Link
             key={area.id}
-            to={`/research#${area.id}`}
+            to={"/#research"}
             data-cursor-hover
             className="rounded-lg border p-3"
             style={{ borderColor: "rgba(255,255,255,0.15)" }}

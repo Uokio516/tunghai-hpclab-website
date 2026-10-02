@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { navItems } from "../../lib/constants";
 
@@ -10,19 +10,32 @@ interface MenuOverlayProps {
 }
 
 export function MenuOverlay({ open, onClose }: MenuOverlayProps) {
+  const dialog = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialog.current?.querySelector<HTMLButtonElement>("button")?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      if (e.key === "Tab") {
+        const controls = dialog.current?.querySelectorAll<HTMLElement>("button,a[href]");
+        if (!controls?.length) return;
+        const first = controls[0], last = controls[controls.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = overflow; previous?.focus(); };
   }, [open, onClose]);
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={dialog}
           role="dialog"
           aria-modal="true"
           aria-label="主選單"
@@ -60,10 +73,10 @@ export function MenuOverlay({ open, onClose }: MenuOverlayProps) {
                 >
                   <span className="font-mono text-xs opacity-40">{item.index}</span>
                   <span className="text-[clamp(1.25rem,7vw,3rem)] font-medium uppercase tracking-tight transition-transform group-hover:translate-x-2">
-                    {item.labelEn}
+                    {item.labelZh}
                   </span>
                   <span className="ml-auto hidden text-xs uppercase tracking-[0.15em] opacity-40 sm:inline">
-                    {item.labelZh}
+                    {item.labelEn}
                   </span>
                 </Link>
               </motion.div>

@@ -1,16 +1,29 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu as MenuIcon, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { Menu as MenuIcon, X, Sun, Moon } from "lucide-react";
 import { MenuOverlay } from "./MenuOverlay";
 import { navItems } from "../../lib/constants";
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
+  const [light, setLight] = useState(false);
+  useEffect(() => {
+    const saved = localStorage.getItem("hpclab-theme");
+    const isLight = saved === "light" || (!saved && window.matchMedia("(prefers-color-scheme: light)").matches);
+    setLight(isLight);
+    document.documentElement.dataset.theme = isLight ? "light" : "dark";
+  }, []);
+  const toggleTheme = () => {
+    const next = !light;
+    setLight(next);
+    document.documentElement.dataset.theme = next ? "light" : "dark";
+    localStorage.setItem("hpclab-theme", next ? "light" : "dark");
+  };
 
   return (
     <>
       <header
-        className="nav-surface fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-6 px-5 py-4 sm:px-8"
+        className="site-navigation fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-4 px-5 sm:px-8"
       >
         <Link
           to="/"
@@ -29,18 +42,19 @@ export function Navigation() {
         </Link>
         <nav className="ml-auto hidden items-center gap-1 xl:flex" aria-label="主要導覽">
           {navItems
-            .filter((item) => ["HOME", "RESEARCH", "PROJECTS", "PEOPLE", "PUBLICATIONS", "GPU MONITOR", "CLUSTERS"].includes(item.labelEn))
             .map((item) => (
-              <Link
+              <NavLink
                 key={item.to}
                 to={item.to}
-                className="rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors hover:bg-white/10"
+                end={item.to === "/"}
+                className={({ isActive }) => `site-nav-link rounded-full px-3 py-2 text-sm font-medium transition-colors ${isActive ? "is-active" : ""}`}
                 style={{ color: "#f3f4f6" }}
               >
-                {item.labelEn}
-              </Link>
+                {item.labelZh}
+              </NavLink>
             ))}
         </nav>
+        <button className="site-theme-button" onClick={toggleTheme} aria-label="切換明暗主題">{light ? <Moon size={17} /> : <Sun size={17} />}</button>
         <button
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
@@ -50,7 +64,7 @@ export function Navigation() {
           style={{ color: "#f3f4f6", borderColor: "rgba(255,255,255,0.28)", outlineColor: "#c9b8a0" }}
         >
           {open ? <X size={18} /> : <MenuIcon size={18} />}
-          <span>{open ? "Close" : "Menu"}</span>
+          <span>{open ? "關閉" : "選單"}</span>
         </button>
       </header>
       <MenuOverlay open={open} onClose={() => setOpen(false)} />

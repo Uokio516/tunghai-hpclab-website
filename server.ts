@@ -276,13 +276,16 @@ async function startServer() {
   // the PROMETHEUS_URL env var (see .env.example) — no internal address is baked in.
   const PROM = process.env.PROMETHEUS_URL;
   app.get("/api/gpus", async (_req, res) => {
+    res.setHeader("Cache-Control", "no-store");
     if (!PROM) {
       return res.status(503).json({ error: "GPU monitoring not configured" });
     }
     const promBase: string = PROM;
     const q = async (expr: string) => {
-      const r = await fetch(`${promBase}/api/v1/query?query=${encodeURIComponent(expr)}`);
+      const r = await fetch(`${promBase}/api/v1/query?query=${encodeURIComponent(expr)}`, { signal: AbortSignal.timeout(8000) });
+      if (!r.ok) throw new Error(`Prometheus HTTP ${r.status}`);
       const j: any = await r.json();
+      if (j.status !== "success") throw new Error("Prometheus query failed");
       return (j?.data?.result ?? []) as any[];
     };
     const gkey = (m: any) => `${m.instance}|${m.uuid ?? m.index ?? ""}`;
@@ -292,18 +295,15 @@ async function startServer() {
     };
     try {
       const [
-        info, up, util, utilPeak1h, collectSuccess, commandExitCode,
+        info, up, util, sampledAt, collectSuccess, commandExitCode,
         memUsed, memTotal, temp, power, powerLimit, fan,
         cpuBusy, ramTotal, ramAvail,
       ] = await Promise.all([
         q("nvidia_smi_gpu_info"),
         q('up{job="gpu-nodes"}'),
-        // A one-minute average is more representative than a single scrape
-        // that can land between GPU kernels and misleadingly flash 0%.
-        q("avg_over_time(nvidia_smi_utilization_gpu_ratio[1m])"),
-        // Keep a recent peak beside the live value so a currently idle
-        // workstation does not look like fabricated/static monitoring.
-        q("max_over_time(nvidia_smi_utilization_gpu_ratio[1h])"),
+        // Latest exporter sample, with its actual scrape time for freshness.
+        q("nvidia_smi_utilization_gpu_ratio"),
+        q("timestamp(nvidia_smi_utilization_gpu_ratio)"),
         q("nvidia_smi_last_collect_success"),
         q("nvidia_smi_command_exit_code"),
         q("nvidia_smi_memory_used_bytes"),
@@ -364,13 +364,16 @@ async function startServer() {
           };
         }
         const k = gkey(m);
+        const sampleTime = pick(sampledAt, k);
+        const fresh = sampleTime != null && Date.now() / 1000 - sampleTime < 120
+          && machines[inst].online && collectSuccessBy[inst] !== 0;
         machines[inst].gpus.push({
           index: m.index,
           name: m.name,
           model: m.gpu,
           driver: m.driver_version,
-          util: pick(util, k),
-          utilPeak1h: pick(utilPeak1h, k),
+          util: fresh ? pick(util, k) : null,
+          sampledAt: sampleTime != null ? new Date(sampleTime * 1000).toISOString() : null,
           memUsed: pick(memUsed, k),
           memTotal: pick(memTotal, k),
           temp: pick(temp, k),
@@ -425,8 +428,8 @@ async function startServer() {
         label: m.owner || `機器 ${i + 1}`,
         location: m.location || "",
         online: m.online,
-        telemetryStatus: m.gpus.length > 0 ? "healthy" : (m.telemetryStatus || "awaiting-data"),
-        telemetryCode: m.gpus.length > 0 ? null : (m.telemetryCode ?? null),
+        telemetryStatus: collectSuccessBy[m.instance] === 0 ? "collector-error" : m.gpus.some((g: any) => g.util != null) ? "healthy" : "awaiting-data",
+        telemetryCode: collectSuccessBy[m.instance] === 0 ? commandExitCodeBy[m.instance] ?? null : m.telemetryCode ?? null,
         cpuPercent: m.cpuPercent,
         ramUsed: m.ramUsed,
         ramTotal: m.ramTotal,

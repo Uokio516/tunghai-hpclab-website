@@ -55,7 +55,7 @@ export function Infrastructure() {
       eyebrow="Multi-platform Infrastructure"
       title={<>實驗室<span style={{ color: "var(--brand-light)" }}>運算基礎設施</span></>}
       description="從 CubeCOS 超融合雲、Proxmox 虛擬化叢集到獨立備份系統，呈現實驗室跨平台運算資源、工作負載與儲存健康。"
-      live={data?.source !== "snapshot"}
+      live={false}
       meta={<><div><Clock3 className="mr-2 inline h-3 w-3" />歷史盤點快照</div><div>{data ? `資料日期 ${data.updatedAt}` : "讀取中…"}</div><div>非即時叢集狀態</div></>}
     >
 

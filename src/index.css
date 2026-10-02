@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+/* One navigation shell across the entire public website. */
+.site-navigation { height:76px; background:rgba(5,7,11,.96); border-bottom:1px solid rgba(255,255,255,.12); color:#f3f4f6; }
+.site-nav-link { position:relative; }
+.site-nav-link:hover { background:rgba(255,255,255,.06); }
+.site-nav-link.is-active { background:rgba(201,184,160,.12); box-shadow:inset 0 -2px #c9b8a0; }
+.site-theme-button { display:grid;place-items:center;width:38px;height:38px;border:1px solid rgba(255,255,255,.2);border-radius:50%;flex-shrink:0; }
+.site-theme-button:hover { background:rgba(255,255,255,.08); }
+html { scroll-padding-top:76px; }
+section[id] { scroll-margin-top:24px; }
+.monitor-notice { padding:14px 18px;margin-bottom:20px;border:1px solid var(--warn);border-radius:12px;color:var(--warn);background:var(--surface); }
+.fleet-table-scroll { overflow-x:auto;border:1px solid var(--border);border-radius:16px;background:var(--surface); }
+.fleet-table { width:100%;min-width:920px;border-collapse:collapse;font-size:.82rem;text-align:left; }
+.fleet-table caption { text-align:left;padding:18px 20px;color:var(--text-dim);font-size:.8rem;border-bottom:1px solid var(--border); }
+.fleet-table th,.fleet-table td { padding:16px 18px;border-bottom:1px solid var(--border);vertical-align:top; }
+.fleet-table thead th { color:var(--text-faint);font-size:.72rem;font-weight:600;white-space:nowrap;background:var(--surface-2); }
+.fleet-table tbody th { font-weight:600;min-width:150px; }
+.fleet-table small { display:block;color:var(--text-faint);font-size:.7rem;margin-top:5px;font-weight:400; }
+.fleet-table tbody tr:hover { background:var(--surface-2); }
+.fleet-table tr[data-offline="true"] { opacity:.6; }
+.fleet-table tr:last-child td,.fleet-table tr:last-child th { border-bottom:0; }
+.table-status { white-space:nowrap;color:var(--text-faint); }
+.table-status[data-status="在線"] { color:var(--good); }
+.table-status[data-status="遙測異常"] { color:var(--warn); }
+.machine-card-new,.inventory-card { transition:border-color .25s,box-shadow .25s; }
+.machine-card-new:hover,.inventory-card:hover { border-color:var(--border-strong);box-shadow:0 12px 30px rgba(0,0,0,.12); }
+.monitor-page .machine-card-new,.monitor-page .inventory-card { border-color:var(--border);background:var(--surface); }
+.monitor-page .monitor-hero { border-color:var(--border); }
+.monitor-page .monitor-kpi-grid { background:var(--border); }
+.monitor-page h1,.monitor-page h2 { font-family:var(--font-sans);font-style:normal;letter-spacing:-.045em; }
+.monitor-page .monitor-hero h1 { font-size:clamp(2rem,4.5vw,4rem);line-height:1.1; }
+@media(max-width:640px) { .site-navigation { height:76px;gap:10px; }.site-navigation .site-menu-button { padding:10px 12px;font-size:12px; }.fleet-table-scroll { border-radius:12px; } }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important; } }
+
 /* ------------------------------------------------------------------ */
 /* Self-hosted type. No external font requests — every face ships     */
 /* same-origin as a woff2 in /public/fonts, with font-display: swap   */
@@ -213,7 +246,7 @@ html {
 }
 
 /* Monitoring command center ------------------------------------------------ */
-.monitor-page { color:var(--text); background:#07090c; }
+.monitor-page { color:var(--text); background:var(--bg); }
 .monitor-grid { position:fixed; inset:0; pointer-events:none; opacity:.16; background-image:linear-gradient(rgba(201,184,160,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(201,184,160,.08) 1px,transparent 1px); background-size:46px 46px; mask-image:linear-gradient(to bottom,#000,transparent 80%); }
 .monitor-glow { position:fixed; width:36rem;height:36rem;border-radius:50%;filter:blur(110px);pointer-events:none;opacity:.13; }
 .monitor-glow-a{right:-12rem;top:5rem;background:#a78b71}.monitor-glow-b{left:-18rem;top:45vh;background:#315a68}
@@ -226,7 +259,7 @@ html {
 .monitor-description{max-width:48rem;margin-top:.9rem;color:var(--text-dim);font-size:clamp(.92rem,1.4vw,1.08rem);line-height:1.6}
 .monitor-meta{min-width:14rem;text-align:right;color:var(--text-faint);font:.68rem/1.8 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
 .monitor-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:1px;background:rgba(255,255,255,.1)}
-.monitor-kpi{position:relative;min-height:6.6rem;padding:1rem 1.15rem;background:#0a0d11;overflow:hidden}
+.monitor-kpi{position:relative;min-height:6.6rem;padding:1rem 1.15rem;background:var(--surface);overflow:hidden}
 .monitor-kpi svg{width:.9rem;height:.9rem;color:var(--brand-light)}.monitor-kpi-label{margin-top:.65rem;color:var(--text-faint);font:.6rem var(--font-mono);letter-spacing:.14em;text-transform:uppercase}.monitor-kpi-value{margin-top:.2rem;font:500 clamp(1.45rem,2.4vw,2.15rem) var(--font-mono)}
 .monitor-kpi::after{content:"";position:absolute;right:-2rem;bottom:-3rem;width:8rem;height:8rem;border:1px solid rgba(201,184,160,.12);border-radius:50%}
 .metric-arcs{display:flex;justify-content:center;gap:clamp(1rem,3vw,2.5rem);flex-wrap:wrap;padding:1rem}

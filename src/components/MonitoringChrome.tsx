@@ -1,5 +1,6 @@
 import { Radio } from "lucide-react";
 import { Navigation } from "./layout/Navigation";
+import { Footer } from "./layout/Footer";
 
 export function MonitoringChrome({
   eyebrow,
@@ -31,13 +32,14 @@ export function MonitoringChrome({
           </div>
           <div className="monitor-meta">
             <div style={{ color: live ? "var(--good)" : "var(--warn)" }}>
-              <Radio className="mr-2 inline h-3.5 w-3.5" />{live ? "即時遙測" : "歷史快照"}
+              <Radio className="mr-2 inline h-3.5 w-3.5" />{live ? "即時遙測" : "非即時資料"}
             </div>
             {meta}
           </div>
         </header>
         {children}
       </main>
+      <Footer />
     </div>
   );
 }
