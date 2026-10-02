@@ -114,8 +114,8 @@ export function GpuFleet() {
 
   return (
     <MonitoringChrome
-      eyebrow="Library GPU Fleet · Prometheus"
-      title={<>GPU <span style={{ color: "var(--brand-light)" }}>機房遙測</span></>}
+      eyebrow="Lab Compute Fleet · Prometheus + Inventory"
+      title={<>實驗室<span style={{ color: "var(--brand-light)" }}>全部算力</span></>}
       description="實驗室全部算力：有接遙測的機器顯示即時 GPU 負載、顯存、溫度與功耗；其餘已盤點的機器列出規格。搬移中而連不上的機器不列入。"
       live
       meta={<><div><RefreshCw className="mr-2 inline h-3 w-3" />12 秒輪詢</div><div>{at ? `Last sync ${at.toLocaleTimeString("zh-TW", { hour12: false })}` : "Connecting…"}</div><div>Prometheus · Exporters</div></>}
