@@ -130,19 +130,26 @@ async function startServer() {
   // Reads an out-of-band snapshot: the collector-written copy under data/ when it
   // exists, otherwise the copy bundled into the image. data/ is the mounted hostPath,
   // so a snapshot can be refreshed without rebuilding or restarting anything.
+  // The collector copy wins only while it is actually fresher. A collector run that
+  // stops happening used to leave a stale file silently masking a newer snapshot
+  // shipped in the image, which is how /api/cluster-status went on serving July data
+  // through a deploy that had already corrected it.
   const readSnapshot = (name: string): string | null => {
-    const candidates = [
-      path.join(process.cwd(), "data", `${name}.json`),
-      path.join(process.cwd(), `${name}.default.json`),
-    ];
-    for (const file of candidates) {
+    const read = (file: string): { body: string; at: number } | null => {
       try {
-        if (fs.existsSync(file)) return fs.readFileSync(file, "utf-8");
+        if (!fs.existsSync(file)) return null;
+        const body = fs.readFileSync(file, "utf-8");
+        const stamp = Date.parse(JSON.parse(body)?.updatedAt ?? "");
+        return { body, at: Number.isNaN(stamp) ? 0 : stamp };
       } catch (error) {
-        console.error(`${name} read error:`, error);
+        console.error(`${name} read error (${path.basename(file)}):`, error);
+        return null;
       }
-    }
-    return null;
+    };
+    const live = read(path.join(process.cwd(), "data", `${name}.json`));
+    const bundled = read(path.join(process.cwd(), `${name}.default.json`));
+    if (live && bundled) return live.at >= bundled.at ? live.body : bundled.body;
+    return (live ?? bundled)?.body ?? null;
   };
 
   app.get("/api/cluster-status", (_req, res) => {
