@@ -2,8 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { RefreshCw, Cpu, Server, Activity, HardDrive, AlertTriangle, MemoryStick } from "lucide-react";
 import { MonitoringChrome } from "./MonitoringChrome";
+import type { GpuTelemetry } from "../../gpu-telemetry";
 
-type Gpu = {
+type MigInfo = Partial<GpuTelemetry> & { migProfileUpdatedAt?: string };
+
+type Gpu = MigInfo & {
   index: string; name: string; model: string; driver: string;
   util: number | null; memUsed: number | null; memTotal: number | null;
   temp: number | null; power: number | null; powerLimit: number | null; fan: number | null;
@@ -16,7 +19,7 @@ type Machine = {
   telemetryCode?: number | null;
   gpus: Gpu[];
 };
-type InventoryGpu = { model: string; vramGB: number | null; class: string; passthrough: boolean };
+type InventoryGpu = MigInfo & { model: string; vramGB: number | null; class: string; passthrough: boolean };
 type InventoryMachine = {
   id: string; label: string; owner: string; type: string; os: string | null;
   location: string; group: string; groupName: string;
@@ -244,31 +247,37 @@ function FleetTable({ machines, inventory, now }: { machines: Machine[]; invento
     ...machines.flatMap((m) => (m.gpus.length ? m.gpus : [null]).map((g) => ({
       key: `${m.id}-${g?.index ?? "host"}`, label: m.label, location: m.location,
       status: !m.online ? "離線" : m.telemetryStatus === "collector-error" ? "遙測異常" : "在線",
-      model: g?.model ?? "—", util: g && g.sampledAt && now - Date.parse(g.sampledAt) < 120_000 ? g.util : null,
+      model: `${g?.model ?? "—"}${g?.migEnabled ? " · MIG" : ""}`, util: g && g.utilAvailable !== false && g.sampledAt && now - Date.parse(g.sampledAt) < 120_000 ? g.util : null,
       memory: g?.memTotal ? `${g.memUsed == null ? "—" : (g.memUsed / GB).toFixed(1)} / ${(g.memTotal / GB).toFixed(0)} GB` : "—",
       cpu: m.cpuPercent == null ? "—" : formatPercent(m.cpuPercent),
       updated: g?.sampledAt ? new Date(g.sampledAt).toLocaleTimeString("zh-TW", { hour12: false }) : "等待採樣",
-      note: g?.sampledAt && now - Date.parse(g.sampledAt) >= 120_000 ? "資料已過期" : "即時遙測",
+      note: g?.migEnabled ? `MIG · ${g.migProfile ?? "配置待讀取"}` : g?.sampledAt && now - Date.parse(g.sampledAt) >= 120_000 ? "資料已過期" : "即時遙測",
+      utilNote: g?.migEnabled ? "MIG 不提供整卡使用率" : null,
+      temperature: g?.sampledAt && now - Date.parse(g.sampledAt) < 120_000 && g.temp != null ? `${g.temp}°C` : "—",
+      power: g?.sampledAt && now - Date.parse(g.sampledAt) < 120_000 && g.power != null ? `${g.power.toFixed(1)} W` : "—",
     }))),
     ...inventory.map((m) => ({
       key: m.id, label: m.label, location: m.location || m.groupName,
       status: m.online == null ? "探測中" : m.online ? "在線" : "離線",
-      model: m.gpus.map((g) => `${g.model}${g.class === "display-only" ? "（顯示用）" : ""}`).join("、") || "—",
-      util: null, memory: m.gpus.filter((g) => g.class !== "display-only").map((g) => g.vramGB ? `${g.vramGB} GB` : "—").join("、") || "—",
+      model: m.gpus.map((g) => `${g.model}${g.migEnabled ? ` · MIG ${g.migProfile ?? `${g.migSlices?.length ?? 0} 切片`}` : ""}${g.class === "display-only" ? "（顯示用）" : ""}`).join("、") || "—",
+      util: null, memory: m.gpus.filter((g) => g.class !== "display-only").map((g) => g.memTotal ? `${g.memUsed == null ? "—" : (g.memUsed / GB).toFixed(1)} / ${(g.memTotal / GB).toFixed(0)} GB` : g.vramGB ? `${g.vramGB} GB` : "—").join("、") || "—",
       cpu: m.cpuThreads ? `${m.cpuThreads} 緒` : "—",
       updated: m.checkedAt ? new Date(m.checkedAt).toLocaleTimeString("zh-TW", { hour12: false }) : "等待探測",
       note: `規格／連線探測${m.online && m.latencyMs != null ? ` · ${m.latencyMs} ms` : ""}${m.online === false ? ` · 最後回應 ${m.lastSeen ? new Date(m.lastSeen).toLocaleString("zh-TW", { hour12: false }) : "尚無紀錄"}` : ""}`,
+      utilNote: m.gpus.some(g => g.migEnabled) ? "MIG 不提供整卡使用率" : null,
+      temperature: m.gpus.map(g => g.sampledAt && now - Date.parse(g.sampledAt) < 120_000 && g.temp != null ? `${g.temp}°C` : "—").join("、") || "—",
+      power: m.gpus.map(g => g.sampledAt && now - Date.parse(g.sampledAt) < 120_000 && g.power != null ? `${g.power.toFixed(1)} W` : "—").join("、") || "—",
     })),
   ];
   return <div className="fleet-table-scroll" tabIndex={0} role="region" aria-label="算力監控表，可水平捲動">
     <table className="fleet-table">
       <caption>最新算力與運行狀態 · 未接 GPU 遙測的機器不推估使用率</caption>
-      <thead><tr>{["機器／位置", "狀態", "GPU", "GPU 使用率", "顯存使用／容量", "CPU 使用率／規格", "採樣／探測時間"].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
+      <thead><tr>{["機器／位置", "狀態", "GPU／MIG 配置", "GPU 使用率", "顯存使用／容量", "溫度", "功耗", "CPU 使用率／規格", "採樣／探測時間"].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
       <tbody>{rows.map((r) => <tr key={r.key} data-offline={r.status === "離線"}>
         <th scope="row">{r.label}<small>{r.location}</small></th>
         <td><span className="table-status" data-status={r.status}>{r.status}</span></td>
-        <td>{r.model}</td><td>{r.util == null ? "—" : formatPercent(r.util * 100)}</td>
-        <td>{r.memory}</td><td>{r.cpu}</td><td>{r.updated}<small>{r.note}</small></td>
+        <td>{r.model}</td><td>{r.utilNote ?? (r.util == null ? "—" : formatPercent(r.util * 100))}</td>
+        <td>{r.memory}</td><td>{r.temperature}</td><td>{r.power}</td><td>{r.cpu}</td><td>{r.updated}<small>{r.note}</small></td>
       </tr>)}</tbody>
     </table>
   </div>;
@@ -366,6 +375,7 @@ function MachineCard({ m, delay }: { m: Machine; delay: number }) {
 }
 
 function GpuRow({ g, last }: { g: Gpu; last: boolean }) {
+  if (g.migEnabled) return <div className="p-5"><MigPanel gpu={g} /></div>;
   const stale = !g.sampledAt || Date.now() - Date.parse(g.sampledAt) > 120_000;
   const util = stale ? null : g.util;
   const memPct = g.memUsed != null && g.memTotal ? g.memUsed / g.memTotal : 0;
@@ -406,6 +416,42 @@ function GpuRow({ g, last }: { g: Gpu; last: boolean }) {
       </div>
     </div>
   );
+}
+
+function MigPanel({ gpu }: { gpu: MigInfo & { model?: string; vramGB?: number | null } }) {
+  const fresh = !!gpu.sampledAt && Date.now() - Date.parse(gpu.sampledAt) < 120_000;
+  const liveSlices = gpu.migSlices ?? [];
+  const segments = liveSlices.length ? liveSlices.map(slice => ({
+    profile: slice.profile, capacity: slice.memTotal ?? Number(slice.profile.match(/\.(\d+(?:\.\d+)?)gb/)?.[1] ?? 1) * GB,
+    used: fresh ? slice.memUsed : null, giId: slice.giId, ciId: slice.ciId, sm: slice.sm,
+  })) : [...(gpu.migProfile ?? "").matchAll(/(\d+g\.(\d+(?:\.\d+)?)gb)(?:\s*x(\d+))?/g)].flatMap(match =>
+    Array.from({ length: Math.min(128, Number(match[3] ?? 1)) }, () => ({ profile: match[1], capacity: Number(match[2]) * GB, used: null, giId: null, ciId: null, sm: null }))
+  );
+  const physicalCapacity = gpu.memTotal ?? (gpu.vramGB ? gpu.vramGB * GB : 0);
+  const reserve = Math.max(0, physicalCapacity - segments.reduce((sum, segment) => sum + segment.capacity, 0));
+  return <div className="mig-panel">
+    <div className="flex items-center justify-between gap-2"><strong className="text-xs">MIG 切片配置</strong><span className="inventory-badge">{gpu.migProfile ?? (segments.length ? `${segments.length} 個切片` : "待讀取")}</span></div>
+    <p className="mt-2 text-xs" style={{ color: "var(--text-dim)" }}>MIG 模式下不提供整卡使用率</p>
+    {segments.length > 0 && <div className="mig-segments" aria-label="MIG 切片容量比例，不代表使用率">
+      {segments.map((slice, index) => <div key={`${slice.giId ?? index}-${slice.ciId ?? index}`} className="mig-segment" style={{ flex: slice.capacity || 1 }} title={`${slice.profile}${slice.giId != null ? ` · GI ${slice.giId} / CI ${slice.ciId}` : ""}`}>
+        {slice.used != null && slice.capacity > 0 && <span className="mig-fill" style={{ width: `${Math.min(100, slice.used / slice.capacity * 100)}%` }} />}
+        <span className="mig-profile">{slice.profile}</span>
+      </div>)}
+      {reserve > 0 && <div className="mig-segment mig-reserve" style={{ flex: reserve }} title="未配置或系統保留容量"><span className="mig-profile">保留</span></div>}
+    </div>}
+    {liveSlices.length > 0 && <ul className="mig-slice-list">{segments.map((slice, index) => <li key={`${slice.giId}-${slice.ciId}-${index}`}>
+      <span>{slice.profile} · GI {slice.giId} / CI {slice.ciId}{slice.sm != null ? ` · 配置 ${slice.sm} SM` : ""}</span>
+      <span>{slice.used == null ? "顯存用量待更新" : `${(slice.used / 1024 ** 2).toFixed(0)} / ${(slice.capacity / 1024 ** 2).toFixed(0)} MiB`}</span>
+    </li>)}</ul>}
+    <p className="mt-2 text-xs" style={{ color: "var(--text-faint)" }}>
+      {gpu.sampledAt ? `採樣 ${new Date(gpu.sampledAt).toLocaleTimeString("zh-TW", { hour12: false })}${fresh ? "" : " · 資料已過期"}` : `盤點配置 ${gpu.migProfileUpdatedAt ?? "日期待確認"} · 尚未接即時切片遙測`}
+    </p>
+    <div className="mt-3 grid grid-cols-3 gap-2 text-xs" style={{ color: "var(--text-dim)" }}>
+      <span>顯存<br /><strong>{fresh && gpu.memUsed != null ? `${(gpu.memUsed / 1024 ** 2).toFixed(0)} MiB` : "—"}</strong></span>
+      <span>溫度<br /><strong>{fresh && gpu.temp != null ? `${gpu.temp}°C` : "—"}</strong></span>
+      <span>功耗<br /><strong>{fresh && gpu.power != null ? `${gpu.power.toFixed(1)} W` : "—"}</strong></span>
+    </div>
+  </div>;
 }
 
 function InventoryCard({ m }: { m: InventoryMachine }) {
@@ -464,6 +510,8 @@ function InventoryCard({ m }: { m: InventoryMachine }) {
           連線延遲 {m.latencyMs} ms
         </div>
       )}
+
+      {m.gpus.filter(gpu => gpu.migEnabled).map((gpu, index) => <MigPanel key={`mig-${index}`} gpu={gpu} />)}
 
       {m.online === false && (
         <div className="mt-2 text-xs" style={{ color: "var(--text-faint)" }}>

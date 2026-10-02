@@ -1,0 +1,19 @@
+{
+  "updatedAt": "2026-10-02",
+  "source": "verified-device-spec",
+  "machines": [
+    {
+      "machineId": "inv-04",
+      "telemetryId": "a100-lib",
+      "gpus": [
+        {
+          "index": "0",
+          "model": "NVIDIA A100 40GB",
+          "migEnabled": true,
+          "migProfile": "7g.40gb",
+          "migProfileUpdatedAt": "2026-10-02"
+        }
+      ]
+    }
+  ]
+}

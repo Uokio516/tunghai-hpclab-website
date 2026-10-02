@@ -6,6 +6,7 @@ import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import fs from "fs";
 import net from "net";
+import { freshGpuTelemetry, sanitizeGpuTelemetry, type GpuTelemetry } from "./gpu-telemetry";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -163,7 +164,35 @@ async function startServer() {
   // tools/build-inventory.py and probed by tools/probe-inventory.py). It covers the
   // machines that have no Prometheus exporter, so the site can show the lab's whole
   // capacity rather than only the monitored subset.
-  type InventoryGpu = { model: string; vramGB: number | null; class: string; passthrough: boolean };
+  type InventoryGpu = { model: string; vramGB: number | null; class: string; passthrough: boolean } & Partial<GpuTelemetry> & { migProfileUpdatedAt?: string };
+  type Capability = { machineId: string; telemetryId?: string; gpus: { index: string; model: string; migEnabled: boolean; migProfile: string; migProfileUpdatedAt: string }[] };
+  let capabilities: Capability[] = [];
+  try { capabilities = JSON.parse(readSnapshot("gpu-capabilities") ?? "{}").machines ?? []; }
+  catch { console.error("GPU capability metadata unavailable"); }
+  const gpuTelemetry = new Map<string, GpuTelemetry[]>();
+  const telemetryUrl = process.env.GPU_TELEMETRY_URL;
+  let refreshingTelemetry = false;
+  const refreshGpuTelemetry = async () => {
+    if (!telemetryUrl || refreshingTelemetry) return;
+    refreshingTelemetry = true;
+    try {
+      const response = await fetch(telemetryUrl, { signal: AbortSignal.timeout(8000) });
+      if (!response.ok) throw new Error("Telemetry provider unavailable");
+      const payload: any = await response.json();
+      const rows = Array.isArray(payload.machines) ? payload.machines : [payload];
+      for (const row of rows.slice(0, 100)) {
+        if (!row || typeof row.id !== "string" || !Array.isArray(row.gpus)) continue;
+        const gpus = row.gpus.slice(0, 32).map((g: any) => sanitizeGpuTelemetry(g, row.updatedAt ?? payload.updatedAt)).filter(Boolean) as GpuTelemetry[];
+        gpuTelemetry.set(row.id, gpus);
+      }
+    } catch { console.error("GPU telemetry provider temporarily unavailable"); }
+    finally { refreshingTelemetry = false; }
+  };
+  if (telemetryUrl) {
+    void refreshGpuTelemetry();
+    const timer = setInterval(() => void refreshGpuTelemetry(), 5000);
+    timer.unref();
+  }
   type InventoryMachine = {
     id: string; ip: string | null; label: string; owner: string; type: string; os: string | null;
     location: string; group: string; groupName: string;
@@ -181,7 +210,15 @@ async function startServer() {
     const body = readSnapshot("lab-inventory");
     if (!body) return null;
     try {
-      return JSON.parse(body) as Inventory;
+      const inventory = JSON.parse(body) as Inventory;
+      inventory.machines = inventory.machines.map(machine => {
+        const capability = capabilities.find(c => c.machineId === machine.id);
+        return { ...machine, gpus: machine.gpus.map((gpu, index) => {
+          const meta = capability?.gpus.find(g => g.index === String(index) && canonicalGpu(g.model) === canonicalGpu(gpu.model));
+          return meta ? { ...gpu, ...meta, util: null, utilAvailable: !meta.migEnabled, utilUnavailableReason: meta.migEnabled ? "mig-enabled" : "not-instrumented" } : gpu;
+        }) };
+      });
+      return inventory;
     } catch (error) {
       console.error("lab-inventory parse error:", error);
       return null;
@@ -253,8 +290,14 @@ async function startServer() {
   const withLiveness = (m: InventoryMachine) => {
     const { ip, ports, ...rest } = m;
     const l = ip ? liveness.get(ip) : undefined;
+    const alias = capabilities.find(c => c.machineId === m.id)?.telemetryId;
+    const measurements = gpuTelemetry.get(m.id) ?? (alias ? gpuTelemetry.get(alias) : undefined);
     return {
       ...rest,
+      gpus: m.gpus.map((gpu, index) => {
+        const measurement = measurements?.find(g => g.index === String(index));
+        return measurement ? { ...gpu, ...freshGpuTelemetry(measurement) } : gpu;
+      }),
       online: l?.online ?? null,
       checkedAt: l?.checkedAt ?? null,
       lastSeen: l?.lastSeen ?? null,
@@ -373,6 +416,8 @@ async function startServer() {
           model: m.gpu,
           driver: m.driver_version,
           util: fresh ? pick(util, k) : null,
+          utilAvailable: true,
+          utilUnavailableReason: fresh ? null : "awaiting-data",
           sampledAt: sampleTime != null ? new Date(sampleTime * 1000).toISOString() : null,
           memUsed: pick(memUsed, k),
           memTotal: pick(memTotal, k),
@@ -415,6 +460,19 @@ async function startServer() {
       const list = Object.values(machines)
         .filter((m: any) => !relocated(m))
         .sort((a: any, b: any) => a.instance.localeCompare(b.instance, undefined, { numeric: true }));
+      list.forEach((machine: any) => {
+        const known = invByIp.get(machine.ip);
+        if (!known) return;
+        const enriched = withLiveness(known).gpus;
+        machine.gpus = machine.gpus.map((gpu: any) => {
+          const metadata = enriched[Number(gpu.index)];
+          if (!metadata?.migEnabled) return gpu;
+          return { ...gpu, migEnabled: true, util: null, utilAvailable: false, utilUnavailableReason: "mig-enabled",
+            migProfile: metadata.migProfile, migProfileUpdatedAt: metadata.migProfileUpdatedAt,
+            migSlices: metadata.migSlices ?? [],
+            ...(metadata.sampledAt ? { sampledAt: metadata.sampledAt, memUsed: metadata.memUsed, memTotal: metadata.memTotal, temp: metadata.temp, power: metadata.power, powerLimit: metadata.powerLimit } : {}) };
+        });
+      });
       const online = list.filter((m: any) => m.online);
       const gpuCount = online.reduce((n: number, m: any) => n + m.gpus.length, 0);
       const busy = online.reduce(

@@ -57,3 +57,19 @@ python tools/build-cluster-status.py
   連線可達也不等於 GPU 閒置。卡片與表格共用同一組資料。
 - `node tools/verify-gpu-monitoring.mjs` 使用假的 Prometheus 與暫存 SQLite，驗證最新採樣、
   使用率變動、資料過期、採集失敗、離線、IP 隱藏與錯誤恢復；不探測實驗室機器。
+
+## A100／MIG
+
+- `gpu-capabilities.default.json` 記錄 2026-10-02 實機規格中的 MIG 能力與配置盤點。
+  它不含即時顯存、溫度或功耗；畫面會標示盤點日期與「尚未接即時切片遙測」。
+- MIG GPU 回傳 `util: null`、`utilAvailable: false`、`utilUnavailableReason: "mig-enabled"`。
+  切片容量與配置的 SM 數量都不是使用率；一張實體卡不因切片而重複計入算力。
+- 有獨立唯讀收集來源時，可設定網站的 `GPU_TELEMETRY_URL`；來源位址只留在伺服器。
+  每個 replica 每 5 秒讀取一次；不改 Prometheus、不登入主機、不安裝 DCGM。
+- 來源可回傳單一機器 `{ "id": "a100-lib", "updatedAt": "ISO 日期時間", "gpus": [...] }`，
+  或 `{ "machines": [...] }`；`a100-lib` 對應清冊 `inv-04`，也可直接用清冊 ID。
+  GPU 欄位為 `index`、`sampledAt`、`migEnabled`、`util`、`utilAvailable`、`memUsed`、
+  `memTotal`、`temp`、`power`、`powerLimit`、`migProfile`、`migSlices`；顯存單位為 bytes。
+  切片包含 `giId`、`ciId`、`profile`、`sm`、`memUsed`、`memTotal`；切片數由來源決定。
+- API 只採用允許的欄位，排除來源中的 IP／ports；過期測量不當成即時值。
+  提供者失敗時保留最後採樣時間，超過 120 秒後顯存用量、溫度、功耗顯示為未知。
