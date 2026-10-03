@@ -66,6 +66,47 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Member accounts, consent and avatars have their own single-writer PVC.
+  // Only the website is public; the internal service accepts a private token.
+  app.use("/api/members", express.raw({ type: ["image/jpeg", "image/png", "image/webp"], limit: "5mb" }), async (req, res) => {
+    const base = process.env.MEMBER_SERVICE_URL;
+    const serviceToken = process.env.MEMBER_SERVICE_TOKEN;
+    if (!base || !serviceToken) return res.status(503).json({ error: "成員服務尚未啟用" });
+    let path: string;
+    try { path = decodeURIComponent(req.path); }
+    catch { return res.status(400).json({ error: "Invalid path" }); }
+    if (/^\/admin(?:\/|$)/.test(path) && (!ADMIN_PASSWORD || req.headers["x-admin-password"] !== ADMIN_PASSWORD)) return res.status(401).json({ error: "Unauthorized" });
+    if (!["GET", "HEAD"].includes(req.method)) {
+      const origin = req.headers.origin;
+      if (origin) {
+        try { if (new URL(origin).host !== req.get("host")) return res.status(403).json({ error: "Invalid origin" }); }
+        catch { return res.status(403).json({ error: "Invalid origin" }); }
+      }
+    }
+    try {
+      const url = new URL(base);
+      url.pathname = req.path;
+      url.search = new URL(req.url, "http://localhost").search;
+      const image = Buffer.isBuffer(req.body);
+      const upstream = await fetch(url, {
+        method: req.method,
+        headers: {
+          authorization: `Bearer ${serviceToken}`,
+          ...(req.headers.cookie ? { cookie: req.headers.cookie } : {}),
+          ...(!["GET", "HEAD"].includes(req.method) ? { "content-type": image ? String(req.headers["content-type"]) : "application/json" } : {}),
+        },
+        body: ["GET", "HEAD"].includes(req.method) ? undefined : image ? req.body : JSON.stringify(req.body ?? {}),
+        redirect: "manual",
+        signal: AbortSignal.timeout(15_000),
+      });
+      const cookie = upstream.headers.get("set-cookie");
+      if (cookie) res.setHeader("Set-Cookie", cookie);
+      res.setHeader("Cache-Control", upstream.headers.get("cache-control") ?? "no-store");
+      res.type(upstream.headers.get("content-type") ?? "application/json");
+      res.status(upstream.status).send(Buffer.from(await upstream.arrayBuffer()));
+    } catch { res.status(503).json({ error: "成員服務暫時無法連線" }); }
+  });
+
   const dbPath =
     process.env.NODE_ENV === "production"
       ? path.join(process.cwd(), "data", "database.sqlite")

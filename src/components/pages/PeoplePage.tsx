@@ -1,10 +1,18 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { people } from "../../data/people";
 import { professor, lab } from "../../data/lab";
 
 export function PeoplePage() {
   const pi = people.find((p) => p.role === "pi");
-  const students = people.filter((p) => p.role === "student");
+  type PublicMember = { id: number; role: string; roleLabel: string; displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string; degree: string; interests: string[]; bio: string; affiliation: string; link: string; avatarUrl: string | null };
+  const [members, setMembers] = useState<PublicMember[]>([]);
+  const [loadError, setLoadError] = useState(false);
+  useEffect(() => { const controller = new AbortController(); fetch("/api/members/public", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
+  const current = members.filter(member => member.role !== "alumni");
+  const alumni = members.filter(member => member.role === "alumni");
+  const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => <li className="member-public-card" key={member.id}><div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div><div><span className="member-public-role">{member.roleLabel}{member.entryYear ? ` · ${member.entryYear} 入學` : member.graduationYear ? ` · ${member.graduationYear} 畢業` : ""}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.affiliation && <p>{member.affiliation}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}{member.interests.length > 0 && <div className="member-public-tags">{member.interests.map(tag => <span key={tag}>{tag}</span>)}</div>}{member.link && <a href={member.link} target="_blank" rel="noopener noreferrer">個人連結 ↗</a>}</div></li>)}</ul>;
 
   return (
     <PageShell eyebrow="People" title="研究成員" lede="由人、想法與實驗構成的研究網絡。">
@@ -94,22 +102,12 @@ export function PeoplePage() {
 
         <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}>
           <p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">
-            Graduate Students &amp; Researchers
+            Current Members
           </p>
-          {students.length === 0 ? (
-            <EmptyState message="成員名單整理中,待研究室確認後公開。" />
-          ) : (
-            <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {students.map((s) => (
-                <li key={s.id} className="rounded-xl border p-6" style={{ borderColor: "var(--border)" }}>
-                  <p className="text-lg font-medium">{s.nameZh}</p>
-                  <p className="mt-1 text-sm uppercase tracking-[0.08em] opacity-60">{s.nameEn}</p>
-                  <p className="mt-3 text-sm opacity-70">{s.titleZh}</p>
-                </li>
-              ))}
-            </ul>
-          )}
+          {current.length ? cards(current) : <EmptyState message={loadError ? "成員名單暫時無法載入。" : "現任成員資料核對中；取得本人同意並審核後公開。"} />}
         </div>
+        <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}><p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">Alumni</p>{alumni.length ? cards(alumni) : <EmptyState message="歷屆學長姐名單整理中；取得本人同意並審核後公開。" />}</div>
+        <div className="member-people-footer">已收到實驗室邀請？<Link to="/member/login">登入並更新自己的資料 ↗</Link></div>
       </section>
     </PageShell>
   );

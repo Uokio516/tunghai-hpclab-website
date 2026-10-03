@@ -152,6 +152,7 @@ export const AdminPanel: React.FC = () => {
             <p className="text-sm font-medium" style={{ color: "var(--text-faint)" }}>HPC Lab Visitor Messages</p>
           </div>
           <div className="flex items-center gap-3">
+            <Link to="/admin/members" className="chip px-4 py-2 text-sm font-semibold">成員名冊 →</Link>
             <span className="text-sm" style={{ color: "var(--text-dim)" }}>
               共 {filteredMessages.length} / {messages.length} 筆
             </span>

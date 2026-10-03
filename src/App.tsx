@@ -21,6 +21,11 @@ const ProjectsPage = lazy(() =>
 const PeoplePage = lazy(() =>
   import("./components/pages/PeoplePage").then((m) => ({ default: m.PeoplePage }))
 );
+const MemberJoinPage = lazy(() => import("./components/pages/MemberPortal").then((m) => ({ default: m.MemberJoinPage })));
+const MemberLoginPage = lazy(() => import("./components/pages/MemberPortal").then((m) => ({ default: m.MemberLoginPage })));
+const MemberProfilePage = lazy(() => import("./components/pages/MemberPortal").then((m) => ({ default: m.MemberProfilePage })));
+const MemberResetPage = lazy(() => import("./components/pages/MemberPortal").then((m) => ({ default: m.MemberResetPage })));
+const MemberAdminPage = lazy(() => import("./components/pages/MemberAdminPage").then((m) => ({ default: m.MemberAdminPage })));
 const PublicationsPage = lazy(() =>
   import("./components/pages/PublicationsPage").then((m) => ({ default: m.PublicationsPage }))
 );
@@ -129,6 +134,11 @@ export default function App() {
         <Route path="/research" element={<Navigate to="/#research" replace />} />
         <Route path="/projects" element={<DarkRoute><ProjectsPage /></DarkRoute>} />
         <Route path="/people" element={<DarkRoute><PeoplePage /></DarkRoute>} />
+        <Route path="/join/:invite" element={<DarkRoute><MemberJoinPage /></DarkRoute>} />
+        <Route path="/member/login" element={<DarkRoute><MemberLoginPage /></DarkRoute>} />
+        <Route path="/member/me" element={<DarkRoute><MemberProfilePage /></DarkRoute>} />
+        <Route path="/member/reset/:reset" element={<DarkRoute><MemberResetPage /></DarkRoute>} />
+        <Route path="/admin/members" element={<DarkRoute><MemberAdminPage /></DarkRoute>} />
         <Route path="/publications" element={<DarkRoute><PublicationsPage /></DarkRoute>} />
         <Route path="/news" element={<DarkRoute><NewsPage /></DarkRoute>} />
         <Route path="/contact" element={<DarkRoute><ContactPage /></DarkRoute>} />

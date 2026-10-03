@@ -14,9 +14,13 @@ flowchart LR
   Site --> History[歷史服務 · 1 replica]
   History -->|每分鐘 GET /api/gpus| Site
   History --> PVC[SQLite PVC · 30 天]
+  Site --> Members[成員服務 · 1 replica]
+  Members --> MemberPVC[SQLite + WebP 頭像 PVC]
 ```
 
 網站映像 `pokai516/hpc-lab:latest` 同時包含前端、Express 與歷史服務程式。線上 `hpc-lab-site` 為 2 個副本；歷史資料由獨立的 `hpc-lab-history` 單一寫入者保存。瀏覽器不直接連接 Prometheus、exporter、歷史服務或叢集內部位址。
+
+成員資料由獨立的 `hpc-lab-members` 單一寫入者保存；網站 2 個副本只透過內部 token 代理請求，不能把帳號、照片或 SQLite 寫進網站原有 hostPath。管理者須另以 `ADMIN_PASSWORD` 驗證；網站不發送邀請郵件，管理者自行轉交連結。詳見 [成員表單規格](member-profile-form.md)。
 
 | 層次 | 主要檔案 | 職責與修改入口 |
 | --- | --- | --- |
@@ -29,6 +33,7 @@ flowchart LR
 | HTTP API | `server.ts` | 公開 API、資料淨化、原 Prometheus 查詢、聯絡表單與歷史服務代理。新 API 先定義輸入驗證與輸出白名單。 |
 | Exporter 採集 | `exporter-collector.ts`、`gpu-telemetry.ts`、`exporter-targets.default.json` | 私有目標每 5 秒採集，依機器 ID 合併 CPU/GPU 遙測；地址只留伺服器。 |
 | 歷史資料 | `tools/history-service.ts`、`tools/monitoring-history.yaml` | 每分鐘從公開安全的 `/api/gpus` 取樣，單寫入 SQLite，保留 30 天；透過網站 API 查詢。 |
+| 成員資料 | `member-service.ts`、`src/components/pages/MemberPortal.tsx`、`MemberAdminPage.tsx`、`PeoplePage.tsx`、`src/styles/members.css`、`tools/monitoring-members.yaml` | 邀請、帳號、個人表單、WebP 頭像、審核及公開名冊；持久化在獨立 PVC。 |
 | 清冊與快照 | `tools/build-inventory.py`、`probe-inventory.py`、`finalize-inventory.py`、`build-cluster-status.py` | 原始清冊、連線探測、容量去重、叢集快照。完整重跑方式見 [tools/README.md](../tools/README.md)。 |
 | Exporter 管理 | `tools/exporters/` | 安裝、目標產生、受限轉送、GPU 叢集 DaemonSet。安裝與覆蓋範圍見 [README.md](../tools/exporters/README.md)。 |
 
@@ -42,6 +47,8 @@ flowchart LR
 | `/gpus` | 節點清單、目前狀態、單機歷史 | 前端每 5 秒取得 API；逾 120 秒採樣不當作即時。 |
 | `/infrastructure` | 叢集與虛擬化資源 | 有 `updatedAt` 的盤點快照。 |
 | `/projects`、`/people`、`/publications`、`/news`、`/contact` | 內容頁 | `src/data/` 或聯絡 API。 |
+| `/join/:invite`、`/member/login`、`/member/me`、`/member/reset/:reset` | 受邀成員啟用、登入、修改資料及重設密碼 | 邀請制；連結由管理者自行發送。 |
+| `/admin/members` | 建立名冊邀請與審核 | 需 `ADMIN_PASSWORD`；管理密碼只在頁面記憶體。 |
 | `/research` | 舊網址相容 | 轉至 `/#research`，不保留重複頁面。 |
 
 | API | 用途 |
@@ -52,6 +59,7 @@ flowchart LR
 | `GET /api/monitoring/history/:machineId?hours=24` | 經網站代理歷史服務；只接受白名單時間範圍與安全 ID。 |
 | `POST /api/contact` | 寫入聯絡表單 SQLite。`/api/messages` 是需管理者授權的後台 API。 |
 | `POST /api/internal/exporter-telemetry` | 筆電等無法拉取的設備用 HTTPS push；需 Secret 中的 token。 |
+| `/api/members/*` | 網站代理獨立成員服務；公開名冊僅有核准資料，登入使用 HttpOnly cookie，`/admin/*` 另檢查 `X-Admin-Password`。 |
 
 ## 3. 資料定義與安全約束
 
@@ -60,6 +68,7 @@ flowchart LR
 - **MIG**：整卡 `util` 不可用時顯示原因與切片配置；切片容量不當成使用率。一張實體 A100 仍只計一張 GPU。
 - **歷史**：歷史服務從啟用後才開始記錄，按分鐘保存平均 GPU 使用率、CPU、RAM、在線狀態。空白區間維持空白，不回填或插值。查詢範圍 1/6/24/168/720 小時，保留 30 天。
 - **敏感資料**：清冊試算表 N/O 欄是帳密，解析器只讀至第 13 欄；不得輸出到 repo、日誌或瀏覽器。`ip`、`ports`、exporter URL、instance、push token、管理密碼都不得進入公開 API。`ADMIN_PASSWORD` 未設時後台拒絕登入。
+- **成員與頭像**：邀請 token、密碼與 session token 以雜湊形式保存；密碼用 scrypt。頭像限制 5 MB、至少 200×200，轉 640×640 WebP 並移除原始 metadata。公開 API 不含信箱、同意欄位或未核准資料。資料與照片分別同意；撤回刊登同意後立即下架。
 
 ## 4. 本機開發與驗證
 
@@ -71,6 +80,7 @@ npm run build
 node --import tsx tools/verify-exporter-collector.mjs
 node tools/verify-exporter-api.mjs
 node tools/verify-gpu-monitoring.mjs
+node tools/verify-member-service.mjs
 ```
 
 本機未設定 `PROMETHEUS_URL` 或 exporter 目標時，`/api/gpus` 可以回 503；前端版型檢查可用測試假資料攔截 API。歷史服務可單獨以 `npx tsx tools/history-service.ts` 啟動，指定 `HISTORY_SOURCE_URL`、`HISTORY_DB_PATH`、`PORT`；正式環境由 `tools/monitoring-history.yaml` 設定。任何測試都不要回傳或記錄設備帳密／內網地址。
@@ -80,6 +90,7 @@ node tools/verify-gpu-monitoring.mjs
 1. 盤點有變動時，先照 [tools/README.md](../tools/README.md) 重產 `lab-inventory.default.json` 與 `cluster-status.default.json`；不要使用舊的 `collect-cluster-status.sh`，其 schema 不相容。
 2. `npm run lint`、`npm run build` 與相關驗證通過後，`docker build -t pokai516/hpc-lab:latest .`、`docker push pokai516/hpc-lab:latest`。
 3. 用 `kubectl --kubeconfig <kubeconfig> apply -f tools/monitoring-history.yaml` 部署歷史服務，並在網站 Deployment 設定 `HISTORY_SERVICE_URL=http://hpc-lab-history:3001`。再 rollout restart `hpc-lab-site`。
+   成員服務啟用時，先建立含 `MEMBER_SERVICE_TOKEN`（至少 32 字元）的 Kubernetes Secret，再套用 `tools/monitoring-members.yaml`；網站 Deployment 設 `MEMBER_SERVICE_URL=http://hpc-lab-members:3002`，並從同一 Secret 注入 `MEMBER_SERVICE_TOKEN`。不要在 repo 或命令輸出寫出 token。成員 PVC 要備份 SQLite 與 avatars；回復映像時保留 PVC。
 4. 核對兩個網站 Pod 與歷史 Pod 的 **imageID digest** 都等於剛推送的 digest；確認 Ready、`/api/gpus`、`/api/monitoring/history/<有效 ID>` 和首頁。網站 Pod selector 是 `app=hpc-lab`，歷史服務是 `app=hpc-lab-history`。
 5. 出問題時回復到前一個已驗證 digest 並重啟 Deployment。歷史 PVC 不要刪除；同一份記錄仍可供回復後的網站讀取。
 
