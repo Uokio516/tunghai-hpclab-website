@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Power } from "lucide-react";
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { people } from "../../data/people";
 import { professor, lab } from "../../data/lab";
@@ -10,28 +9,17 @@ export function PeoplePage() {
   const pi = people.find((p) => p.role === "pi");
   const [members, setMembers] = useState<PublicMember[]>([]);
   const [loadError, setLoadError] = useState(false);
-  const [creatorRgbEnabled, setCreatorRgbEnabled] = useState(() => {
-    try { return window.localStorage.getItem("hpclab-creator-rgb") !== "off"; } catch { return true; }
-  });
-  const toggleCreatorRgb = () => {
-    const enabled = !creatorRgbEnabled;
-    setCreatorRgbEnabled(enabled);
-    try { window.localStorage.setItem("hpclab-creator-rgb", enabled ? "on" : "off"); } catch { /* The toggle still works for this visit. */ }
-  };
   useEffect(() => { const controller = new AbortController(); fetch("/api/members/public", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
   const current = members.filter(member => member.role === "master1" || member.role === "master2");
   const alumni = members.filter(member => member.role === "alumni");
   const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => {
-    // The creator badge belongs to the invite-backed account currently stored as member 1.
-    const isCreator = member.id === 1 && member.displayNameZh === "黃柏凱";
-    const tags = member.interests.slice(0, isCreator ? 3 : 2);
-    const hasEdgeTag = tags.some(tag => tag.includes("邊緣運算"));
-    const creatorButton = isCreator && <button type="button" className="member-ai-button" data-rgb-on={creatorRgbEnabled ? "true" : "false"} aria-pressed={creatorRgbEnabled} title={creatorRgbEnabled ? "關閉 RGB 特效" : "開啟 RGB 特效"} onClick={toggleCreatorRgb}>這個網站是我用AI做的<Power size={12} strokeWidth={2.4} aria-hidden="true" /></button>;
-    return <li key={member.id} className="member-public-card member-public-card-tile" data-site-creator={isCreator ? "true" : undefined} data-creator-glow={isCreator && creatorRgbEnabled ? "true" : undefined}>
+    const badges = member.rgbBadges ?? [];
+    const badgeLabel = (value: string, index: number) => <span key={`${member.id}-${index}`} className="member-ai-button">{value}</span>;
+    return <li key={member.id} className="member-public-card member-public-card-tile" data-rgb-active={badges.length ? "true" : undefined} data-has-rgb={badges.length ? "true" : undefined}>
       <Link to={`/people/${member.id}`} className="member-card-cover" aria-label={`查看${member.displayNameZh}的個人經歷`} data-cursor-hover />
       <div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div>
       <div className="member-public-summary"><span className="member-public-role">{memberCaption(member)}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}
-        {(tags.length > 0 || isCreator) && <div className="member-public-tags">{tags.map(tag => isCreator && tag.includes("邊緣運算") ? <div key={tag} className="member-creator-tag-pair"><span>{tag}</span>{creatorButton}</div> : <span key={tag}>{tag}</span>)}{isCreator && !hasEdgeTag && creatorButton}</div>}
+        {(member.interests.length > 0 || badges.length > 0) && <div className="member-public-tags">{member.interests.slice(0, 3).map(tag => { const index = badges.findIndex(badge => badge.kind === "interest" && badge.value === tag); return index >= 0 ? badgeLabel(tag, index) : <span key={tag}>{tag}</span>; })}{badges.map((badge, index) => badge.kind === "custom" ? badgeLabel(badge.value, index) : null)}</div>}
         <span className="member-card-more">查看個人經歷 ↗</span>
       </div>
     </li>;

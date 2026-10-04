@@ -73,6 +73,7 @@ flowchart LR
 - **歷史**：歷史服務從啟用後才開始記錄，按分鐘保存平均 GPU 使用率、CPU、RAM、在線狀態。空白區間維持空白，不回填或插值。查詢範圍 1/6/24/168/720 小時，保留 30 天。
 - **敏感資料**：清冊試算表 N/O 欄是帳密，解析器只讀至第 13 欄；不得輸出到 repo、日誌或瀏覽器。`ip`、`ports`、exporter URL、instance、push token、管理密碼都不得進入公開 API。`ADMIN_PASSWORD` 未設時後台拒絕登入。
 - **成員與頭像**：身分只允許碩一、碩二、實驗室畢業學長姊（內部值 `master1`、`master2`、`alumni`）。畢業成員從年份與上／下學期下拉選單填寫，後端驗證相同選項；公開卡片由 `memberGraduation.ts` 組合標示，舊資料缺學期時只顯示年份。邀請 token、密碼與 session token 以雜湊形式保存；密碼用 scrypt。頭像在 `AvatarCropDialog.tsx` 由瀏覽器裁切正方形，確認後才傳送；原圖限制 5 MB、至少 200×200，傳送時為 640×640 且不含原始 metadata，後端仍驗證並轉 640×640 WebP。公開 API 不含信箱、同意欄位或未同意公開的資料。資料與照片分別同意，成員儲存後直接更新公開頁；撤回同意後立即下架，管理者可緊急撤下或恢復。服務啟動時會將舊 `pending` 且有公開同意的資料轉為公開，不會恢復 `hidden` 資料。
+- **RGB 技能**：`Profile.rgbBadges` 存 `{ kind: "custom" | "interest", value }` 陣列；後端驗證文字長度、研究方向必須已選、不可重複，並依帳號 ID 限制一般成員最多一個、ID 1 最多兩個。成員在 `/member/me` 修改與移除，`/people` 只讀公開 API 呈現，訪客無切換權限。未含欄位的舊 ID 1 資料沿用既有 AI 網站文字；一旦儲存明確空陣列即停止沿用。動態效果遵守 `prefers-reduced-motion`。
 
 ## 4. 本機開發與驗證
 

@@ -6,7 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { graduationTerms, graduationYearOptions } from "./src/lib/memberGraduation";
-import type { MemberBackground } from "./src/lib/memberProfiles";
+import type { MemberBackground, RgbBadge } from "./src/lib/memberProfiles";
 
 // Invite-only member accounts live in a single-writer service. Public website
 // replicas proxy requests here; no member details or images use their hostPath.
@@ -61,7 +61,7 @@ const roles: Role[] = ["master1", "master2", "alumni"];
 type Profile = {
   displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string; graduationTerm: string;
   degree: string; interests: string[]; bio: string; affiliation: string; link: string;
-  background: MemberBackground[];
+  background: MemberBackground[]; rgbBadges: RgbBadge[];
   publishConsent: boolean; avatarConsent: boolean; selfAttested: boolean;
 };
 const digest = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -77,6 +77,15 @@ function safeProfile(input: any): Profile | null {
   const link = textField(input.link, 200);
   if (link) { try { const url = new URL(link); if (url.protocol !== "https:" || url.username || url.password) return null; } catch { return null; } }
   const interests = Array.isArray(input.interests) ? input.interests.slice(0, 3).map((item: unknown) => textField(item, 30)).filter(Boolean) : [];
+  const rawBadges = input.rgbBadges ?? [];
+  if (!Array.isArray(rawBadges) || rawBadges.length > 2) return null;
+  const rgbBadges: RgbBadge[] = [];
+  for (const item of rawBadges) {
+    if (!item || typeof item !== "object" || !["custom", "interest"].includes(item.kind) || typeof item.value !== "string") return null;
+    const value = item.value.trim();
+    if (!value || value.length > 30 || (item.kind === "interest" && !interests.includes(value)) || rgbBadges.some(badge => badge.value === value)) return null;
+    rgbBadges.push({ kind: item.kind, value });
+  }
   const rawBackground = input.background ?? [];
   if (!Array.isArray(rawBackground) || rawBackground.length > 8) return null;
   const background: MemberBackground[] = [];
@@ -93,13 +102,22 @@ function safeProfile(input: any): Profile | null {
     displayNameZh: name, displayNameEn: textField(input.displayNameEn, 80),
     entryYear: textField(input.entryYear, 12), graduationYear: textField(input.graduationYear, 12), graduationTerm,
     degree: textField(input.degree, 30), interests, bio: textField(input.bio, 120),
-    affiliation: textField(input.affiliation, 80), link, background,
+    affiliation: textField(input.affiliation, 80), link, background, rgbBadges,
     publishConsent: input.publishConsent, avatarConsent: input.avatarConsent, selfAttested: true,
   };
+}
+const badgeLimit = (accountId: number) => accountId === 1 ? 2 : 1;
+function visibleRgbBadges(profile: Profile, accountId: number): RgbBadge[] {
+  if (Array.isArray(profile.rgbBadges)) return profile.rgbBadges;
+  if (accountId !== 1 || profile.displayNameZh !== "黃柏凱") return [];
+  const badges: RgbBadge[] = [{ kind: "custom", value: "這個網站是我用AI做的" }];
+  if (profile.interests.includes("AIoT／邊緣運算")) badges.push({ kind: "interest", value: "AIoT／邊緣運算" });
+  return badges;
 }
 function publicProfile(profile: Profile, account: { id: number; role: Role }, avatar: string | null, updatedAt: number | null) {
   const { publishConsent: _publishConsent, avatarConsent: _avatarConsent, selfAttested: _selfAttested, ...fields } = profile;
   return { id: account.id, role: account.role, roleLabel: roleLabel[account.role], ...fields,
+    rgbBadges: visibleRgbBadges(profile, account.id),
     avatarUrl: avatar && profile.avatarConsent ? `/api/members/avatar/${account.id}?v=${updatedAt ?? 0}` : null };
 }
 // Profiles left waiting under the former review workflow become public on
@@ -281,13 +299,15 @@ app.post("/logout", member, wrap(async (req, res) => {
 app.get("/me", member, (req, res) => {
   const account = getAccount(req);
   res.json({ id: account.id, email: account.email, name: account.name, role: account.role, roleLabel: roleLabel[account.role as Role],
-    status: account.status, profile: account.draftJson ? JSON.parse(account.draftJson) : null,
+    status: account.status, badgeLimit: badgeLimit(account.id), profile: account.draftJson ? (() => { const profile = JSON.parse(account.draftJson) as Profile; return { ...profile, rgbBadges: visibleRgbBadges(profile, account.id) }; })() : null,
     avatarUrl: account.draftAvatar || account.publishedAvatar ? "/api/members/me/avatar" : null });
 });
 app.put("/me", member, wrap(async (req, res) => {
   const profile = safeProfile(req.body);
   if (!profile) return res.status(400).json({ error: "資料格式不正確，請檢查姓名與連結" });
   const account = getAccount(req);
+  if (!Object.prototype.hasOwnProperty.call(req.body, "rgbBadges")) profile.rgbBadges = visibleRgbBadges(req.body as Profile, account.id);
+  if (profile.rgbBadges.length > badgeLimit(account.id)) return res.status(400).json({ error: "RGB 技能按鈕數量超過此帳號上限" });
   if (account.role === "alumni" && (!graduationYearOptions.includes(profile.graduationYear) || !profile.graduationTerm || !profile.degree)) return res.status(400).json({ error: "請選擇畢業年份、上／下學期與學位" });
   if (account.role !== "alumni" && !profile.entryYear) return res.status(400).json({ error: "請填寫入學學年度" });
   const publish = profile.publishConsent && account.status !== "hidden";

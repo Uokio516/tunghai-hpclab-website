@@ -90,6 +90,21 @@ try {
   assert.equal(publicList[0].avatarUrl, null);
   assert.ok(!("email" in publicList[0]) && !("publishConsent" in publicList[0]));
 
+  assert.equal((await api("/me", { cookie })).data.badgeLimit, 2);
+  await api("/me", { method: "PUT", cookie, body: profile({ displayNameZh: "黃柏凱", interests: ["AIoT／邊緣運算"] }) });
+  assert.deepEqual((await api("/public")).data.members[0].rgbBadges, [
+    { kind: "custom", value: "這個網站是我用AI做的" },
+    { kind: "interest", value: "AIoT／邊緣運算" },
+  ], "Existing creator profile keeps its two RGB labels until edited");
+  await api("/me", { method: "PUT", cookie, body: profile() });
+  const twoBadges = [{ kind: "custom", value: "GPU 運算" }, { kind: "interest", value: "高效能運算" }];
+  await api("/me", { method: "PUT", cookie, body: profile({ rgbBadges: twoBadges }) });
+  assert.deepEqual((await api("/public")).data.members[0].rgbBadges, twoBadges);
+  await api("/me", { method: "PUT", cookie, expected: 400, body: profile({ rgbBadges: [...twoBadges, { kind: "custom", value: "第三個" }] }) });
+  await api("/me", { method: "PUT", cookie, expected: 400, body: profile({ rgbBadges: [{ kind: "interest", value: "未選的方向" }] }) });
+  await api("/me", { method: "PUT", cookie, body: profile({ rgbBadges: [] }) });
+  assert.deepEqual((await api("/public")).data.members[0].rgbBadges, [], "Owner can turn RGB effects off");
+
   await api("/me", { method: "PUT", cookie, expected: 400, body: profile({ background: [{ kind: "education", organization: "", detail: "", period: "" }] }) });
   await api("/me", { method: "PUT", cookie, expected: 400, body: profile({ background: Array(9).fill({ kind: "education", organization: "測試", detail: "", period: "" }) }) });
   await api("/me", { method: "PUT", cookie, expected: 400, body: profile({ background: [{ kind: "other", organization: "測試", detail: "", period: "" }] }) });
@@ -143,10 +158,14 @@ try {
   await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, graduationTerm: "春" }) });
   await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, graduationTerm: "" }) });
   await api("/me", { method: "PUT", cookie: alumniCookie, body: profile(alumniProfile) });
+  assert.equal((await api("/me", { cookie: alumniCookie })).data.badgeLimit, 1);
+  await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, rgbBadges: twoBadges }) });
+  await api("/me", { method: "PUT", cookie: alumniCookie, body: profile({ ...alumniProfile, rgbBadges: [{ kind: "interest", value: "高效能運算" }] }) });
   const publishedAlumni = (await api("/public")).data.members.find(member => member.role === "alumni");
   assert.equal(publishedAlumni.graduationYear, alumniProfile.graduationYear);
   assert.equal(publishedAlumni.graduationTerm, "下");
-  console.log("member publishing: consent, avatar, background, hide/restore, migration, graduation choices passed");
+  assert.deepEqual(publishedAlumni.rgbBadges, [{ kind: "interest", value: "高效能運算" }]);
+  console.log("member publishing: consent, avatar, background, RGB limits, hide/restore, migration, graduation choices passed");
 } finally {
   await stop();
   const target = path.resolve(dataDir);

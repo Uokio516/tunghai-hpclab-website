@@ -7,6 +7,8 @@ export type MemberBackground = {
   period: string;
 };
 
+export type RgbBadge = { kind: "custom" | "interest"; value: string };
+
 export type PublicMember = {
   id: number;
   role: string;
@@ -22,6 +24,7 @@ export type PublicMember = {
   affiliation: string;
   link: string;
   background?: MemberBackground[];
+  rgbBadges?: RgbBadge[];
   avatarUrl: string | null;
 };
 
