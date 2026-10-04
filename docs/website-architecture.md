@@ -30,7 +30,7 @@ flowchart LR
 | 叢集資訊 | `src/components/Infrastructure.tsx` | 讀取帶日期的叢集快照；不能把快照當作即時監控。 |
 | 靜態內容 | `src/data/*.ts`、`src/components/pages/*.tsx` | 研究、專案、成員、論文、新聞等資料與頁面。新增內容優先編輯資料模組。`/research` 轉至首頁研究區。 |
 | 視覺系統 | `src/index.css`、`src/styles/home-live.css`、`src/styles/fleet.css`、`src/components/ResearchNetwork3D.tsx` | 全站共用色彩留在 `index.css`，首頁即時區和節點監控各有獨立樣式模組。首次造訪預設暗色，手動選擇存於 `hpclab-theme`，淺色使用柔和紙色；內容頁與頁尾共用主題變數。動畫須支援 `prefers-reduced-motion`。 |
-| 背景音樂 | `src/components/AmbientAudio.tsx`、`src/styles/ambient-audio.css` | 全站共用的咖啡館風格 Web Audio 編曲。只在使用者按下播放後建立音訊圖；切頁保持播放，開關與音量由固定控制器操作，音量保存在瀏覽器。無外部音訊檔或串流。 |
+| 背景音樂 | `src/components/AmbientAudio.tsx`、`src/styles/ambient-audio.css` | 全站共用的四首原創 Web Audio 編曲，曲目資料與節奏在 `TRACKS` 中管理。使用者按下播放後才建立音訊圖；切歌淡入淡出且切頁保持播放。音量與所選曲目保存在瀏覽器，無外部音訊檔或串流。 |
 | HTTP API | `server.ts` | 公開 API、資料淨化、原 Prometheus 查詢、聯絡表單與歷史服務代理。新 API 先定義輸入驗證與輸出白名單。 |
 | Exporter 採集 | `exporter-collector.ts`、`gpu-telemetry.ts`、`exporter-targets.default.json` | 私有目標每 5 秒採集，依機器 ID 合併 CPU/GPU 遙測；地址只留伺服器。 |
 | 歷史資料 | `tools/history-service.ts`、`tools/monitoring-history.yaml` | 每分鐘從公開安全的 `/api/gpus` 取樣，單寫入 SQLite，保留 30 天；透過網站 API 查詢。 |
