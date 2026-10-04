@@ -38,6 +38,7 @@ export interface ProfessorConfig {
   orcid: string;
   dblpUrl: string;
   researchGateUrl: string;
+  profileUrl: string;
   scholarUrl: string | null;
 }
 
@@ -46,7 +47,8 @@ export const professor: ProfessorConfig = {
   nameEn: "Chao-Tung Yang",
   title: "終身特聘教授",
   titleEn: "Lifetime Distinguished Professor",
-  roles: ["東海大學資訊工程學系 系主任(2025.08 起)", "東海大學圖書暨資訊處 圖資長(2023.02 起)"],
+  // 東海大學官方簡歷列出 2026/08 起任教務長，原系主任與圖資長任期均至 2026/07。
+  roles: ["東海大學教務處 教務長（2026.08 起）", "東海大學資訊工程學系 終身特聘教授"],
   education: [
     { degree: "博士", school: "國立交通大學(現陽明交通大學)", field: "資訊科學研究所", year: "1996" },
     { degree: "碩士", school: "國立交通大學(現陽明交通大學)", field: "資訊科學研究所", year: "1992" },
@@ -55,5 +57,6 @@ export const professor: ProfessorConfig = {
   orcid: "0000-0002-9579-4426",
   dblpUrl: "https://dblp.org/pid/y/ChaoTungYang",
   researchGateUrl: "https://www.researchgate.net/profile/Chao-Tung-Yang-2",
+  profileUrl: "https://hpc.thu.edu.tw/profile/",
   scholarUrl: null,
 };

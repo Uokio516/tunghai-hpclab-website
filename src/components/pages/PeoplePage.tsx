@@ -63,6 +63,16 @@ export function PeoplePage() {
                     <dt className="mb-2 text-xs font-medium uppercase tracking-[0.15em] opacity-45">學術檔案</dt>
                     <dd className="flex flex-wrap gap-x-5 gap-y-2">
                       <a
+                        href={professor.profileUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        data-cursor-hover
+                        className="text-sm underline underline-offset-4 transition-opacity hover:opacity-70"
+                        style={{ color: "var(--brand-light)" }}
+                      >
+                        東海大學官方簡歷
+                      </a>
+                      <a
                         href={professor.dblpUrl}
                         target="_blank"
                         rel="noreferrer noopener"
