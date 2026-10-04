@@ -120,7 +120,22 @@ try {
   await db.close();
   await start();
   assert.equal((await api("/public")).data.members[0].bio, "撤下期間更新", "Legacy pending consent should migrate on startup");
-  console.log("member publishing: immediate edits, consent, avatar, hide/restore, pending migration passed");
+
+  const alumniInvite = (await api("/admin/invites", {
+    method: "POST", expected: 201,
+    body: { entries: [{ name: "畢業成員", email: "alumni@example.test", role: "alumni" }] },
+  })).data.invites[0].invite;
+  const alumniActivation = await api("/activate", { method: "POST", expected: 201, body: { invite: alumniInvite, password: "alumni-password-2026" } });
+  const alumniCookie = alumniActivation.response.headers.get("set-cookie").split(";")[0];
+  const alumniProfile = { entryYear: "", graduationYear: String(new Date().getFullYear()), graduationTerm: "下", degree: "碩士" };
+  await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, graduationYear: "待確認" }) });
+  await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, graduationTerm: "春" }) });
+  await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, graduationTerm: "" }) });
+  await api("/me", { method: "PUT", cookie: alumniCookie, body: profile(alumniProfile) });
+  const publishedAlumni = (await api("/public")).data.members.find(member => member.role === "alumni");
+  assert.equal(publishedAlumni.graduationYear, alumniProfile.graduationYear);
+  assert.equal(publishedAlumni.graduationTerm, "下");
+  console.log("member publishing: consent, avatar, hide/restore, migration, graduation choices passed");
 } finally {
   await stop();
   const target = path.resolve(dataDir);

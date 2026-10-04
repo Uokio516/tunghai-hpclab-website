@@ -5,6 +5,7 @@ import sharp from "sharp";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
+import { graduationTerms, graduationYearOptions } from "./src/lib/memberGraduation";
 
 // Invite-only member accounts live in a single-writer service. Public website
 // replicas proxy requests here; no member details or images use their hostPath.
@@ -57,7 +58,7 @@ async function transaction<T>(work: () => Promise<T>): Promise<T> {
 type Role = "master1" | "master2" | "alumni";
 const roles: Role[] = ["master1", "master2", "alumni"];
 type Profile = {
-  displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string;
+  displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string; graduationTerm: string;
   degree: string; interests: string[]; bio: string; affiliation: string; link: string;
   publishConsent: boolean; avatarConsent: boolean; selfAttested: boolean;
 };
@@ -74,9 +75,11 @@ function safeProfile(input: any): Profile | null {
   const link = textField(input.link, 200);
   if (link) { try { const url = new URL(link); if (url.protocol !== "https:" || url.username || url.password) return null; } catch { return null; } }
   const interests = Array.isArray(input.interests) ? input.interests.slice(0, 3).map((item: unknown) => textField(item, 30)).filter(Boolean) : [];
+  const graduationTerm = input.graduationTerm ?? "";
+  if (typeof graduationTerm !== "string" || (graduationTerm && !graduationTerms.some(term => term === graduationTerm))) return null;
   return {
     displayNameZh: name, displayNameEn: textField(input.displayNameEn, 80),
-    entryYear: textField(input.entryYear, 12), graduationYear: textField(input.graduationYear, 12),
+    entryYear: textField(input.entryYear, 12), graduationYear: textField(input.graduationYear, 12), graduationTerm,
     degree: textField(input.degree, 30), interests, bio: textField(input.bio, 120),
     affiliation: textField(input.affiliation, 80), link,
     publishConsent: input.publishConsent, avatarConsent: input.avatarConsent, selfAttested: true,
@@ -273,7 +276,7 @@ app.put("/me", member, wrap(async (req, res) => {
   const profile = safeProfile(req.body);
   if (!profile) return res.status(400).json({ error: "資料格式不正確，請檢查姓名與連結" });
   const account = getAccount(req);
-  if (account.role === "alumni" && (!profile.graduationYear || !profile.degree)) return res.status(400).json({ error: "請填寫畢業年度與學位" });
+  if (account.role === "alumni" && (!graduationYearOptions.includes(profile.graduationYear) || !profile.graduationTerm || !profile.degree)) return res.status(400).json({ error: "請選擇畢業年份、上／下學期與學位" });
   if (account.role !== "alumni" && !profile.entryYear) return res.status(400).json({ error: "請填寫入學學年度" });
   const publish = profile.publishConsent && account.status !== "hidden";
   const status = account.status === "hidden" ? "hidden" : publish ? "approved" : "private";

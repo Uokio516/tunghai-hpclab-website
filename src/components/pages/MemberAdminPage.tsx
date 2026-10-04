@@ -4,7 +4,7 @@ import { PageShell } from "../layout/PageShell";
 
 type Role = "master1" | "master2" | "alumni";
 type Invite = { name: string; email: string; role: Role; invite: string; expiresAt: number };
-type Member = { id: number; name: string; email: string; role: Role; roleLabel: string; status: string; profile: { displayNameZh: string; entryYear: string; graduationYear: string; degree: string; interests: string[]; bio: string; affiliation: string; link: string; publishConsent: boolean; avatarConsent: boolean } | null; hasAvatar: boolean; published: boolean; updatedAt: number | null };
+type Member = { id: number; name: string; email: string; role: Role; roleLabel: string; status: string; profile: { displayNameZh: string; entryYear: string; graduationYear: string; graduationTerm?: string; degree: string; interests: string[]; bio: string; affiliation: string; link: string; publishConsent: boolean; avatarConsent: boolean } | null; hasAvatar: boolean; published: boolean; updatedAt: number | null };
 const roles: { value: Role; label: string }[] = [{ value: "master1", label: "碩一" }, { value: "master2", label: "碩二" }, { value: "alumni", label: "實驗室畢業學長姊" }];
 const status: Record<string, string> = { draft: "尚未填寫", pending: "資料處理中", approved: "已公開", private: "不公開", changes: "待本人更新", hidden: "已暫停公開" };
 

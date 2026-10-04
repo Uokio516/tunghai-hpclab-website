@@ -2,15 +2,16 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageShell } from "../layout/PageShell";
 import { AvatarCropDialog } from "../AvatarCropDialog";
+import { graduationTerms, graduationYearOptions } from "../../lib/memberGraduation";
 
 type Role = "master1" | "master2" | "alumni";
 type Profile = {
-  displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string;
+  displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string; graduationTerm: string;
   degree: string; interests: string[]; bio: string; affiliation: string; link: string;
   publishConsent: boolean; avatarConsent: boolean; selfAttested: boolean;
 };
 type Account = { id: number; email: string; name: string; role: Role; roleLabel: string; status: string; profile: Profile | null; avatarUrl: string | null };
-const emptyProfile = (name: string): Profile => ({ displayNameZh: name, displayNameEn: "", entryYear: "", graduationYear: "", degree: "", interests: [], bio: "", affiliation: "", link: "", publishConsent: false, avatarConsent: false, selfAttested: false });
+const emptyProfile = (name: string): Profile => ({ displayNameZh: name, displayNameEn: "", entryYear: "", graduationYear: "", graduationTerm: "", degree: "", interests: [], bio: "", affiliation: "", link: "", publishConsent: false, avatarConsent: false, selfAttested: false });
 const topics = ["高效能運算", "雲端／分散式系統", "AI／LLM", "大數據", "AIoT／邊緣運算"];
 const statusText: Record<string, string> = { draft: "尚未填寫", pending: "資料處理中", approved: "已公開", private: "僅自己與實驗室可見", changes: "請更新資料", hidden: "暫停公開" };
 async function reply(response: Response) { const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || "操作失敗，請稍後再試"); return data; }
@@ -94,7 +95,7 @@ export function MemberProfilePage() {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (!photo) { setPhotoPreview(null); return; } const url = URL.createObjectURL(photo); setPhotoPreview(url); return () => URL.revokeObjectURL(url); }, [photo]);
-  useEffect(() => { fetch("/api/members/me", { cache: "no-store" }).then(response => response.status === 401 ? (navigate("/member/login", { replace: true }), null) : reply(response)).then((data: Account | null) => { if (data) { setAccount(data); setProfile(data.profile ?? emptyProfile(data.name)); } }).catch(error => setError(error.message)); }, [navigate]);
+  useEffect(() => { fetch("/api/members/me", { cache: "no-store" }).then(response => response.status === 401 ? (navigate("/member/login", { replace: true }), null) : reply(response)).then((data: Account | null) => { if (data) { setAccount(data); setProfile(data.profile ? { ...data.profile, graduationYear: data.role === "alumni" && !graduationYearOptions.includes(data.profile.graduationYear) ? "" : data.profile.graduationYear, graduationTerm: data.profile.graduationTerm ?? "" } : emptyProfile(data.name)); } }).catch(error => setError(error.message)); }, [navigate]);
   const change = (key: keyof Profile, value: string | boolean | string[]) => setProfile(current => current ? { ...current, [key]: value } : current);
   const submit = async (event: FormEvent) => {
     event.preventDefault(); if (!profile) return;
@@ -128,7 +129,7 @@ export function MemberProfilePage() {
           <h2>基本資料</h2><div className="member-form-grid">
             <label>中文顯示姓名 <b>*</b><input required maxLength={40} value={profile.displayNameZh} onChange={event => change("displayNameZh", event.target.value)} /></label>
             <label>英文姓名（選填）<input maxLength={80} value={profile.displayNameEn} onChange={event => change("displayNameEn", event.target.value)} /></label>
-            {account.role === "alumni" ? <><label>畢業年度 <b>*</b><input required placeholder="例如 2020，或填待確認" maxLength={12} value={profile.graduationYear} onChange={event => change("graduationYear", event.target.value)} /></label><label>學位 <b>*</b><select required value={profile.degree} onChange={event => change("degree", event.target.value)}><option value="">請選擇</option><option>碩士</option><option>博士</option><option>學士</option><option>其他／待確認</option></select></label></> : <label>入學學年度 <b>*</b><input required placeholder="例如 2025" maxLength={12} value={profile.entryYear} onChange={event => change("entryYear", event.target.value)} /></label>}
+            {account.role === "alumni" ? <><label>畢業年份（西元）<b>*</b><select required value={profile.graduationYear} onChange={event => change("graduationYear", event.target.value)}><option value="">請選擇年份</option>{graduationYearOptions.map(year => <option key={year} value={year}>{year} 年</option>)}</select></label><label>畢業學期 <b>*</b><select required value={profile.graduationTerm} onChange={event => change("graduationTerm", event.target.value)}><option value="">請選擇學期</option>{graduationTerms.map(term => <option key={term} value={term}>{term}學期</option>)}</select></label><label>學位 <b>*</b><select required value={profile.degree} onChange={event => change("degree", event.target.value)}><option value="">請選擇</option><option>碩士</option><option>博士</option><option>學士</option><option>其他／待確認</option></select></label></> : <label>入學學年度 <b>*</b><input required placeholder="例如 2025" maxLength={12} value={profile.entryYear} onChange={event => change("entryYear", event.target.value)} /></label>}
             <label>目前單位／職稱（選填）<input maxLength={80} value={profile.affiliation} onChange={event => change("affiliation", event.target.value)} /></label>
           </div>
           <h2>網站展示</h2><fieldset><legend>研究方向（最多 3 項）</legend><div className="member-topic-list">{topics.map(topic => <label key={topic}><input type="checkbox" checked={profile.interests.includes(topic)} onChange={event => change("interests", event.target.checked ? [...profile.interests, topic].slice(0, 3) : profile.interests.filter(value => value !== topic))} />{topic}</label>)}</div></fieldset>
