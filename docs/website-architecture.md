@@ -34,7 +34,7 @@ flowchart LR
 | HTTP API | `server.ts` | 公開 API、資料淨化、原 Prometheus 查詢、聯絡表單與歷史服務代理。新 API 先定義輸入驗證與輸出白名單。 |
 | Exporter 採集 | `exporter-collector.ts`、`gpu-telemetry.ts`、`exporter-targets.default.json` | 私有目標每 5 秒採集，依機器 ID 合併 CPU/GPU 遙測；地址只留伺服器。 |
 | 歷史資料 | `tools/history-service.ts`、`tools/monitoring-history.yaml` | 每分鐘從公開安全的 `/api/gpus` 取樣，單寫入 SQLite，保留 30 天；透過網站 API 查詢。 |
-| 成員資料 | `member-service.ts`、`src/components/pages/MemberPortal.tsx`、`MemberAdminPage.tsx`、`PeoplePage.tsx`、`src/styles/members.css`、`tools/monitoring-members.yaml` | 邀請、帳號、個人表單、WebP 頭像、審核及公開名冊；持久化在獨立 PVC。 |
+| 成員資料 | `member-service.ts`、`src/components/pages/MemberPortal.tsx`、`src/components/AvatarCropDialog.tsx`、`MemberAdminPage.tsx`、`PeoplePage.tsx`、`src/styles/members.css`、`tools/monitoring-members.yaml` | 邀請、帳號、個人表單、頭像裁切、WebP 頭像、審核及公開名冊；持久化在獨立 PVC。 |
 | 清冊與快照 | `tools/build-inventory.py`、`probe-inventory.py`、`finalize-inventory.py`、`build-cluster-status.py` | 原始清冊、連線探測、容量去重、叢集快照。完整重跑方式見 [tools/README.md](../tools/README.md)。 |
 | Exporter 管理 | `tools/exporters/` | 安裝、目標產生、受限轉送、GPU 叢集 DaemonSet。安裝與覆蓋範圍見 [README.md](../tools/exporters/README.md)。 |
 
@@ -69,7 +69,7 @@ flowchart LR
 - **MIG**：整卡 `util` 不可用時顯示原因與切片配置；切片容量不當成使用率。一張實體 A100 仍只計一張 GPU。
 - **歷史**：歷史服務從啟用後才開始記錄，按分鐘保存平均 GPU 使用率、CPU、RAM、在線狀態。空白區間維持空白，不回填或插值。查詢範圍 1/6/24/168/720 小時，保留 30 天。
 - **敏感資料**：清冊試算表 N/O 欄是帳密，解析器只讀至第 13 欄；不得輸出到 repo、日誌或瀏覽器。`ip`、`ports`、exporter URL、instance、push token、管理密碼都不得進入公開 API。`ADMIN_PASSWORD` 未設時後台拒絕登入。
-- **成員與頭像**：身分只允許碩一、碩二、實驗室畢業學長姊（內部值 `master1`、`master2`、`alumni`）。邀請 token、密碼與 session token 以雜湊形式保存；密碼用 scrypt。頭像限制 5 MB、至少 200×200，轉 640×640 WebP 並移除原始 metadata。公開 API 不含信箱、同意欄位或未核准資料。資料與照片分別同意；撤回刊登同意後立即下架。
+- **成員與頭像**：身分只允許碩一、碩二、實驗室畢業學長姊（內部值 `master1`、`master2`、`alumni`）。邀請 token、密碼與 session token 以雜湊形式保存；密碼用 scrypt。頭像在 `AvatarCropDialog.tsx` 由瀏覽器裁切正方形，確認後才傳送；原圖限制 5 MB、至少 200×200，傳送時為 640×640 且不含原始 metadata，後端仍驗證並轉 640×640 WebP。公開 API 不含信箱、同意欄位或未核准資料。資料與照片分別同意；撤回刊登同意後立即下架。
 
 ## 4. 本機開發與驗證
 

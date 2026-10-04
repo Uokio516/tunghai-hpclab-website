@@ -1,6 +1,7 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageShell } from "../layout/PageShell";
+import { AvatarCropDialog } from "../AvatarCropDialog";
 
 type Role = "master1" | "master2" | "alumni";
 type Profile = {
@@ -84,8 +85,12 @@ export function MemberProfilePage() {
   const [account, setAccount] = useState<Account | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [cropSource, setCropSource] = useState<File | null>(null);
+  const [originalPhoto, setOriginalPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
+  const [photoError, setPhotoError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (!photo) { setPhotoPreview(null); return; } const url = URL.createObjectURL(photo); setPhotoPreview(url); return () => URL.revokeObjectURL(url); }, [photo]);
@@ -97,12 +102,22 @@ export function MemberProfilePage() {
     try {
       await reply(await fetch("/api/members/me", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(profile) }));
       if (photo) await reply(await fetch("/api/members/me/avatar", { method: "POST", headers: { "Content-Type": photo.type }, body: photo }));
-      setPhoto(null); setNotice(profile.publishConsent ? "資料已送交審核；審核前不會更新公開頁面。" : "資料已儲存為私人資料，網站不會刊登。");
-      const updated = await reply(await fetch("/api/members/me", { cache: "no-store" })); setAccount(updated);
+      setPhoto(null); setOriginalPhoto(null); setNotice(profile.publishConsent ? "資料已送交審核；審核前不會更新公開頁面。" : "資料已儲存為私人資料，網站不會刊登。");
+      const updated = await reply(await fetch("/api/members/me", { cache: "no-store" }));
+      setAccount({ ...updated, avatarUrl: updated.avatarUrl ? `${updated.avatarUrl}?v=${Date.now()}` : null });
     } catch (error) { setError((error as Error).message); } finally { setBusy(false); }
   };
   const logout = async () => { await fetch("/api/members/logout", { method: "POST" }); navigate("/member/login", { replace: true }); };
-  const removeAvatar = async () => { if (!confirm("確定要移除頭像？公開頁面的照片也會立即撤下。")) return; try { await reply(await fetch("/api/members/me/avatar", { method: "DELETE" })); setPhoto(null); setAccount(current => current ? { ...current, avatarUrl: null } : current); setNotice("頭像已移除。"); } catch (error) { setError((error as Error).message); } };
+  const removeAvatar = async () => { if (!confirm("確定要移除頭像？公開頁面的照片也會立即撤下。")) return; try { await reply(await fetch("/api/members/me/avatar", { method: "DELETE" })); setPhoto(null); setOriginalPhoto(null); setAccount(current => current ? { ...current, avatarUrl: null } : current); setNotice("頭像已移除。"); } catch (error) { setError((error as Error).message); } };
+  const choosePhoto = (file: File | null) => {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) { setPhotoError("請選擇 JPEG、PNG 或 WebP 照片。"); return; }
+    if (file.size > 5 * 1024 * 1024) { setPhotoError("照片不可超過 5 MB。"); return; }
+    setPhotoError("");
+    setError("");
+    setNotice("");
+    setCropSource(file);
+  };
   return <PageShell eyebrow="Member Profile" title="我的成員資料" lede="你可以隨時更新資料；要刊登在官網的內容，會先由實驗室審核。">
     <section className="member-shell member-shell-wide">
       {!account || !profile ? <div className="member-panel">{error ? <p role="alert" className="member-error">{error}</p> : "正在讀取資料…"}</div> : <>
@@ -118,7 +133,22 @@ export function MemberProfilePage() {
           <h2>網站展示</h2><fieldset><legend>研究方向（最多 3 項）</legend><div className="member-topic-list">{topics.map(topic => <label key={topic}><input type="checkbox" checked={profile.interests.includes(topic)} onChange={event => change("interests", event.target.checked ? [...profile.interests, topic].slice(0, 3) : profile.interests.filter(value => value !== topic))} />{topic}</label>)}</div></fieldset>
           <label>一句自我介紹（選填，120 字以內）<textarea rows={3} maxLength={120} value={profile.bio} onChange={event => change("bio", event.target.value)} /></label>
           <label>個人網站／GitHub／LinkedIn（選填）<input type="url" placeholder="https://" maxLength={200} value={profile.link} onChange={event => change("link", event.target.value)} /></label>
-          <div className="member-photo"><div className="member-photo-preview">{photoPreview ? <img src={photoPreview} alt="新頭像預覽" /> : account.avatarUrl ? <img src={account.avatarUrl} alt="目前頭像" /> : <span>{profile.displayNameZh.slice(0, 1) || "人"}</span>}</div><div><label>頭像照片（選填）<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => { const file = event.target.files?.[0] ?? null; if (file && file.size > 5 * 1024 * 1024) { setError("照片不可超過 5 MB"); event.target.value = ""; return; } setPhoto(file); setError(""); }} /></label><p className="member-hint">JPEG、PNG、WebP；至少 200×200，最多 5 MB。照片會裁切成正方形並移除原始中繼資料。</p>{account.avatarUrl && <button type="button" className="member-text-button" onClick={removeAvatar}>移除已上傳頭像</button>}</div></div>
+          <div className="member-photo">
+            <div className="member-photo-preview">{photoPreview ? <img src={photoPreview} alt="裁切後的新頭像預覽" /> : account.avatarUrl ? <img src={account.avatarUrl} alt="目前頭像" /> : <span>{profile.displayNameZh.slice(0, 1) || "人"}</span>}</div>
+            <div className="member-photo-content">
+              <strong>頭像照片（選填）</strong>
+              <p className="member-hint">點選照片後可移動、縮放裁切框，確認後再按頁面底部的儲存按鈕上傳。</p>
+              <input ref={photoInputRef} className="member-photo-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="選擇頭像照片" onChange={event => { choosePhoto(event.target.files?.[0] ?? null); event.target.value = ""; }} />
+              <div className="member-photo-actions">
+                <button type="button" className="member-photo-choose" onClick={() => photoInputRef.current?.click()}>{photo || account.avatarUrl ? "選擇新照片" : "選擇照片並裁切"}</button>
+                {photo && originalPhoto && <button type="button" className="member-text-button" onClick={() => setCropSource(originalPhoto)}>重新裁切</button>}
+                {photo && <button type="button" className="member-text-button" onClick={() => { setPhoto(null); setOriginalPhoto(null); }}>取消新照片</button>}
+                {account.avatarUrl && <button type="button" className="member-text-button" onClick={removeAvatar}>移除已上傳頭像</button>}
+              </div>
+              {photoError && <p className="member-error" role="alert">{photoError}</p>}
+              <p className="member-hint">{photo ? "已完成裁切，按下方儲存按鈕後才會上傳。" : "支援 JPEG、PNG、WebP；原圖至少 200×200、最多 5 MB。"}</p>
+            </div>
+          </div>
           <h2>公開同意</h2><label className="member-check"><input type="checkbox" checked={profile.publishConsent} onChange={event => change("publishConsent", event.target.checked)} />我同意由實驗室核對後，將上述顯示資料刊登於官網；取消勾選會立即撤下原有公開資料。</label>
           <label className="member-check"><input type="checkbox" checked={profile.avatarConsent} onChange={event => change("avatarConsent", event.target.checked)} />我另行同意公開我上傳的頭像；未勾選時照片不會出現在官網。</label>
           <label className="member-check"><input type="checkbox" required checked={profile.selfAttested} onChange={event => change("selfAttested", event.target.checked)} />以上資料由本人提供或已取得當事人同意；我了解審核後才可能刊登，並可要求更正或撤下。</label>
@@ -127,6 +157,8 @@ export function MemberProfilePage() {
           <button disabled={busy} className="member-primary">{busy ? "儲存中…" : profile.publishConsent ? "儲存並送交審核" : "只儲存私人資料"}</button>
         </form>
       </>}
+      {cropSource && <AvatarCropDialog file={cropSource} onCancel={() => setCropSource(null)}
+        onConfirm={cropped => { setPhoto(cropped); setOriginalPhoto(cropSource); setCropSource(null); setPhotoError(""); setError(""); setNotice(""); }} />}
     </section>
   </PageShell>;
 }
