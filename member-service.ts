@@ -82,11 +82,29 @@ function safeProfile(input: any): Profile | null {
     publishConsent: input.publishConsent, avatarConsent: input.avatarConsent, selfAttested: true,
   };
 }
-function publicProfile(profile: Profile, account: { id: number; role: Role }, avatar: string | null) {
+function publicProfile(profile: Profile, account: { id: number; role: Role }, avatar: string | null, updatedAt: number | null) {
   const { publishConsent: _publishConsent, avatarConsent: _avatarConsent, selfAttested: _selfAttested, ...fields } = profile;
   return { id: account.id, role: account.role, roleLabel: roleLabel[account.role], ...fields,
-    avatarUrl: avatar && profile.avatarConsent ? `/api/members/avatar/${account.id}` : null };
+    avatarUrl: avatar && profile.avatarConsent ? `/api/members/avatar/${account.id}?v=${updatedAt ?? 0}` : null };
 }
+// Profiles left waiting under the former review workflow become public on
+// startup only when the member already consented. Hidden profiles stay hidden.
+const pendingProfiles = await db.all("SELECT account_id AS accountId,draft_json AS draftJson,draft_avatar AS draftAvatar,published_avatar AS publishedAvatar FROM profiles WHERE status='pending' AND draft_json IS NOT NULL");
+if (pendingProfiles.length) await transaction(async () => {
+  for (const row of pendingProfiles) {
+    let profile: Profile | null = null;
+    try { profile = safeProfile(JSON.parse(row.draftJson)); } catch { /* Leave invalid legacy rows private. */ }
+    if (!profile) {
+      await db.run("UPDATE profiles SET status='private',published_json=NULL,published_avatar=NULL WHERE account_id=?", row.accountId);
+      continue;
+    }
+    const publish = profile.publishConsent === true;
+    await db.run("UPDATE profiles SET published_json=?,published_avatar=?,status=?,reviewed_at=NULL WHERE account_id=?",
+      publish ? row.draftJson : null,
+      publish && profile.avatarConsent ? row.draftAvatar ?? row.publishedAvatar : null,
+      publish ? "approved" : "private", row.accountId);
+  }
+});
 function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString("hex");
   return new Promise((resolve, reject) => scrypt(password, salt, 64, (error, key) => error ? reject(error) : resolve(`scrypt$${salt}$${key.toString("hex")}`)));
@@ -257,9 +275,12 @@ app.put("/me", member, wrap(async (req, res) => {
   const account = getAccount(req);
   if (account.role === "alumni" && (!profile.graduationYear || !profile.degree)) return res.status(400).json({ error: "請填寫畢業年度與學位" });
   if (account.role !== "alumni" && !profile.entryYear) return res.status(400).json({ error: "請填寫入學學年度" });
-  const status = profile.publishConsent ? "pending" : "private";
-  await db.run("UPDATE profiles SET draft_json=?,status=?,updated_at=?,published_json=CASE WHEN ? THEN published_json ELSE NULL END,published_avatar=CASE WHEN ? AND ? THEN published_avatar ELSE NULL END WHERE account_id=?",
-    JSON.stringify(profile), status, unix(), Number(profile.publishConsent), Number(profile.publishConsent), Number(profile.avatarConsent), account.id);
+  const publish = profile.publishConsent && account.status !== "hidden";
+  const status = account.status === "hidden" ? "hidden" : publish ? "approved" : "private";
+  const saved = JSON.stringify(profile);
+  await db.run("UPDATE profiles SET draft_json=?,published_json=?,published_avatar=?,status=?,updated_at=? WHERE account_id=?",
+    saved, publish ? saved : null, publish && profile.avatarConsent ? account.draftAvatar ?? account.publishedAvatar : null,
+    status, unix(), account.id);
   res.json({ ok: true, status });
 }));
 app.post("/me/avatar", member, express.raw({ type: ["image/jpeg", "image/png", "image/webp"], limit: "5mb" }), wrap(async (req, res) => {
@@ -275,8 +296,14 @@ app.post("/me/avatar", member, express.raw({ type: ["image/jpeg", "image/png", "
   const filename = `${randomBytes(16).toString("hex")}.webp`;
   await fs.writeFile(path.join(avatarDir, filename), image, { mode: 0o600 });
   const draft = account.draftJson ? JSON.parse(account.draftJson) as Profile : null;
-  await db.run("UPDATE profiles SET draft_avatar=?,updated_at=?,status=? WHERE account_id=?", filename, unix(), draft?.publishConsent ? "pending" : "private", account.id);
-  if (account.draftAvatar && account.draftAvatar !== account.publishedAvatar) await fs.unlink(path.join(avatarDir, account.draftAvatar)).catch(() => {});
+  const publishAvatar = account.status !== "hidden" && draft?.publishConsent && draft.avatarConsent;
+  try {
+    await db.run("UPDATE profiles SET draft_avatar=?,published_avatar=?,updated_at=? WHERE account_id=?",
+      filename, publishAvatar ? filename : null, unix(), account.id);
+  } catch (error) { await fs.unlink(path.join(avatarDir, filename)).catch(() => {}); throw error; }
+  for (const old of new Set([account.draftAvatar, account.publishedAvatar].filter(Boolean))) {
+    if (old !== filename) await fs.unlink(path.join(avatarDir, old)).catch(() => {});
+  }
   res.json({ ok: true, avatarUrl: "/api/members/me/avatar" });
 }));
 app.delete("/me/avatar", member, wrap(async (req, res) => {
@@ -293,14 +320,14 @@ app.get("/me/avatar", member, wrap(async (req, res) => {
 }));
 
 app.get("/public", wrap(async (_req, res) => {
-  const rows = await db.all("SELECT a.id,a.role,p.published_json AS profile,p.published_avatar AS avatar FROM profiles p JOIN accounts a ON a.id=p.account_id WHERE p.published_json IS NOT NULL AND p.status <> 'hidden' ORDER BY a.role,a.name");
-  res.json({ members: rows.map(row => publicProfile(JSON.parse(row.profile), row, row.avatar)) });
+  const rows = await db.all("SELECT a.id,a.role,p.published_json AS profile,p.published_avatar AS avatar,p.updated_at AS updatedAt FROM profiles p JOIN accounts a ON a.id=p.account_id WHERE p.published_json IS NOT NULL AND p.status <> 'hidden' ORDER BY a.role,a.name");
+  res.json({ members: rows.map(row => publicProfile(JSON.parse(row.profile), row, row.avatar, row.updatedAt)) });
 }));
 app.get("/avatar/:id", wrap(async (req, res) => {
   if (!safeId(req.params.id)) return res.status(404).end();
   const row = await db.get("SELECT published_avatar AS avatar FROM profiles WHERE account_id=? AND published_json IS NOT NULL AND status <> 'hidden'", req.params.id);
   if (!row?.avatar) return res.status(404).end();
-  res.type("image/webp").setHeader("Cache-Control", "public, max-age=300");
+  res.type("image/webp").setHeader("Cache-Control", "private, no-store");
   res.send(await fs.readFile(path.join(avatarDir, row.avatar)));
 }));
 app.get("/admin/profiles", wrap(async (_req, res) => {
@@ -313,23 +340,19 @@ app.get("/admin/profiles/:id/avatar", wrap(async (req, res) => {
   if (!row?.avatar) return res.status(404).end();
   res.type("image/webp").send(await fs.readFile(path.join(avatarDir, row.avatar)));
 }));
-app.post("/admin/profiles/:id/approve", wrap(async (req, res) => {
+app.post("/admin/profiles/:id/restore", wrap(async (req, res) => {
   if (!safeId(req.params.id)) return res.status(404).end();
   const row = await db.get("SELECT draft_json AS draftJson,draft_avatar AS avatar,status FROM profiles WHERE account_id=?", req.params.id);
-  if (!row?.draftJson || row.status !== "pending") return res.status(409).json({ error: "目前沒有待審資料" });
+  if (!row?.draftJson || row.status !== "hidden") return res.status(409).json({ error: "目前沒有暫停公開的資料" });
   const profile = JSON.parse(row.draftJson) as Profile;
   if (!profile.publishConsent) return res.status(409).json({ error: "本人未同意公開" });
-  await db.run("UPDATE profiles SET published_json=?,published_avatar=?,status='approved',reviewed_at=? WHERE account_id=?", row.draftJson, profile.avatarConsent ? row.avatar : null, unix(), req.params.id);
+  await db.run("UPDATE profiles SET published_json=?,published_avatar=?,status='approved',reviewed_at=?,updated_at=? WHERE account_id=?",
+    row.draftJson, profile.avatarConsent ? row.avatar : null, unix(), unix(), req.params.id);
   res.json({ ok: true });
 }));
 app.post("/admin/profiles/:id/hide", wrap(async (req, res) => {
   if (!safeId(req.params.id)) return res.status(404).end();
   await db.run("UPDATE profiles SET status='hidden',published_json=NULL,published_avatar=NULL,reviewed_at=? WHERE account_id=?", unix(), req.params.id);
-  res.json({ ok: true });
-}));
-app.post("/admin/profiles/:id/request-changes", wrap(async (req, res) => {
-  if (!safeId(req.params.id)) return res.status(404).end();
-  await db.run("UPDATE profiles SET status='changes',reviewed_at=? WHERE account_id=?", unix(), req.params.id);
   res.json({ ok: true });
 }));
 app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {

@@ -622,3 +622,29 @@ h3 {
 .terminal-cursor {
   animation: blink-cursor 1s step-end infinite;
 }
+
+/* Keep every menu destination in view at ordinary browser heights. */
+.mobile-menu-nav {
+  --menu-row-height: clamp(44px, calc((100dvh - 104px) / var(--menu-count)), 92px);
+  min-height: 100dvh;
+  padding: 64px 0 20px;
+  box-sizing: border-box;
+}
+.mobile-menu-nav > div { flex: none; }
+.mobile-menu-link {
+  height: var(--menu-row-height);
+  min-height: 0;
+  padding: 0 2px;
+}
+.mobile-menu-title {
+  font-size: clamp(1.15rem, 4.6dvh, 2.25rem);
+  line-height: 1.12;
+}
+@media (max-height: 440px) {
+  .mobile-menu-nav {
+    --menu-row-height: clamp(32px, calc((100dvh - 60px) / var(--menu-count)), 44px);
+    padding: 52px 0 8px;
+  }
+  .mobile-menu-title { font-size: clamp(.98rem, 4.1dvh, 1.25rem); }
+  .mobile-menu-overlay > button { top: 8px; width: 36px; height: 36px; }
+}

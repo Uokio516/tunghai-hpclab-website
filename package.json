@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
+    "test:members": "node tools/test-member-publishing.mjs",
     "start": "node server.ts"
   },
   "dependencies": {

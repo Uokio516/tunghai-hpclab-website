@@ -12,7 +12,7 @@ type Profile = {
 type Account = { id: number; email: string; name: string; role: Role; roleLabel: string; status: string; profile: Profile | null; avatarUrl: string | null };
 const emptyProfile = (name: string): Profile => ({ displayNameZh: name, displayNameEn: "", entryYear: "", graduationYear: "", degree: "", interests: [], bio: "", affiliation: "", link: "", publishConsent: false, avatarConsent: false, selfAttested: false });
 const topics = ["高效能運算", "雲端／分散式系統", "AI／LLM", "大數據", "AIoT／邊緣運算"];
-const statusText: Record<string, string> = { draft: "尚未送審", pending: "待實驗室審核", approved: "已公開", private: "僅供實驗室核對", changes: "需修改後重新送審", hidden: "暫停公開" };
+const statusText: Record<string, string> = { draft: "尚未填寫", pending: "資料處理中", approved: "已公開", private: "僅自己與實驗室可見", changes: "請更新資料", hidden: "暫停公開" };
 async function reply(response: Response) { const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || "操作失敗，請稍後再試"); return data; }
 
 export function MemberJoinPage() {
@@ -37,7 +37,7 @@ export function MemberJoinPage() {
         <div className="member-invite-person"><strong>{preview.name}</strong><span>{preview.roleLabel} · {preview.email}</span></div>
         <label>設定密碼（至少 10 字元）<input type="password" autoComplete="new-password" minLength={10} maxLength={128} required value={password} onChange={event => setPassword(event.target.value)} /></label>
         <label>再次輸入密碼<input type="password" autoComplete="new-password" minLength={10} required value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label>
-        <p className="member-hint">邀請連結只可使用一次，請勿轉傳。帳號啟用後，資料仍須審核才會公開。</p>
+        <p className="member-hint">邀請連結只可使用一次，請勿轉傳。帳號啟用後，由你決定是否將資料公開於研究成員頁。</p>
         {error && <p role="alert" className="member-error">{error}</p>}
         <button disabled={busy} className="member-primary">{busy ? "啟用中…" : "啟用並開始填寫"}</button>
       </form> : <div className="member-panel">{error ? <p role="alert" className="member-error">{error}。請向實驗室索取新的邀請連結。</p> : "正在確認邀請…"}</div>}
@@ -102,9 +102,10 @@ export function MemberProfilePage() {
     try {
       await reply(await fetch("/api/members/me", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(profile) }));
       if (photo) await reply(await fetch("/api/members/me/avatar", { method: "POST", headers: { "Content-Type": photo.type }, body: photo }));
-      setPhoto(null); setOriginalPhoto(null); setNotice(profile.publishConsent ? "資料已送交審核；審核前不會更新公開頁面。" : "資料已儲存為私人資料，網站不會刊登。");
+      setPhoto(null); setOriginalPhoto(null);
       const updated = await reply(await fetch("/api/members/me", { cache: "no-store" }));
       setAccount({ ...updated, avatarUrl: updated.avatarUrl ? `${updated.avatarUrl}?v=${Date.now()}` : null });
+      setNotice(updated.status === "hidden" ? "資料已儲存；此帳號目前暫停公開，請聯絡實驗室。" : profile.publishConsent ? "資料已更新，研究成員頁將立即顯示最新內容。" : "資料已儲存為私人資料，網站不會刊登。");
     } catch (error) { setError((error as Error).message); } finally { setBusy(false); }
   };
   const logout = async () => { await fetch("/api/members/logout", { method: "POST" }); navigate("/member/login", { replace: true }); };
@@ -118,7 +119,7 @@ export function MemberProfilePage() {
     setNotice("");
     setCropSource(file);
   };
-  return <PageShell eyebrow="Member Profile" title="我的成員資料" lede="你可以隨時更新資料；要刊登在官網的內容，會先由實驗室審核。">
+  return <PageShell eyebrow="Member Profile" title="我的成員資料" lede="你可以隨時更新資料；勾選公開同意並儲存後，研究成員頁會立即更新。">
     <section className="member-shell member-shell-wide">
       {!account || !profile ? <div className="member-panel">{error ? <p role="alert" className="member-error">{error}</p> : "正在讀取資料…"}</div> : <>
         <div className="member-account-line"><span>{account.name} · {account.roleLabel} · {account.email}</span><button type="button" onClick={logout}>登出</button></div>
@@ -149,12 +150,12 @@ export function MemberProfilePage() {
               <p className="member-hint">{photo ? "已完成裁切，按下方儲存按鈕後才會上傳。" : "支援 JPEG、PNG、WebP；原圖至少 200×200、最多 5 MB。"}</p>
             </div>
           </div>
-          <h2>公開同意</h2><label className="member-check"><input type="checkbox" checked={profile.publishConsent} onChange={event => change("publishConsent", event.target.checked)} />我同意由實驗室核對後，將上述顯示資料刊登於官網；取消勾選會立即撤下原有公開資料。</label>
+          <h2>公開同意</h2><label className="member-check"><input type="checkbox" checked={profile.publishConsent} onChange={event => change("publishConsent", event.target.checked)} />我同意將上述顯示資料刊登於官網；儲存後立即更新，取消勾選並儲存會立即撤下。</label>
           <label className="member-check"><input type="checkbox" checked={profile.avatarConsent} onChange={event => change("avatarConsent", event.target.checked)} />我另行同意公開我上傳的頭像；未勾選時照片不會出現在官網。</label>
-          <label className="member-check"><input type="checkbox" required checked={profile.selfAttested} onChange={event => change("selfAttested", event.target.checked)} />以上資料由本人提供或已取得當事人同意；我了解審核後才可能刊登，並可要求更正或撤下。</label>
-          <p className="member-hint">聯絡信箱僅供帳號與身分核對，不會公開。資料審核後才刊登；你可透過「聯絡我們」要求更正或撤下。</p>
+          <label className="member-check"><input type="checkbox" required checked={profile.selfAttested} onChange={event => change("selfAttested", event.target.checked)} />以上資料由本人提供或已取得當事人同意；我了解勾選公開同意並儲存後會立即刊登，並可隨時修改或撤下。</label>
+          <p className="member-hint">聯絡信箱僅供帳號與身分核對，不會公開。你可隨時修改資料，也可透過「聯絡我們」要求更正或撤下。</p>
           {error && <p role="alert" className="member-error">{error}</p>}{notice && <p role="status" className="member-success">{notice}</p>}
-          <button disabled={busy} className="member-primary">{busy ? "儲存中…" : profile.publishConsent ? "儲存並送交審核" : "只儲存私人資料"}</button>
+          <button disabled={busy} className="member-primary">{busy ? "儲存中…" : profile.publishConsent ? "儲存並更新公開資料" : "只儲存私人資料"}</button>
         </form>
       </>}
       {cropSource && <AvatarCropDialog file={cropSource} onCancel={() => setCropSource(null)}

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
 import { navItems } from "../../lib/constants";
 
@@ -56,7 +56,8 @@ export function MenuOverlay({ open, onClose }: MenuOverlayProps) {
           >
             <X size={19} />
           </button>
-          <nav className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center gap-1 py-20" onClick={(e) => e.stopPropagation()}>
+          <nav className="mobile-menu-nav mx-auto flex w-full max-w-2xl flex-col justify-center"
+            style={{ "--menu-count": navItems.length } as CSSProperties} onClick={(e) => e.stopPropagation()}>
             {navItems.map((item, i) => (
               <motion.div
                 key={item.to}
@@ -68,11 +69,11 @@ export function MenuOverlay({ open, onClose }: MenuOverlayProps) {
                   to={item.to}
                   onClick={onClose}
                   data-cursor-hover
-                  className="mobile-menu-link group flex items-baseline gap-3 border-b py-3 transition-colors sm:gap-4 sm:py-4"
+                  className="mobile-menu-link group flex items-center gap-3 border-b transition-colors sm:gap-4"
                   style={{ borderColor: "rgba(255,255,255,0.1)", color: "#f3f4f6" }}
                 >
                   <span className="font-mono text-xs opacity-40">{item.index}</span>
-                  <span className="text-[clamp(1.25rem,7vw,3rem)] font-medium uppercase tracking-tight transition-transform group-hover:translate-x-2">
+                  <span className="mobile-menu-title font-medium uppercase tracking-tight transition-transform group-hover:translate-x-2">
                     {item.labelZh}
                   </span>
                   <span className="ml-auto hidden text-xs uppercase tracking-[0.15em] opacity-40 sm:inline">

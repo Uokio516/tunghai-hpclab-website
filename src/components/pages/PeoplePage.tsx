@@ -119,9 +119,9 @@ export function PeoplePage() {
           <p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">
             碩一與碩二
           </p>
-          {current.length ? cards(current) : <EmptyState message={loadError ? "成員名單暫時無法載入。" : "碩一與碩二名單核對中；取得本人同意並審核後公開。"} />}
+          {current.length ? cards(current) : <EmptyState message={loadError ? "成員名單暫時無法載入。" : "碩一與碩二可登入填寫資料，並自行決定是否公開。"} />}
         </div>
-        <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}><p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">實驗室畢業學長姊</p>{alumni.length ? cards(alumni) : <EmptyState message="實驗室畢業學長姊名單整理中；取得本人同意並審核後公開。" />}</div>
+        <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}><p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">實驗室畢業學長姊</p>{alumni.length ? cards(alumni) : <EmptyState message="實驗室畢業學長姊可登入填寫資料，並自行決定是否公開。" />}</div>
         <div className="member-people-footer">已收到實驗室邀請？<Link to="/member/login">登入並更新自己的資料 ↗</Link></div>
       </section>
     </PageShell>
