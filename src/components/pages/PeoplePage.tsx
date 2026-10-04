@@ -9,10 +9,25 @@ export function PeoplePage() {
   const pi = people.find((p) => p.role === "pi");
   const [members, setMembers] = useState<PublicMember[]>([]);
   const [loadError, setLoadError] = useState(false);
+  const [creatorGlow, setCreatorGlow] = useState(false);
   useEffect(() => { const controller = new AbortController(); fetch("/api/members/public", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
   const current = members.filter(member => member.role === "master1" || member.role === "master2");
   const alumni = members.filter(member => member.role === "alumni");
-  const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => <li key={member.id}><Link to={`/people/${member.id}`} className="member-public-card member-public-card-link" data-cursor-hover><div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div><div className="member-public-summary"><span className="member-public-role">{memberCaption(member)}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}{member.interests.length > 0 && <div className="member-public-tags">{member.interests.slice(0, 2).map(tag => <span key={tag}>{tag}</span>)}</div>}<span className="member-card-more">查看個人經歷 ↗</span></div></Link></li>)}</ul>;
+  const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => {
+    // The creator badge belongs to the invite-backed account currently stored as member 1.
+    const isCreator = member.id === 1 && member.displayNameZh === "黃柏凱";
+    const tags = member.interests.slice(0, isCreator ? 3 : 2);
+    const hasEdgeTag = tags.some(tag => tag.includes("邊緣運算"));
+    const creatorButton = isCreator && <button type="button" className="member-ai-button" aria-pressed={creatorGlow} title="切換 RGB 光效" onClick={() => setCreatorGlow(value => !value)}>這個網站是我用AI做的</button>;
+    return <li key={member.id} className="member-public-card member-public-card-tile" data-site-creator={isCreator ? "true" : undefined} data-creator-glow={isCreator && creatorGlow ? "true" : undefined}>
+      <Link to={`/people/${member.id}`} className="member-card-cover" aria-label={`查看${member.displayNameZh}的個人經歷`} data-cursor-hover />
+      <div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div>
+      <div className="member-public-summary"><span className="member-public-role">{memberCaption(member)}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}
+        {(tags.length > 0 || isCreator) && <div className="member-public-tags">{tags.map(tag => isCreator && tag.includes("邊緣運算") ? <div key={tag} className="member-creator-tag-pair"><span>{tag}</span>{creatorButton}</div> : <span key={tag}>{tag}</span>)}{isCreator && !hasEdgeTag && creatorButton}</div>}
+        <span className="member-card-more">查看個人經歷 ↗</span>
+      </div>
+    </li>;
+  })}</ul>;
 
   return (
     <PageShell eyebrow="People" title="研究成員" lede="由人、想法與實驗構成的研究網絡。">
