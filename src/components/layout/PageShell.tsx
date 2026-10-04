@@ -11,7 +11,7 @@ interface PageShellProps {
 
 /* Shared frame for the content pages reached from the main menu, so they
    read as one site rather than six separate designs. Deliberately quiet:
-   no 3D, no audio, no custom cursor — the hero carries the spectacle,
+   no 3D or custom cursor — the hero carries the spectacle,
    these pages carry the information (and get the native cursor back,
    rather than layering a custom one without `cursor-none` to match). */
 export function PageShell({ eyebrow, title, lede, children }: PageShellProps) {

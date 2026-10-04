@@ -605,31 +605,6 @@ h3 {
     height: 1px;
     background: var(--border);
   }
-  @keyframes eq-bounce {
-    0%, 100% { transform: scaleY(0.25); }
-    50% { transform: scaleY(1); }
-  }
-  .eq-bar {
-    transform-origin: bottom;
-    animation: eq-bounce 0.9s ease-in-out infinite;
-  }
-  .hpclab-volume::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 999px;
-    background: var(--brand-light, #c9b8a0);
-    cursor: pointer;
-  }
-  .hpclab-volume::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    border: none;
-    border-radius: 999px;
-    background: var(--brand-light, #c9b8a0);
-    cursor: pointer;
-  }
   .eyebrow {
     font-size: 0.8125rem;
     font-weight: 700;
