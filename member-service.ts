@@ -54,8 +54,8 @@ async function transaction<T>(work: () => Promise<T>): Promise<T> {
   } finally { release(); }
 }
 
-type Role = "master1" | "master2" | "alumni" | "other";
-const roles: Role[] = ["master1", "master2", "alumni", "other"];
+type Role = "master1" | "master2" | "alumni";
+const roles: Role[] = ["master1", "master2", "alumni"];
 type Profile = {
   displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string;
   degree: string; interests: string[]; bio: string; affiliation: string; link: string;
@@ -65,7 +65,7 @@ const digest = (value: string) => createHash("sha256").update(value).digest("hex
 const textField = (value: unknown, max: number) => typeof value === "string" ? value.trim().slice(0, max) : "";
 const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length <= 254;
 const safeId = (value: string) => /^\d{1,12}$/.test(value);
-const roleLabel: Record<Role, string> = { master1: "碩一", master2: "碩二", alumni: "校友", other: "研究成員" };
+const roleLabel: Record<Role, string> = { master1: "碩一", master2: "碩二", alumni: "實驗室畢業學長姊" };
 const unix = () => Date.now();
 function safeProfile(input: any): Profile | null {
   if (!input || typeof input !== "object" || typeof input.publishConsent !== "boolean" || typeof input.avatarConsent !== "boolean" || input.selfAttested !== true) return null;
@@ -157,7 +157,7 @@ app.post("/admin/invites", wrap(async (req, res) => {
 }));
 app.get("/invite/:invite", wrap(async (req, res) => {
   const found = await db.get("SELECT email,name,role,expires_at AS expiresAt FROM invites WHERE token_hash=? AND used_at IS NULL AND expires_at>?", digest(req.params.invite), unix());
-  if (!found) return res.status(404).json({ error: "邀請已失效" });
+  if (!found || !roles.includes(found.role)) return res.status(404).json({ error: "邀請已失效" });
   res.json({ ...found, roleLabel: roleLabel[found.role as Role] });
 }));
 app.post("/activate", wrap(async (req, res) => {
@@ -169,7 +169,7 @@ app.post("/activate", wrap(async (req, res) => {
   try {
     accountId = await transaction(async () => {
       const found = await db.get("SELECT * FROM invites WHERE token_hash=? AND used_at IS NULL AND expires_at>?", digest(invite), unix());
-      if (!found) return null;
+      if (!found || !roles.includes(found.role)) return null;
       const result = await db.run("INSERT INTO accounts (email,name,role,password_hash,created_at) VALUES (?,?,?,?,?)", found.email, found.name, found.role, passwordHash, unix());
       await db.run("INSERT INTO profiles (account_id,status) VALUES (?,'draft')", result.lastID);
       await db.run("UPDATE invites SET used_at=? WHERE id=?", unix(), found.id);

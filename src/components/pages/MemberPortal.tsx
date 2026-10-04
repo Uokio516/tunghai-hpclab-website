@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageShell } from "../layout/PageShell";
 
-type Role = "master1" | "master2" | "alumni" | "other";
+type Role = "master1" | "master2" | "alumni";
 type Profile = {
   displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string;
   degree: string; interests: string[]; bio: string; affiliation: string; link: string;
@@ -55,7 +55,7 @@ export function MemberLoginPage() {
     try { await reply(await fetch("/api/members/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) })); navigate("/member/me", { replace: true }); }
     catch (error) { setError((error as Error).message); } finally { setBusy(false); }
   };
-  return <PageShell eyebrow="Member Sign In" title="成員登入" lede="已收到邀請並啟用帳號的現任成員與校友，可以在這裡更新資料。">
+  return <PageShell eyebrow="Member Sign In" title="成員登入" lede="已收到邀請並啟用帳號的碩一、碩二與實驗室畢業學長姊，可以在這裡更新資料。">
     <section className="member-shell"><form onSubmit={login} className="member-panel member-form">
       <label>聯絡信箱<input type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} /></label>
       <label>密碼<input type="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} /></label>

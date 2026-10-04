@@ -22,6 +22,7 @@ async function call(route, method = "GET", body, auth = true) {
 try {
   for (let attempt = 0; attempt < 100; attempt++) { try { if ((await fetch(`${base}/health`)).ok) break; } catch {} await new Promise(resolve => setTimeout(resolve, 100)); }
   assert.equal((await call("/public", "GET", undefined, false)).status, 401);
+  assert.equal((await call("/admin/invites", "POST", { entries: [{ name: "不接受的分類", email: "other@example.invalid", role: "other" }] })).status, 400);
   const created = await call("/admin/invites", "POST", { entries: [{ name: "測試成員", email: "member@example.invalid", role: "alumni" }] });
   assert.equal(created.status, 201);
   const invite = created.data.invites[0].invite;
@@ -29,6 +30,7 @@ try {
   assert.equal((await call("/activate", "POST", { invite, password: "long-test-password-123" })).status, 201);
   assert.equal((await call("/activate", "POST", { invite, password: "long-test-password-123" })).status, 404);
   assert.equal((await call("/me")).data.email, "member@example.invalid");
+  assert.equal((await call("/me")).data.roleLabel, "實驗室畢業學長姊");
   const profile = { displayNameZh: "測試成員", displayNameEn: "Test Member", entryYear: "", graduationYear: "2020", degree: "碩士", interests: ["高效能運算"], bio: "測試資料", affiliation: "", link: "", publishConsent: true, avatarConsent: true, selfAttested: true };
   assert.equal((await call("/me", "PUT", { ...profile, selfAttested: false })).status, 400);
   assert.equal((await call("/me", "PUT", profile)).status, 200);
