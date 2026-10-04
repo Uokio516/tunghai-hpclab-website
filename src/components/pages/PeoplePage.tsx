@@ -15,7 +15,7 @@ export function PeoplePage() {
   const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => {
     const badges = member.rgbBadges ?? [];
     const badgeLabel = (value: string, index: number) => <span key={`${member.id}-${index}`} className="member-ai-button">{value}</span>;
-    return <li key={member.id} className="member-public-card member-public-card-tile" data-rgb-active={badges.length ? "true" : undefined} data-has-rgb={badges.length ? "true" : undefined}>
+    return <li key={member.id} className="member-public-card member-public-card-tile" data-has-rgb={badges.length ? "true" : undefined}>
       <Link to={`/people/${member.id}`} className="member-card-cover" aria-label={`查看${member.displayNameZh}的個人經歷`} data-cursor-hover />
       <div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div>
       <div className="member-public-summary"><span className="member-public-role">{memberCaption(member)}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}

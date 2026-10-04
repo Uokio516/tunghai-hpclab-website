@@ -19,9 +19,8 @@
 .member-badge-editor .member-background-heading{margin:0}
 .member-badge-row{display:grid;grid-template-columns:minmax(140px,1fr) minmax(180px,2fr) auto;align-items:end;gap:12px}
 .member-badge-row .member-text-button{min-height:46px;padding:8px}
-.member-public-tags .member-ai-button{display:inline-flex;align-items:center;max-width:100%;min-height:30px;padding:5px 9px;border:1.5px solid transparent;border-radius:8px;background:linear-gradient(#151821,#151821) padding-box,conic-gradient(from var(--member-rgb-angle),#ff4a8d,#ffce54,#43dbb5,#5998ff,#b066ff,#ff4a8d) border-box;color:#f4f5fa;font-size:.72rem;font-weight:700;line-height:1.25;white-space:normal;overflow-wrap:anywhere;cursor:default;box-shadow:0 0 13px rgba(95,125,255,.2);animation:member-rgb-cycle 4s linear infinite}
-.member-public-card-tile[data-rgb-active=true]{border-color:rgba(176,102,255,.62);box-shadow:0 0 19px rgba(89,152,255,.18),0 0 30px rgba(255,74,141,.1)}
-.member-pi-portrait{padding:3px;border:0;background:conic-gradient(from var(--member-rgb-angle),#ff4a8d,#ffce54,#43dbb5,#5998ff,#b066ff,#ff4a8d);box-shadow:0 0 24px rgba(176,102,255,.24);animation:member-rgb-cycle 8s linear infinite}
+.member-public-tags .member-ai-button{display:inline-flex;align-items:center;max-width:100%;min-height:30px;padding:5px 9px;border:1.5px solid transparent;border-radius:8px;background:linear-gradient(#151821,#151821) padding-box,conic-gradient(from var(--member-rgb-angle),#ff4a8d,#ffce54,#43dbb5,#5998ff,#b066ff,#ff4a8d) border-box;color:#f4f5fa;font-size:.72rem;font-weight:700;line-height:1.25;white-space:normal;overflow-wrap:anywhere;cursor:default;box-shadow:0 0 13px rgba(95,125,255,.2);animation:member-rgb-cycle 2.2s linear infinite}
+.member-pi-portrait{padding:3px;border:0;background:conic-gradient(from var(--member-rgb-angle),#ff4a8d,#ffce54,#43dbb5,#5998ff,#b066ff,#ff4a8d);box-shadow:0 0 24px rgba(176,102,255,.24);animation:member-rgb-cycle 4s linear infinite}
 .member-pi-portrait img{border-radius:15px;background:var(--surface-2)}
 @media(max-width:520px){.member-badge-row{grid-template-columns:1fr}.member-public-card-tile[data-has-rgb=true]{flex-direction:column}.member-public-card-tile[data-has-rgb=true] .member-public-summary{width:100%}}
 @media(prefers-reduced-motion:reduce){.member-public-tags .member-ai-button,.member-pi-portrait{animation:none}}
