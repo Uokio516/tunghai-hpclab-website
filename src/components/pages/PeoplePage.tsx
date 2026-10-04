@@ -23,15 +23,20 @@ export function PeoplePage() {
               Principal Investigator
             </p>
             <div className="flex flex-col gap-8 lg:flex-row lg:gap-16">
-              <div className="lg:w-2/5">
-                <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-medium leading-tight tracking-tight">
-                  {pi.nameZh}
-                </h2>
-                <p className="mt-2 text-lg uppercase tracking-[0.08em] opacity-70">{pi.nameEn}</p>
-                <p className="mt-4 text-base opacity-70">{pi.titleZh}</p>
-                <p className="mt-1 text-sm opacity-55">
-                  {lab.university} {lab.department}
-                </p>
+              <div className="member-pi-identity lg:w-2/5">
+                <figure className="member-pi-portrait">
+                  <img src="/images/professor-yang.jpg" alt="楊朝棟教授肖像" width="1006" height="1130" decoding="async" />
+                </figure>
+                <div className="member-pi-name">
+                  <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-medium leading-tight tracking-tight">
+                    {pi.nameZh}
+                  </h2>
+                  <p className="mt-2 text-lg uppercase tracking-[0.08em] opacity-70">{pi.nameEn}</p>
+                  <p className="mt-4 text-base opacity-70">{pi.titleZh}</p>
+                  <p className="mt-1 text-sm opacity-55">
+                    {lab.university} {lab.department}
+                  </p>
+                </div>
               </div>
 
               <div className="lg:w-3/5">

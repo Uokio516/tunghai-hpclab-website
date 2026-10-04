@@ -28,7 +28,7 @@ flowchart LR
 | 共用導覽 | `src/components/layout/Navigation.tsx`、`MenuOverlay.tsx`、`Footer.tsx` | 頂部導覽、手機選單、明暗主題及頁尾。全站 bar 由同一元件輸出。 |
 | 算力監控 | `src/components/GpuFleet.tsx`、`MonitoringChrome.tsx` | 5 秒輪詢、精簡節點卡片、篩選、詳情側欄、歷史圖表。`?machine=<清冊 ID>` 可直接開啟節點。 |
 | 叢集資訊 | `src/components/Infrastructure.tsx` | 讀取帶日期的叢集快照；不能把快照當作即時監控。 |
-| 靜態內容 | `src/data/*.ts`、`src/components/pages/*.tsx` | 研究、專案、成員、論文、新聞等資料與頁面。新增內容優先編輯資料模組。`/research` 轉至首頁研究區。 |
+| 靜態內容 | `src/data/*.ts`、`src/components/pages/*.tsx`、`public/images/` | 研究、專案、成員、論文、新聞等資料與頁面。新增內容優先編輯資料模組。教授肖像是 `public/images/professor-yang.jpg`，來源為東海大學官方簡歷，於 `PeoplePage.tsx` 顯示原始長寬比。`/research` 轉至首頁研究區。 |
 | 視覺系統 | `src/index.css`、`src/styles/home-live.css`、`src/styles/fleet.css`、`src/components/ResearchNetwork3D.tsx` | 全站共用色彩留在 `index.css`，首頁即時區和節點監控各有獨立樣式模組。首次造訪預設暗色，手動選擇存於 `hpclab-theme`，淺色使用柔和紙色；內容頁與頁尾共用主題變數。動畫須支援 `prefers-reduced-motion`。 |
 | 背景音樂 | `src/components/AmbientAudio.tsx`、`src/styles/ambient-audio.css` | 全站共用的四首原創 Web Audio 編曲，曲目資料與節奏在 `TRACKS` 中管理。使用者按下播放後才建立音訊圖；切歌淡入淡出且切頁保持播放。音量與所選曲目保存在瀏覽器，無外部音訊檔或串流。 |
 | HTTP API | `server.ts` | 公開 API、資料淨化、原 Prometheus 查詢、聯絡表單與歷史服務代理。新 API 先定義輸入驗證與輸出白名單。 |
