@@ -66,7 +66,10 @@ async function api(route, { method = "GET", body, cookie, expected = 200, conten
 const profile = (overrides = {}) => ({
   displayNameZh: "測試成員", displayNameEn: "Test Member", entryYear: "2025",
   graduationYear: "", degree: "", interests: ["高效能運算"], bio: "初次填寫",
-  affiliation: "", link: "", publishConsent: true, avatarConsent: false,
+  affiliation: "", link: "", background: [
+    { kind: "education", organization: "測試高中", detail: "電子科", period: "" },
+    { kind: "education", organization: "測試大學", detail: "", period: "" },
+  ], publishConsent: true, avatarConsent: false,
   selfAttested: true, ...overrides,
 });
 
@@ -82,8 +85,16 @@ try {
   let publicList = (await api("/public")).data.members;
   assert.equal(publicList.length, 1, "Consent should publish without admin approval");
   assert.equal(publicList[0].bio, "初次填寫");
+  assert.equal(publicList[0].background[0].organization, "測試高中");
+  assert.equal(publicList[0].background[1].organization, "測試大學");
   assert.equal(publicList[0].avatarUrl, null);
   assert.ok(!("email" in publicList[0]) && !("publishConsent" in publicList[0]));
+
+  await api("/me", { method: "PUT", cookie, expected: 400, body: profile({ background: [{ kind: "education", organization: "", detail: "", period: "" }] }) });
+  await api("/me", { method: "PUT", cookie, expected: 400, body: profile({ background: Array(9).fill({ kind: "education", organization: "測試", detail: "", period: "" }) }) });
+  await api("/me", { method: "PUT", cookie, expected: 400, body: profile({ background: [{ kind: "other", organization: "測試", detail: "", period: "" }] }) });
+  await api("/me", { method: "PUT", cookie, body: profile({ background: undefined }) });
+  assert.deepEqual((await api("/public")).data.members[0].background, [], "Older profiles without background remain valid");
 
   await api("/me", { method: "PUT", cookie, body: profile({ bio: "本人即時更新", avatarConsent: true }) });
   publicList = (await api("/public")).data.members;
@@ -135,7 +146,7 @@ try {
   const publishedAlumni = (await api("/public")).data.members.find(member => member.role === "alumni");
   assert.equal(publishedAlumni.graduationYear, alumniProfile.graduationYear);
   assert.equal(publishedAlumni.graduationTerm, "下");
-  console.log("member publishing: consent, avatar, hide/restore, migration, graduation choices passed");
+  console.log("member publishing: consent, avatar, background, hide/restore, migration, graduation choices passed");
 } finally {
   await stop();
   const target = path.resolve(dataDir);

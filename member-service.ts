@@ -6,6 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { graduationTerms, graduationYearOptions } from "./src/lib/memberGraduation";
+import type { MemberBackground } from "./src/lib/memberProfiles";
 
 // Invite-only member accounts live in a single-writer service. Public website
 // replicas proxy requests here; no member details or images use their hostPath.
@@ -60,6 +61,7 @@ const roles: Role[] = ["master1", "master2", "alumni"];
 type Profile = {
   displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string; graduationTerm: string;
   degree: string; interests: string[]; bio: string; affiliation: string; link: string;
+  background: MemberBackground[];
   publishConsent: boolean; avatarConsent: boolean; selfAttested: boolean;
 };
 const digest = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -75,13 +77,23 @@ function safeProfile(input: any): Profile | null {
   const link = textField(input.link, 200);
   if (link) { try { const url = new URL(link); if (url.protocol !== "https:" || url.username || url.password) return null; } catch { return null; } }
   const interests = Array.isArray(input.interests) ? input.interests.slice(0, 3).map((item: unknown) => textField(item, 30)).filter(Boolean) : [];
+  const rawBackground = input.background ?? [];
+  if (!Array.isArray(rawBackground) || rawBackground.length > 8) return null;
+  const background: MemberBackground[] = [];
+  for (const item of rawBackground) {
+    if (!item || typeof item !== "object" || !["education", "experience"].includes(item.kind)
+      || typeof item.organization !== "string" || !item.organization.trim() || item.organization.trim().length > 80
+      || (item.detail !== undefined && (typeof item.detail !== "string" || item.detail.trim().length > 80))
+      || (item.period !== undefined && (typeof item.period !== "string" || item.period.trim().length > 40))) return null;
+    background.push({ kind: item.kind, organization: item.organization.trim(), detail: item.detail?.trim() ?? "", period: item.period?.trim() ?? "" });
+  }
   const graduationTerm = input.graduationTerm ?? "";
   if (typeof graduationTerm !== "string" || (graduationTerm && !graduationTerms.some(term => term === graduationTerm))) return null;
   return {
     displayNameZh: name, displayNameEn: textField(input.displayNameEn, 80),
     entryYear: textField(input.entryYear, 12), graduationYear: textField(input.graduationYear, 12), graduationTerm,
     degree: textField(input.degree, 30), interests, bio: textField(input.bio, 120),
-    affiliation: textField(input.affiliation, 80), link,
+    affiliation: textField(input.affiliation, 80), link, background,
     publishConsent: input.publishConsent, avatarConsent: input.avatarConsent, selfAttested: true,
   };
 }

@@ -3,17 +3,16 @@ import { Link } from "react-router-dom";
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { people } from "../../data/people";
 import { professor, lab } from "../../data/lab";
-import { graduationLabel } from "../../lib/memberGraduation";
+import { memberCaption, type PublicMember } from "../../lib/memberProfiles";
 
 export function PeoplePage() {
   const pi = people.find((p) => p.role === "pi");
-  type PublicMember = { id: number; role: string; roleLabel: string; displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string; graduationTerm?: string; degree: string; interests: string[]; bio: string; affiliation: string; link: string; avatarUrl: string | null };
   const [members, setMembers] = useState<PublicMember[]>([]);
   const [loadError, setLoadError] = useState(false);
   useEffect(() => { const controller = new AbortController(); fetch("/api/members/public", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
   const current = members.filter(member => member.role === "master1" || member.role === "master2");
   const alumni = members.filter(member => member.role === "alumni");
-  const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => <li className="member-public-card" key={member.id}><div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div><div><span className="member-public-role">{member.role === "alumni" ? graduationLabel(member.graduationYear, member.graduationTerm) : `${member.roleLabel}${member.entryYear ? ` · ${member.entryYear} 入學` : ""}`}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.affiliation && <p>{member.affiliation}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}{member.interests.length > 0 && <div className="member-public-tags">{member.interests.map(tag => <span key={tag}>{tag}</span>)}</div>}{member.link && <a href={member.link} target="_blank" rel="noopener noreferrer">個人連結 ↗</a>}</div></li>)}</ul>;
+  const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => <li key={member.id}><Link to={`/people/${member.id}`} className="member-public-card member-public-card-link" data-cursor-hover><div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div><div className="member-public-summary"><span className="member-public-role">{memberCaption(member)}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}{member.interests.length > 0 && <div className="member-public-tags">{member.interests.slice(0, 2).map(tag => <span key={tag}>{tag}</span>)}</div>}<span className="member-card-more">查看個人經歷 ↗</span></div></Link></li>)}</ul>;
 
   return (
     <PageShell eyebrow="People" title="研究成員" lede="由人、想法與實驗構成的研究網絡。">

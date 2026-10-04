@@ -34,7 +34,7 @@ flowchart LR
 | HTTP API | `server.ts` | 公開 API、資料淨化、原 Prometheus 查詢、聯絡表單與歷史服務代理。新 API 先定義輸入驗證與輸出白名單。 |
 | Exporter 採集 | `exporter-collector.ts`、`gpu-telemetry.ts`、`exporter-targets.default.json` | 私有目標每 5 秒採集，依機器 ID 合併 CPU/GPU 遙測；地址只留伺服器。 |
 | 歷史資料 | `tools/history-service.ts`、`tools/monitoring-history.yaml` | 每分鐘從公開安全的 `/api/gpus` 取樣，單寫入 SQLite，保留 30 天；透過網站 API 查詢。 |
-| 成員資料 | `member-service.ts`、`src/components/pages/MemberPortal.tsx`、`src/components/AvatarCropDialog.tsx`、`MemberAdminPage.tsx`、`PeoplePage.tsx`、`src/styles/members.css`、`tools/monitoring-members.yaml` | 邀請、帳號、個人表單、頭像裁切與即時公開名冊；不需逐筆審核，資料持久化在獨立 PVC。 |
+| 成員資料 | `member-service.ts`、`src/components/pages/MemberPortal.tsx`、`src/components/AvatarCropDialog.tsx`、`MemberAdminPage.tsx`、`PeoplePage.tsx`、`MemberDetailPage.tsx`、`src/lib/memberProfiles.ts`、`src/styles/members.css`、`tools/monitoring-members.yaml` | 邀請、帳號、個人表單、頭像裁切、可點入的公開名冊與學歷經歷；不需逐筆審核，資料持久化在獨立 PVC。 |
 | 清冊與快照 | `tools/build-inventory.py`、`probe-inventory.py`、`finalize-inventory.py`、`build-cluster-status.py` | 原始清冊、連線探測、容量去重、叢集快照。完整重跑方式見 [tools/README.md](../tools/README.md)。 |
 | Exporter 管理 | `tools/exporters/` | 安裝、目標產生、受限轉送、GPU 叢集 DaemonSet。安裝與覆蓋範圍見 [README.md](../tools/exporters/README.md)。 |
 
@@ -48,6 +48,7 @@ flowchart LR
 | `/gpus` | 節點清單、目前狀態、單機歷史 | 前端每 5 秒取得 API；逾 120 秒採樣不當作即時。 |
 | `/infrastructure` | 叢集與虛擬化資源 | 有 `updatedAt` 的盤點快照。 |
 | `/projects`、`/people`、`/publications`、`/news`、`/contact` | 內容頁 | `src/data/` 或聯絡 API。 |
+| `/people/:id` | 公開成員個人頁 | 只從已同意公開的成員 API 載入資料；本人撤回或管理者撤下後不顯示詳情。 |
 | `/join/:invite`、`/member/login`、`/member/me`、`/member/reset/:reset` | 受邀成員啟用、登入、修改資料及重設密碼 | 邀請制；連結由管理者自行發送。 |
 | `/admin/members` | 建立名冊邀請、管理身分及緊急撤下／恢復公開 | 需 `ADMIN_PASSWORD`；管理密碼只在頁面記憶體。 |
 | `/research` | 舊網址相容 | 轉至 `/#research`，不保留重複頁面。 |

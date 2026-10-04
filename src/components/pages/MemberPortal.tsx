@@ -3,15 +3,17 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageShell } from "../layout/PageShell";
 import { AvatarCropDialog } from "../AvatarCropDialog";
 import { graduationTerms, graduationYearOptions } from "../../lib/memberGraduation";
+import type { MemberBackground } from "../../lib/memberProfiles";
 
 type Role = "master1" | "master2" | "alumni";
 type Profile = {
   displayNameZh: string; displayNameEn: string; entryYear: string; graduationYear: string; graduationTerm: string;
   degree: string; interests: string[]; bio: string; affiliation: string; link: string;
+  background: MemberBackground[];
   publishConsent: boolean; avatarConsent: boolean; selfAttested: boolean;
 };
 type Account = { id: number; email: string; name: string; role: Role; roleLabel: string; status: string; profile: Profile | null; avatarUrl: string | null };
-const emptyProfile = (name: string): Profile => ({ displayNameZh: name, displayNameEn: "", entryYear: "", graduationYear: "", graduationTerm: "", degree: "", interests: [], bio: "", affiliation: "", link: "", publishConsent: false, avatarConsent: false, selfAttested: false });
+const emptyProfile = (name: string): Profile => ({ displayNameZh: name, displayNameEn: "", entryYear: "", graduationYear: "", graduationTerm: "", degree: "", interests: [], bio: "", affiliation: "", link: "", background: [], publishConsent: false, avatarConsent: false, selfAttested: false });
 const topics = ["高效能運算", "雲端／分散式系統", "AI／LLM", "大數據", "AIoT／邊緣運算"];
 const statusText: Record<string, string> = { draft: "尚未填寫", pending: "資料處理中", approved: "已公開", private: "僅自己與實驗室可見", changes: "請更新資料", hidden: "暫停公開" };
 async function reply(response: Response) { const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || "操作失敗，請稍後再試"); return data; }
@@ -95,8 +97,12 @@ export function MemberProfilePage() {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (!photo) { setPhotoPreview(null); return; } const url = URL.createObjectURL(photo); setPhotoPreview(url); return () => URL.revokeObjectURL(url); }, [photo]);
-  useEffect(() => { fetch("/api/members/me", { cache: "no-store" }).then(response => response.status === 401 ? (navigate("/member/login", { replace: true }), null) : reply(response)).then((data: Account | null) => { if (data) { setAccount(data); setProfile(data.profile ? { ...data.profile, graduationYear: data.role === "alumni" && !graduationYearOptions.includes(data.profile.graduationYear) ? "" : data.profile.graduationYear, graduationTerm: data.profile.graduationTerm ?? "" } : emptyProfile(data.name)); } }).catch(error => setError(error.message)); }, [navigate]);
+  useEffect(() => { fetch("/api/members/me", { cache: "no-store" }).then(response => response.status === 401 ? (navigate("/member/login", { replace: true }), null) : reply(response)).then((data: Account | null) => { if (data) { setAccount(data); setProfile(data.profile ? { ...data.profile, graduationYear: data.role === "alumni" && !graduationYearOptions.includes(data.profile.graduationYear) ? "" : data.profile.graduationYear, graduationTerm: data.profile.graduationTerm ?? "", background: data.profile.background ?? [] } : emptyProfile(data.name)); } }).catch(error => setError(error.message)); }, [navigate]);
   const change = (key: keyof Profile, value: string | boolean | string[]) => setProfile(current => current ? { ...current, [key]: value } : current);
+  const addBackground = () => setProfile(current => current && current.background.length < 8 ? { ...current, background: [...current.background, { kind: "education", organization: "", detail: "", period: "" }] } : current);
+  const updateBackground = (index: number, patch: Partial<MemberBackground>) => setProfile(current => current ? { ...current, background: current.background.map((item, position) => position === index ? { ...item, ...patch } : item) } : current);
+  const removeBackground = (index: number) => setProfile(current => current ? { ...current, background: current.background.filter((_, position) => position !== index) } : current);
+  const moveBackground = (index: number, offset: number) => setProfile(current => { if (!current) return current; const next = [...current.background]; const target = index + offset; if (target < 0 || target >= next.length) return current; [next[index], next[target]] = [next[target], next[index]]; return { ...current, background: next }; });
   const submit = async (event: FormEvent) => {
     event.preventDefault(); if (!profile) return;
     setBusy(true); setError(""); setNotice("");
@@ -134,6 +140,8 @@ export function MemberProfilePage() {
           </div>
           <h2>網站展示</h2><fieldset><legend>研究方向（最多 3 項）</legend><div className="member-topic-list">{topics.map(topic => <label key={topic}><input type="checkbox" checked={profile.interests.includes(topic)} onChange={event => change("interests", event.target.checked ? [...profile.interests, topic].slice(0, 3) : profile.interests.filter(value => value !== topic))} />{topic}</label>)}</div></fieldset>
           <label>一句自我介紹（選填，120 字以內）<textarea rows={3} maxLength={120} value={profile.bio} onChange={event => change("bio", event.target.value)} /></label>
+          <div className="member-background-heading"><div><h2>學歷與經歷</h2><p className="member-hint">只填想公開的資料，最多 8 筆；會依這裡的順序出現在個人頁面。例如「彰化高工／電子科」、「國立高雄科技大學」。</p></div><button type="button" className="member-photo-choose" onClick={addBackground} disabled={profile.background.length >= 8}>新增一筆</button></div>
+          {profile.background.map((item, index) => <div className="member-background-editor" key={index}><div className="member-background-editor-head"><strong>第 {index + 1} 筆</strong><div><button type="button" disabled={index === 0} onClick={() => moveBackground(index, -1)} aria-label={`將第 ${index + 1} 筆上移`}>上移</button><button type="button" disabled={index === profile.background.length - 1} onClick={() => moveBackground(index, 1)} aria-label={`將第 ${index + 1} 筆下移`}>下移</button><button type="button" onClick={() => removeBackground(index)} aria-label={`移除第 ${index + 1} 筆`}>移除</button></div></div><div className="member-form-grid"><label>類型<select value={item.kind} onChange={event => updateBackground(index, { kind: event.target.value as MemberBackground["kind"] })}><option value="education">學歷</option><option value="experience">經歷</option></select></label><label>學校／單位 <b>*</b><input required maxLength={80} value={item.organization} onChange={event => updateBackground(index, { organization: event.target.value })} placeholder="例如 彰化高工" /></label><label>科系／職稱（選填）<input maxLength={80} value={item.detail} onChange={event => updateBackground(index, { detail: event.target.value })} placeholder="例如 電子科" /></label><label>就讀／任職期間（選填）<input maxLength={40} value={item.period} onChange={event => updateBackground(index, { period: event.target.value })} placeholder="例如 2020–2023" /></label></div></div>)}
           <label>個人網站／GitHub／LinkedIn（選填）<input type="url" placeholder="https://" maxLength={200} value={profile.link} onChange={event => change("link", event.target.value)} /></label>
           <div className="member-photo">
             <div className="member-photo-preview">{photoPreview ? <img src={photoPreview} alt="裁切後的新頭像預覽" /> : account.avatarUrl ? <img src={account.avatarUrl} alt="目前頭像" /> : <span>{profile.displayNameZh.slice(0, 1) || "人"}</span>}</div>
