@@ -15,11 +15,13 @@ export function PeoplePage() {
   const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => {
     const badges = member.rgbBadges ?? [];
     const badgeLabel = (value: string, index: number) => <span key={`${member.id}-${index}`} className="member-ai-button">{value}</span>;
+    const customBadges = badges.map((badge, index) => badge.kind === "custom" ? badgeLabel(badge.value, index) : null);
+    const firstInterestBadge = badges.findIndex(badge => badge.kind === "interest" && member.interests.slice(0, 3).includes(badge.value));
     return <li key={member.id} className="member-public-card member-public-card-tile" data-has-rgb={badges.length ? "true" : undefined}>
       <Link to={`/people/${member.id}`} className="member-card-cover" aria-label={`查看${member.displayNameZh}的個人經歷`} data-cursor-hover />
       <div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div>
       <div className="member-public-summary"><span className="member-public-role">{memberCaption(member)}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}
-        {(member.interests.length > 0 || badges.length > 0) && <div className="member-public-tags">{member.interests.slice(0, 3).map(tag => { const index = badges.findIndex(badge => badge.kind === "interest" && badge.value === tag); return index >= 0 ? badgeLabel(tag, index) : <span key={tag}>{tag}</span>; })}{badges.map((badge, index) => badge.kind === "custom" ? badgeLabel(badge.value, index) : null)}</div>}
+        {(member.interests.length > 0 || badges.length > 0) && <div className="member-public-tags">{member.interests.slice(0, 3).flatMap(tag => { const index = badges.findIndex(badge => badge.kind === "interest" && badge.value === tag); return index >= 0 ? [badgeLabel(tag, index), ...(index === firstInterestBadge ? customBadges : [])] : [<span key={tag}>{tag}</span>]; })}{firstInterestBadge < 0 && customBadges}</div>}
         <span className="member-card-more">查看個人經歷 ↗</span>
       </div>
     </li>;
