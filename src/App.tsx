@@ -402,6 +402,27 @@ function HomeLiveOverview({ live }: { live: ReturnType<typeof useLiveTelemetry> 
   </motion.div>;
 }
 
+function LiveComputeCore({ live }: { live: ReturnType<typeof useLiveTelemetry> }) {
+  const load = live.busyRatio ?? 0.18;
+  const loadLabel = live.busyRatio == null ? "AWAITING LIVE LINK" : `${Math.round(load * 100)}% ACTIVE LOAD`;
+  return <motion.div
+    className="live-compute-core"
+    initial={{ opacity: 0, scale: 0.8 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ delay: 0.7, duration: 0.8 }}
+    style={{ "--core-load": load } as React.CSSProperties}
+    role="img"
+    aria-label={`即時運算核心，${loadLabel}`}
+  >
+    <div className="core-orbit core-orbit-a"><i /><i /><i /></div>
+    <div className="core-orbit core-orbit-b"><i /><i /></div>
+    <div className="core-reactor"><span /></div>
+    <div className="core-readout core-readout-left"><small>COMPUTE FABRIC</small><strong>{live.nodesOnline ?? "—"} NODES</strong></div>
+    <div className="core-readout core-readout-right"><small>GPU TELEMETRY</small><strong>{live.gpuOnline ?? "—"} ONLINE</strong></div>
+    <div className="core-load-label">{loadLabel}</div>
+  </motion.div>;
+}
+
 function Home() {
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [activeResearchId, setActiveResearchId] = useState<string | null>(null);
@@ -443,6 +464,7 @@ function Home() {
         <CinematicBackdrop />
         <div className="home-hero-inner relative mx-auto max-w-7xl px-5 pb-20 pt-16 sm:px-8 sm:pb-28 sm:pt-20 md:pb-36 md:pt-24">
           <HeroBody live={live} />
+          <LiveComputeCore live={live} />
           <HomeLiveOverview live={live} />
         </div>
       </header>
