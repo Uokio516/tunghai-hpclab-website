@@ -34,8 +34,8 @@ export function MemberJoinPage() {
     <section className="member-shell">
       {preview ? <form onSubmit={activate} className="member-panel member-form">
         <div className="member-invite-person"><strong>{preview.name}</strong><span>{preview.roleLabel} · {preview.email}</span></div>
-        <label>設定密碼（至少 12 字元）<input type="password" autoComplete="new-password" minLength={12} maxLength={128} required value={password} onChange={event => setPassword(event.target.value)} /></label>
-        <label>再次輸入密碼<input type="password" autoComplete="new-password" minLength={12} required value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label>
+        <label>設定密碼（至少 10 字元）<input type="password" autoComplete="new-password" minLength={10} maxLength={128} required value={password} onChange={event => setPassword(event.target.value)} /></label>
+        <label>再次輸入密碼<input type="password" autoComplete="new-password" minLength={10} required value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label>
         <p className="member-hint">邀請連結只可使用一次，請勿轉傳。帳號啟用後，資料仍須審核才會公開。</p>
         {error && <p role="alert" className="member-error">{error}</p>}
         <button disabled={busy} className="member-primary">{busy ? "啟用中…" : "啟用並開始填寫"}</button>
@@ -76,7 +76,7 @@ export function MemberResetPage() {
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (!reset) return; fetch(`/api/members/reset/${encodeURIComponent(reset)}`, { cache: "no-store" }).then(reply).then(data => setName(data.name)).catch(err => setError(err.message)); }, [reset]);
   const submit = async (event: FormEvent) => { event.preventDefault(); if (password !== confirmation) return setError("兩次密碼不一致"); setBusy(true); setError(""); try { await reply(await fetch("/api/members/reset", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reset, password }) })); navigate("/member/me", { replace: true }); } catch (err) { setError((err as Error).message); } finally { setBusy(false); } };
-  return <PageShell eyebrow="Password Reset" title="重設成員密碼" lede="由實驗室核對身分後發出的重設連結，有效一小時且只能使用一次。"><section className="member-shell">{name ? <form className="member-panel member-form" onSubmit={submit}><strong>{name}</strong><label>新密碼（至少 12 字元）<input type="password" autoComplete="new-password" minLength={12} maxLength={128} required value={password} onChange={event => setPassword(event.target.value)} /></label><label>再次輸入新密碼<input type="password" autoComplete="new-password" minLength={12} required value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label>{error && <p role="alert" className="member-error">{error}</p>}<button className="member-primary" disabled={busy}>設定新密碼</button></form> : <div className="member-panel">{error || "正在確認重設連結…"}</div>}</section></PageShell>;
+  return <PageShell eyebrow="Password Reset" title="重設成員密碼" lede="由實驗室核對身分後發出的重設連結，有效一小時且只能使用一次。"><section className="member-shell">{name ? <form className="member-panel member-form" onSubmit={submit}><strong>{name}</strong><label>新密碼（至少 10 字元）<input type="password" autoComplete="new-password" minLength={10} maxLength={128} required value={password} onChange={event => setPassword(event.target.value)} /></label><label>再次輸入新密碼<input type="password" autoComplete="new-password" minLength={10} required value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label>{error && <p role="alert" className="member-error">{error}</p>}<button className="member-primary" disabled={busy}>設定新密碼</button></form> : <div className="member-panel">{error || "正在確認重設連結…"}</div>}</section></PageShell>;
 }
 
 export function MemberProfilePage() {

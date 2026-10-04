@@ -163,7 +163,7 @@ app.get("/invite/:invite", wrap(async (req, res) => {
 app.post("/activate", wrap(async (req, res) => {
   const invite = textField(req.body?.invite, 100);
   const password = req.body?.password;
-  if (!invite || typeof password !== "string" || password.length < 12 || password.length > 128) return res.status(400).json({ error: "請設定至少 12 字元的密碼" });
+  if (!invite || typeof password !== "string" || password.length < 10 || password.length > 128) return res.status(400).json({ error: "請設定至少 10 字元的密碼" });
   const passwordHash = await hashPassword(password);
   let accountId: number | null;
   try {
@@ -225,7 +225,7 @@ app.get("/reset/:reset", wrap(async (req, res) => {
 app.post("/reset", wrap(async (req, res) => {
   const reset = textField(req.body?.reset, 100);
   const password = req.body?.password;
-  if (!reset || typeof password !== "string" || password.length < 12 || password.length > 128) return res.status(400).json({ error: "密碼需為 12 至 128 字元" });
+  if (!reset || typeof password !== "string" || password.length < 10 || password.length > 128) return res.status(400).json({ error: "密碼需為 10 至 128 字元" });
   const passwordHash = await hashPassword(password);
   const accountId = await transaction(async () => {
     const found = await db.get("SELECT account_id AS accountId FROM password_resets WHERE token_hash=? AND expires_at>?", digest(reset), unix());

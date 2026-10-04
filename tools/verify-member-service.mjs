@@ -27,8 +27,9 @@ try {
   assert.equal(created.status, 201);
   const invite = created.data.invites[0].invite;
   assert.equal((await call(`/invite/${invite}`)).status, 200);
-  assert.equal((await call("/activate", "POST", { invite, password: "long-test-password-123" })).status, 201);
-  assert.equal((await call("/activate", "POST", { invite, password: "long-test-password-123" })).status, 404);
+  assert.equal((await call("/activate", "POST", { invite, password: "abcdefghi" })).status, 400);
+  assert.equal((await call("/activate", "POST", { invite, password: "abcdefghij" })).status, 201);
+  assert.equal((await call("/activate", "POST", { invite, password: "abcdefghij" })).status, 404);
   assert.equal((await call("/me")).data.email, "member@example.invalid");
   assert.equal((await call("/me")).data.roleLabel, "實驗室畢業學長姊");
   const profile = { displayNameZh: "測試成員", displayNameEn: "Test Member", entryYear: "", graduationYear: "2020", degree: "碩士", interests: ["高效能運算"], bio: "測試資料", affiliation: "", link: "", publishConsent: true, avatarConsent: true, selfAttested: true };
@@ -60,10 +61,11 @@ try {
   assert.equal((await call("/public")).data.members.length, 0);
   const reset = await call(`/admin/accounts/${id}/reset`, "POST");
   assert.equal(reset.status, 200);
-  assert.equal((await call("/reset", "POST", { reset: reset.data.reset, password: "another-long-password-123" })).status, 200);
-  assert.equal((await call("/reset", "POST", { reset: reset.data.reset, password: "another-long-password-123" })).status, 404);
-  assert.equal((await call("/login", "POST", { email: "member@example.invalid", password: "long-test-password-123" })).status, 401);
-  assert.equal((await call("/login", "POST", { email: "member@example.invalid", password: "another-long-password-123" })).status, 200);
+  assert.equal((await call("/reset", "POST", { reset: reset.data.reset, password: "123456789" })).status, 400);
+  assert.equal((await call("/reset", "POST", { reset: reset.data.reset, password: "0123456789" })).status, 200);
+  assert.equal((await call("/reset", "POST", { reset: reset.data.reset, password: "0123456789" })).status, 404);
+  assert.equal((await call("/login", "POST", { email: "member@example.invalid", password: "abcdefghij" })).status, 401);
+  assert.equal((await call("/login", "POST", { email: "member@example.invalid", password: "0123456789" })).status, 200);
   console.log("Member service flow verified: invite, session, consent, avatar, review, hide, reset.");
 } finally {
   child.kill();
