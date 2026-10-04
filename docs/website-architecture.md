@@ -53,7 +53,7 @@ flowchart LR
 | `/admin/members` | 建立名冊邀請、管理身分及緊急撤下／恢復公開 | 需 `ADMIN_PASSWORD`；管理密碼只在頁面記憶體。 |
 | `/research` | 舊網址相容 | 轉至 `/#research`，不保留重複頁面。 |
 
-`PeoplePage.tsx` 會在成員 ID 1 且公開姓名為「黃柏凱」的卡片上顯示 AI 製作 RGB 按鈕；點擊切換卡片光效，樣式位於 `src/styles/members.css`。若成員資料庫重建並重新編號，須同步檢查此身分條件。
+`PeoplePage.tsx` 會在成員 ID 1 且公開姓名為「黃柏凱」的卡片上顯示 AI 製作 RGB 按鈕；點擊可完整開關按鈕動畫與卡片光效，偏好保存在瀏覽器 `localStorage` 的 `hpclab-creator-rgb`，樣式位於 `src/styles/members.css`。若成員資料庫重建並重新編號，須同步檢查此身分條件。
 
 | API | 用途 |
 | --- | --- |

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Power } from "lucide-react";
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { people } from "../../data/people";
 import { professor, lab } from "../../data/lab";
@@ -9,7 +10,14 @@ export function PeoplePage() {
   const pi = people.find((p) => p.role === "pi");
   const [members, setMembers] = useState<PublicMember[]>([]);
   const [loadError, setLoadError] = useState(false);
-  const [creatorGlow, setCreatorGlow] = useState(false);
+  const [creatorRgbEnabled, setCreatorRgbEnabled] = useState(() => {
+    try { return window.localStorage.getItem("hpclab-creator-rgb") !== "off"; } catch { return true; }
+  });
+  const toggleCreatorRgb = () => {
+    const enabled = !creatorRgbEnabled;
+    setCreatorRgbEnabled(enabled);
+    try { window.localStorage.setItem("hpclab-creator-rgb", enabled ? "on" : "off"); } catch { /* The toggle still works for this visit. */ }
+  };
   useEffect(() => { const controller = new AbortController(); fetch("/api/members/public", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
   const current = members.filter(member => member.role === "master1" || member.role === "master2");
   const alumni = members.filter(member => member.role === "alumni");
@@ -18,8 +26,8 @@ export function PeoplePage() {
     const isCreator = member.id === 1 && member.displayNameZh === "黃柏凱";
     const tags = member.interests.slice(0, isCreator ? 3 : 2);
     const hasEdgeTag = tags.some(tag => tag.includes("邊緣運算"));
-    const creatorButton = isCreator && <button type="button" className="member-ai-button" aria-pressed={creatorGlow} title="切換 RGB 光效" onClick={() => setCreatorGlow(value => !value)}>這個網站是我用AI做的</button>;
-    return <li key={member.id} className="member-public-card member-public-card-tile" data-site-creator={isCreator ? "true" : undefined} data-creator-glow={isCreator && creatorGlow ? "true" : undefined}>
+    const creatorButton = isCreator && <button type="button" className="member-ai-button" data-rgb-on={creatorRgbEnabled ? "true" : "false"} aria-pressed={creatorRgbEnabled} title={creatorRgbEnabled ? "關閉 RGB 特效" : "開啟 RGB 特效"} onClick={toggleCreatorRgb}>這個網站是我用AI做的<Power size={12} strokeWidth={2.4} aria-hidden="true" /></button>;
+    return <li key={member.id} className="member-public-card member-public-card-tile" data-site-creator={isCreator ? "true" : undefined} data-creator-glow={isCreator && creatorRgbEnabled ? "true" : undefined}>
       <Link to={`/people/${member.id}`} className="member-card-cover" aria-label={`查看${member.displayNameZh}的個人經歷`} data-cursor-hover />
       <div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div>
       <div className="member-public-summary"><span className="member-public-role">{memberCaption(member)}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}
