@@ -1,6 +1,6 @@
 # HPC Lab 網站架構與維護手冊
 
-更新：2026-10-03。此文件以目前程式與線上架構為準；硬體覆蓋現況另見 [exporter-rollout-2026-10-03.md](exporter-rollout-2026-10-03.md)。
+更新：2026-10-08。接手開發請先看[交接手冊](handoff-2026-10-08.md)；硬體覆蓋現況另見 [exporter-rollout-2026-10-03.md](exporter-rollout-2026-10-03.md)。
 
 ## 1. 系統邊界
 
@@ -53,7 +53,7 @@ flowchart LR
 | `/admin/members` | 建立名冊邀請、管理身分及緊急撤下／恢復公開 | 需 `ADMIN_PASSWORD`；管理密碼只在頁面記憶體。 |
 | `/research` | 舊網址相容 | 轉至 `/#research`，不保留重複頁面。 |
 
-`PeoplePage.tsx` 會在成員 ID 1 且公開姓名為「黃柏凱」的卡片上顯示 AI 製作 RGB 按鈕；點擊可完整開關按鈕動畫與卡片光效，偏好保存在瀏覽器 `localStorage` 的 `hpclab-creator-rgb`，樣式位於 `src/styles/members.css`。若成員資料庫重建並重新編號，須同步檢查此身分條件。
+`PeoplePage.tsx` 的 RGB 技能由成員在 `/member/me` 設定，訪客只看展示、無法切換；一般帳號上限一個，帳號 ID 1 上限兩個。成員可選研究方向或自訂文字，移除並儲存即關閉。設定由 `member-service.ts` 驗證後存入成員 SQLite，樣式位於 `src/styles/members.css`。若成員資料庫重建並重新編號，須檢查帳號 ID 1 的特例。首頁漂浮算力球在 `src/App.tsx` 的 `LiveComputeCore`，以即時 GPU 負載控制亮度。
 
 | API | 用途 |
 | --- | --- |
@@ -99,4 +99,4 @@ node tools/verify-member-service.mjs
 4. 若更新了 `member-service.ts`，也要 rollout restart `hpc-lab-members`。核對兩個網站 Pod、歷史 Pod 與成員 Pod 的 **imageID digest** 都等於剛推送的 digest；確認 Ready、`/api/gpus`、`/api/members/public`、`/api/monitoring/history/<有效 ID>` 和首頁。Pod selector 分別是 `app=hpc-lab`、`app=hpc-lab-history`、`app=hpc-lab-members`。
 5. 出問題時回復到前一個已驗證 digest 並重啟 Deployment。歷史 PVC 不要刪除；同一份記錄仍可供回復後的網站讀取。
 
-`k8s-deploy.yaml` 是較早的參考清單，仍寫 1 replica、未含目前的執行環境變數；**不要直接套用覆蓋線上 Deployment**。線上網站目前是 2 replicas、`pullPolicy=Always`、`pk-master1` 節點，原有網站聯絡表單 SQLite 使用既有掛載。監控歷史改用單一寫入者與 PVC，沒有寫入網站原有 hostPath，也不修改 Rancher Monitoring／Prometheus 抓取設定。`local-path` PVC 綁定單一節點，若該節點故障，歷史服務須等儲存卷恢復才能繼續；網站即時監控仍可獨立運作。
+`k8s-deploy.yaml` 是較早的參考清單，仍寫 1 replica、未含目前的執行環境變數；**不要直接套用覆蓋線上 Deployment**。2026-10-08 盤點時網站 2 replicas 位於 `pk-master1`，歷史與成員服務位於 `pk-worker2`；聯絡表單 SQLite 使用網站原有 hostPath。實際節點和映像 digest 應重新查詢，不應照抄此快照。監控歷史改用單一寫入者與 PVC，沒有寫入網站原有 hostPath，也不修改 Rancher Monitoring／Prometheus 抓取設定。`local-path` PVC 綁定單一節點，若該節點故障，歷史服務須等儲存卷恢復才能繼續；網站即時監控仍可獨立運作。

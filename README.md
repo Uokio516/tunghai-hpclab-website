@@ -4,7 +4,7 @@
 
 🔗 **Live / 線上：** <https://hpclab.thu.edu.tw>
 
-📘 **維護入口：** [網站架構與維護手冊](docs/website-architecture.md)
+📘 **維護入口：** [交接手冊](docs/handoff-2026-10-08.md) · [網站架構](docs/website-architecture.md)
 
 **English** ｜ **[中文](#中文版)**
 
@@ -55,8 +55,9 @@ Configuration is env-only (`.env.example`): `ADMIN_PASSWORD`, `PROMETHEUS_URL`,
 
 ## Notes
 
-Developed with the assistance of Claude and GPT. Nothing sensitive is committed
-— credentials and internal addresses live only in environment variables.
+Developed with the assistance of Claude and GPT. Credentials are not committed;
+server-side inventory and exporter configuration may contain internal addresses,
+so repository access should be limited to authorized maintainers.
 
 ---
 
@@ -106,5 +107,5 @@ npm run dev               # http://localhost:3000
 
 ### 備註
 
-本專案在 Claude 與 GPT 的協助下開發。沒有任何機密進版控——憑證與內網位址
-僅存在於環境變數中。
+本專案在 Claude 與 GPT 的協助下開發。憑證不應進版控；伺服器端清冊與
+exporter 設定可能包含內網位址，請只授權可信任的維護人員存取 repository。
