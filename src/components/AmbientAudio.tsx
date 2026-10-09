@@ -8,7 +8,8 @@ type Style = "swing" | "rain" | "bossa" | "waltz";
 type Track = { id: string; name: string; mood: string; bpm: number; style: Style; chords: readonly Chord[] };
 const VOLUME_KEY = "hpclab-cafe-volume";
 const TRACK_KEY = "hpclab-cafe-track";
-const MASTER_LEVEL = 1.1;
+// The synthesized notes peak far below full scale; lift the mix before compression.
+const MASTER_LEVEL = 4;
 const TRACKS: readonly Track[] = [
   { id: "cafe-session", name: "Café Session", mood: "柔和爵士", bpm: 76, style: "swing", chords: [
     { bass: 36, keys: [60, 64, 67, 71, 74], melody: [76, 79, 74, 71] },
