@@ -52,6 +52,7 @@ import { WebGLBoundary } from "./components/ui/WebGLBoundary";
 import { ResearchAreaBanner } from "./components/ResearchAreaBanner";
 import { ImmersiveExperience } from "./components/ImmersiveExperience";
 import { AmbientAudio } from "./components/AmbientAudio";
+import { PointerAtmosphere } from "./components/PointerAtmosphere";
 
 const VIDEO_URL =
   "https://d8j0ntlcm91z4.cloudfront.net/user_3CbQ7bgJl2DosxuagIbrMDX2u4Q/hf_20260503_204926_23a59427-11bb-4fdd-b5ed-cc8f1b16ea02.mp4";
@@ -97,6 +98,7 @@ export default function App() {
     <BrowserRouter>
       <ScrollToSection />
       <AmbientAudio />
+      <PointerAtmosphere />
       <ImmersiveExperience>
       <Routes>
         <Route path="/" element={<Home />} />
