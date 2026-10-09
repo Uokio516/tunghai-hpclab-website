@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "motion/react";
 import { RefreshCcw, Search, Trash2, Edit2, X, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLocale } from "../lib/locale";
 
 interface Message {
   id: number;
@@ -12,6 +13,7 @@ interface Message {
 }
 
 export const AdminPanel: React.FC = () => {
+  const { language, t } = useLocale();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +38,7 @@ export const AdminPanel: React.FC = () => {
         setMessages(data);
         setIsAuthorized(true);
       } else {
-        alert("密碼錯誤！");
+        alert(t("密碼錯誤！", "Incorrect password."));
       }
     } catch (error) {
       console.error("Failed to fetch messages:", error);
@@ -46,7 +48,7 @@ export const AdminPanel: React.FC = () => {
   };
 
   const deleteMessage = async (id: number) => {
-    if (!confirm("確定要刪除這筆留言嗎？")) return;
+    if (!confirm(t("確定要刪除這筆留言嗎？", "Delete this message?"))) return;
     try {
       const response = await fetch(`/api/messages/${id}`, {
         method: "DELETE",
@@ -55,7 +57,7 @@ export const AdminPanel: React.FC = () => {
       if (response.ok) {
         setMessages(messages.filter((m) => m.id !== id));
       } else {
-        alert("刪除失敗！");
+        alert(t("刪除失敗！", "Could not delete the message."));
       }
     } catch (error) {
       console.error("Failed to delete message:", error);
@@ -79,7 +81,7 @@ export const AdminPanel: React.FC = () => {
         setMessages(messages.map((m) => (m.id === editingMessage.id ? editingMessage : m)));
         setEditingMessage(null);
       } else {
-        alert("更新失敗！");
+        alert(t("更新失敗！", "Could not update the message."));
       }
     } catch (error) {
       console.error("Failed to update message:", error);
@@ -105,11 +107,11 @@ export const AdminPanel: React.FC = () => {
               <div className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--brand)" }} />
             </div>
           </div>
-          <h2 className="mb-2 text-2xl font-semibold">管理員登入</h2>
+          <h2 className="mb-2 text-2xl font-semibold">{t("管理員登入", "Admin sign in")}</h2>
           <p className="mb-6 text-sm" style={{ color: "var(--text-faint)" }}>HPC Lab Admin Console</p>
           <input
             type="password"
-            placeholder="請輸入管理密碼"
+            placeholder={t("請輸入管理密碼", "Enter admin password")}
             className="mb-4 w-full rounded-xl p-3.5 text-center text-base transition-colors focus:outline-none"
             style={inputStyle}
             value={password}
@@ -122,14 +124,14 @@ export const AdminPanel: React.FC = () => {
             className="w-full rounded-xl p-3.5 text-base font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
             style={{ background: "var(--brand)", color: "var(--ink)" }}
           >
-            {loading ? "驗證中…" : "登入查看留言"}
+            {loading ? t("驗證中…", "Checking…") : t("登入查看留言", "View messages")}
           </button>
           <Link
             to="/"
             className="mt-6 block text-sm font-medium transition-opacity hover:opacity-70"
             style={{ color: "var(--text-faint)" }}
           >
-            ← 返回首頁
+            {t("← 返回首頁", "← Back to home")}
           </Link>
         </motion.div>
       </div>
@@ -148,13 +150,13 @@ export const AdminPanel: React.FC = () => {
       <div className="mx-auto max-w-6xl">
         <header className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="mb-2 text-4xl font-semibold">管理控制台</h1>
+            <h1 className="mb-2 text-4xl font-semibold">{t("管理控制台", "Admin dashboard")}</h1>
             <p className="text-sm font-medium" style={{ color: "var(--text-faint)" }}>HPC Lab Visitor Messages</p>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/admin/members" className="chip px-4 py-2 text-sm font-semibold">成員名冊 →</Link>
+            <Link to="/admin/members" className="chip px-4 py-2 text-sm font-semibold">{t("成員名冊 →", "Member directory →")}</Link>
             <span className="text-sm" style={{ color: "var(--text-dim)" }}>
-              共 {filteredMessages.length} / {messages.length} 筆
+              {t("共", "Showing")} {filteredMessages.length} / {messages.length} {t("筆", "messages")}
             </span>
             <button
               onClick={fetchMessages}
@@ -162,7 +164,7 @@ export const AdminPanel: React.FC = () => {
               className="chip flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-80"
             >
               <RefreshCcw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-              重新整理
+              {t("重新整理", "Refresh")}
             </button>
           </div>
         </header>
@@ -172,7 +174,7 @@ export const AdminPanel: React.FC = () => {
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "var(--text-faint)" }} />
             <input
               type="text"
-              placeholder="搜尋姓名、信箱或內容…"
+              placeholder={t("搜尋姓名、信箱或內容…", "Search names, email or messages…")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full rounded-2xl py-3.5 pl-12 pr-4 text-base transition-colors focus:outline-none"
@@ -186,11 +188,11 @@ export const AdminPanel: React.FC = () => {
             <table className="w-full border-collapse text-left text-[15px]">
               <thead>
                 <tr className="text-sm font-semibold" style={{ borderBottom: "1px solid var(--border)", background: "var(--surface-2)", color: "var(--text-dim)" }}>
-                  <th className="px-6 py-4">日期</th>
-                  <th className="px-6 py-4">姓名</th>
-                  <th className="px-6 py-4">聯絡信箱</th>
-                  <th className="px-6 py-4">留言內容</th>
-                  <th className="px-6 py-4 text-right">操作</th>
+                  <th className="px-6 py-4">{t("日期", "Date")}</th>
+                  <th className="px-6 py-4">{t("姓名", "Name")}</th>
+                  <th className="px-6 py-4">{t("聯絡信箱", "Email")}</th>
+                  <th className="px-6 py-4">{t("留言內容", "Message")}</th>
+                  <th className="px-6 py-4 text-right">{t("操作", "Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,7 +212,7 @@ export const AdminPanel: React.FC = () => {
                       style={{ borderBottom: "1px solid var(--border)" }}
                     >
                       <td className="whitespace-nowrap px-6 py-4 tabular-nums" style={{ fontFamily: "var(--font-mono)", color: "var(--text-dim)" }}>
-                        {new Date(msg.created_at).toLocaleString("zh-TW")}
+                        {new Date(msg.created_at).toLocaleString(language)}
                       </td>
                       <td className="px-6 py-4 font-semibold">{msg.name}</td>
                       <td className="px-6 py-4" style={{ color: "var(--text-dim)" }}>{msg.email}</td>
@@ -223,7 +225,7 @@ export const AdminPanel: React.FC = () => {
                             onClick={() => setEditingMessage(msg)}
                             className="rounded-lg p-2 transition-colors"
                             style={{ color: "var(--text-dim)" }}
-                            title="編輯"
+                            title={t("編輯", "Edit")}
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
@@ -231,7 +233,7 @@ export const AdminPanel: React.FC = () => {
                             onClick={() => deleteMessage(msg.id)}
                             className="rounded-lg p-2 transition-colors"
                             style={{ color: "var(--critical)" }}
-                            title="刪除"
+                            title={t("刪除", "Delete")}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -242,7 +244,7 @@ export const AdminPanel: React.FC = () => {
                 ) : (
                   <tr>
                     <td colSpan={5} className="px-6 py-16 text-center" style={{ color: "var(--text-faint)" }}>
-                      {searchTerm ? "找不到符合的留言" : "目前沒有留言記錄"}
+                      {searchTerm ? t("找不到符合的留言", "No matching messages") : t("目前沒有留言記錄", "No messages yet")}
                     </td>
                   </tr>
                 )}
@@ -267,11 +269,11 @@ export const AdminPanel: React.FC = () => {
             >
               <X className="h-4 w-4" />
             </button>
-            <h2 className="mb-6 text-xl font-semibold">編輯留言資料</h2>
+            <h2 className="mb-6 text-xl font-semibold">{t("編輯留言資料", "Edit message")}</h2>
 
             <form onSubmit={updateMessage} className="flex flex-col gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-semibold" style={{ color: "var(--text-dim)" }}>姓名</label>
+                <label className="mb-1.5 block text-sm font-semibold" style={{ color: "var(--text-dim)" }}>{t("姓名", "Name")}</label>
                 <input
                   type="text"
                   value={editingMessage.name}
@@ -282,7 +284,7 @@ export const AdminPanel: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-semibold" style={{ color: "var(--text-dim)" }}>信箱</label>
+                <label className="mb-1.5 block text-sm font-semibold" style={{ color: "var(--text-dim)" }}>{t("信箱", "Email")}</label>
                 <input
                   type="email"
                   value={editingMessage.email}
@@ -293,7 +295,7 @@ export const AdminPanel: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-semibold" style={{ color: "var(--text-dim)" }}>留言內容</label>
+                <label className="mb-1.5 block text-sm font-semibold" style={{ color: "var(--text-dim)" }}>{t("留言內容", "Message")}</label>
                 <textarea
                   value={editingMessage.message}
                   onChange={(e) => setEditingMessage({ ...editingMessage, message: e.target.value })}
@@ -309,7 +311,7 @@ export const AdminPanel: React.FC = () => {
                   className="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
                   style={{ color: "var(--text-dim)" }}
                 >
-                  取消
+                  {t("取消", "Cancel")}
                 </button>
                 <button
                   type="submit"
@@ -317,7 +319,7 @@ export const AdminPanel: React.FC = () => {
                   style={{ background: "var(--brand)", color: "var(--ink)" }}
                 >
                   <Check className="h-4 w-4" />
-                  儲存變更
+                  {t("儲存變更", "Save changes")}
                 </button>
               </div>
             </form>
@@ -331,7 +333,7 @@ export const AdminPanel: React.FC = () => {
           className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-70"
           style={{ color: "var(--text-faint)" }}
         >
-          ← 返回首頁
+          {t("← 返回首頁", "← Back to home")}
         </Link>
       </div>
     </div>

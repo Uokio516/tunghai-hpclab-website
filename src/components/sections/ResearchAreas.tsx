@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { researchAreas } from "../../data/research";
 import { useControllableState } from "../../lib/useControllableState";
+import { useLocale } from "../../lib/locale";
 
 interface ResearchAreasProps {
   /* Set false when the page already has its own heading above (e.g. the
@@ -22,6 +23,7 @@ interface ResearchAreasProps {
    focusing) a row expands its description and keywords in place and dims
    the others, so one row owns attention at a time. */
 export function ResearchAreas({ showHeading = true, bare = false, activeId: activeIdProp, onActiveChange }: ResearchAreasProps) {
+  const { language, t } = useLocale();
   const [activeId, setActiveId] = useControllableState(activeIdProp, onActiveChange, null as string | null);
   // MotionConfig's reducedMotion="user" doesn't reach height:auto layout
   // animation, so this one is checked directly — snap instead of animate.
@@ -33,7 +35,7 @@ export function ResearchAreas({ showHeading = true, bare = false, activeId: acti
         <>
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] opacity-50">Research Areas</p>
           <h2 className="mb-14 max-w-3xl text-[clamp(1.75rem,4vw,3rem)] font-medium uppercase leading-tight tracking-tight">
-            六大研究領域
+            {t("六大研究領域", "Six Research Areas")}
           </h2>
         </>
       )}
@@ -69,9 +71,9 @@ export function ResearchAreas({ showHeading = true, bare = false, activeId: acti
                     className="block text-[clamp(1.35rem,3.4vw,2.5rem)] font-medium uppercase leading-tight tracking-tight transition-colors"
                     style={{ color: isActive ? "#c9b8a0" : "inherit" }}
                   >
-                    {area.titleEn}
+                    {language === "en" ? area.titleEn : area.titleZh}
                   </span>
-                  <span className="mt-1 block text-sm opacity-55 sm:text-base">{area.titleZh}</span>
+                  <span className="mt-1 block text-sm opacity-55 sm:text-base">{language === "en" ? area.titleZh : area.titleEn}</span>
                 </span>
               </button>
 
@@ -85,7 +87,7 @@ export function ResearchAreas({ showHeading = true, bare = false, activeId: acti
                     className="overflow-hidden"
                   >
                     <div className="flex flex-col gap-5 pb-8 sm:flex-row sm:items-start sm:gap-12 sm:pl-[3.5rem]">
-                      <p className="max-w-md text-base leading-relaxed opacity-80">{area.descriptionZh}</p>
+                      <p className="max-w-md text-base leading-relaxed opacity-80">{language === "en" ? area.descriptionEn : area.descriptionZh}</p>
                       <ul className="flex flex-wrap gap-x-4 gap-y-2 sm:max-w-sm">
                         {area.keywords.map((kw) => (
                           <li

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Server, Cpu, MemoryStick, Cog, Database, Box, Layers, Clock3 } from "lucide-react";
 import { MonitoringChrome } from "./MonitoringChrome";
+import { useLocale, type Language } from "../lib/locale";
 
 // ---- types ----
 type Meter = { label: string; value: string; pct: number; level?: string };
@@ -26,7 +27,40 @@ type Summary = {
 };
 type ClusterData = { updatedAt: string; source: string; summary: Summary; clusters: Cluster[] };
 
+const snapshotTerms: [string, string][] = [
+  ["機房實體節點合計", "Physical server-room nodes total"],
+  ["運行 / 總數", "Running / Total"],
+  ["GPU 運算叢集", "GPU compute cluster"],
+  ["CubeCOS 超融合雲叢集", "CubeCOS hyperconverged cloud cluster"],
+  ["Proxmox 虛擬化叢集", "Proxmox virtualization cluster"],
+  ["Proxmox 備份伺服器", "Proxmox backup server"],
+  ["CPU 執行緒", "CPU threads"], ["GPU 已註冊", "GPUs registered"],
+  ["GPU 直通", "GPU passthrough"], ["備份來源", "Backup source"],
+  ["版本", "Version"],
+  ["備份快照", "Backup snapshots"], ["備份池", "Backup pool"],
+  ["超融合雲", "hyperconverged cloud"], ["虛擬化", "virtualization"],
+  ["實體卡", "physical GPUs"], ["裸機", "bare-metal"],
+  ["伺服器", "server"], ["叢集", "cluster"], ["記憶體", "memory"],
+  ["直通", "passthrough"], ["借用", "loaned"], ["承載", "hosting"],
+  ["對外服務", "public services"], ["已註冊", "registered"],
+  ["最大", "maximum"], ["上線", "online"], ["健康", "health"],
+  ["來源", "source"], ["快照", "snapshots"], ["每日", "daily"],
+  ["池", " pool"], [" 張", ""],
+  ["待加入", "pending"], ["可排程", "schedulable"],
+  ["合計", "Total"], ["運行中", "Running"], ["服務正常", "Services healthy"],
+  ["節點 Ready", "Nodes ready"], ["容量", "capacity"], ["節點", "nodes"],
+  ["使用率", "utilization"], ["備份", "backup"], ["監控", "monitoring"],
+  ["儲存", "storage"], ["虛擬機", "VMs"], ["待確認", "pending confirmation"],
+  ["運算", "compute"], ["控制平台", "control platform"], ["工作負載", "workloads"],
+  ["實驗室", "lab"], ["機房", "server room"], ["管理", "management"],
+];
+function localizeSnapshotText(value: string | undefined, language: Language) {
+  if (!value || language !== "en") return value ?? "";
+  return snapshotTerms.reduce((result, [zh, en]) => result.replaceAll(zh, en), value);
+}
+
 export function Infrastructure() {
+  const { language, t } = useLocale();
   const [data, setData] = useState<ClusterData | null>(null);
   const [error, setError] = useState(false);
 
@@ -53,19 +87,19 @@ export function Infrastructure() {
   return (
     <MonitoringChrome
       eyebrow="Multi-platform Infrastructure"
-      title={<>實驗室<span style={{ color: "var(--brand-light)" }}>運算基礎設施</span></>}
-      description="從 CubeCOS 超融合雲、Proxmox 虛擬化叢集到獨立備份系統，呈現實驗室跨平台運算資源、工作負載與儲存健康。"
+      title={language === "en" ? <>Lab <span style={{ color: "var(--brand-light)" }}>Infrastructure</span></> : <>實驗室<span style={{ color: "var(--brand-light)" }}>運算基礎設施</span></>}
+      description={t("從 CubeCOS 超融合雲、Proxmox 虛擬化叢集到獨立備份系統，呈現實驗室跨平台運算資源、工作負載與儲存健康。", "Explore computing resources, workloads and storage health across CubeCOS, Proxmox and the dedicated backup system.")}
       live={false}
-      meta={<><div><Clock3 className="mr-2 inline h-3 w-3" />歷史盤點快照</div><div>{data ? `資料日期 ${data.updatedAt}` : "讀取中…"}</div><div>非即時叢集狀態</div></>}
+      meta={<><div><Clock3 className="mr-2 inline h-3 w-3" />{t("歷史盤點快照", "Inventory snapshot")}</div><div>{data ? `${t("資料日期", "As of")} ${data.updatedAt}` : t("讀取中…", "Loading…")}</div><div>{t("非即時叢集狀態", "Historical cluster status")}</div></>}
     >
 
         {error && !data && (
           <div className="panel p-8 text-center text-base" style={{ color: "var(--critical)" }}>
-            無法讀取叢集狀態，請稍後再試。
+            {t("無法讀取叢集狀態，請稍後再試。", "Could not load cluster status. Please try again later.")}
           </div>
         )}
         {!error && !data && (
-          <div className="panel animate-pulse p-8 text-center text-base" style={{ color: "var(--text-dim)" }}>載入中…</div>
+          <div className="panel animate-pulse p-8 text-center text-base" style={{ color: "var(--text-dim)" }}>{t("載入中…", "Loading…")}</div>
         )}
 
         {data && (
@@ -74,15 +108,15 @@ export function Infrastructure() {
             <div className="cluster-jump">
               {data.clusters.map((cluster) => (
                 <a key={cluster.id} href={`#cluster-${cluster.id}`} style={{ borderColor: `${cluster.accent}44` }}>
-                  <strong style={{ color: cluster.accent }}>{cluster.name}</strong>
-                  <span>{cluster.status} · {cluster.nodes.length} 節點</span>
+                  <strong style={{ color: cluster.accent }}>{localizeSnapshotText(cluster.name, language)}</strong>
+                  <span>{localizeSnapshotText(cluster.status, language)} · {cluster.nodes.length} {t("節點", "nodes")}</span>
                 </a>
               ))}
             </div>
             {data.source === "snapshot" && (
               <div className="snapshot-warning">
                 <Clock3 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--warn)" }} />
-                <div><strong style={{ color: "var(--warn)" }}>歷史快照，非即時監控</strong><br />目前只顯示最後一次成功盤點結果（{data.updatedAt}）。頁面不會宣稱自動更新；待 Proxmox／OpenStack 唯讀 API 正式串接後，才會啟用即時狀態。</div>
+                <div><strong style={{ color: "var(--warn)" }}>{t("歷史快照，非即時監控", "Historical snapshot, not live monitoring")}</strong><br />{t(`目前只顯示最後一次成功盤點結果（${data.updatedAt}）。頁面不會宣稱自動更新；待 Proxmox／OpenStack 唯讀 API 正式串接後，才會啟用即時狀態。`, `Showing the last successful inventory (${data.updatedAt}). Live status will be enabled after read-only Proxmox and OpenStack APIs are connected.`)}</div>
               </div>
             )}
 
@@ -93,7 +127,7 @@ export function Infrastructure() {
             </div>
 
             <p className="mt-10 text-center text-sm" style={{ color: "var(--text-faint)" }}>
-              資料經 SSH / OpenStack / Ceph / Proxmox API 收集 · 快照模式
+              {t("資料經 SSH / OpenStack / Ceph / Proxmox API 收集 · 快照模式", "Collected via SSH and OpenStack, Ceph and Proxmox APIs · Snapshot mode")}
             </p>
           </>
         )}
@@ -102,15 +136,16 @@ export function Infrastructure() {
 }
 
 function SummaryStrip({ s }: { s: Summary }) {
+  const { language, t } = useLocale();
   const n = s.notes ?? {};
   const items = [
-    { icon: Server, label: "實體節點", value: String(s.physicalNodes), sub: n.physicalNodes ?? "合計" },
-    { icon: Cpu, label: "CPU 執行緒", value: String(s.cpuThreads), sub: n.cpuThreads ?? "合計" },
-    { icon: MemoryStick, label: "記憶體", value: (s.memoryGB / 1000).toFixed(1), sub: n.memoryGB ?? "TB · ≈ " + s.memoryGB.toLocaleString() + " GB" },
-    { icon: Cog, label: "GPU", value: s.gpusPending ? `${s.gpus}+${s.gpusPending}` : String(s.gpus), sub: n.gpus ?? "合計" },
-    { icon: Database, label: "Ceph 儲存", value: s.cephTiB.toFixed(1), sub: n.cephTiB ?? "TiB" },
-    { icon: Box, label: "虛擬機", value: `${s.vmsRunning}/${s.vmsTotal}`, sub: n.vms ?? "運行 / 總數" },
-    { icon: Layers, label: "虛擬化平台", value: String(s.platforms), sub: n.platforms ?? "合計" },
+    { icon: Server, label: t("實體節點", "Physical nodes"), value: String(s.physicalNodes), sub: localizeSnapshotText(n.physicalNodes ?? "合計", language) },
+    { icon: Cpu, label: t("CPU 執行緒", "CPU threads"), value: String(s.cpuThreads), sub: localizeSnapshotText(n.cpuThreads ?? "合計", language) },
+    { icon: MemoryStick, label: t("記憶體", "Memory"), value: (s.memoryGB / 1000).toFixed(1), sub: localizeSnapshotText(n.memoryGB ?? "TB · ≈ " + s.memoryGB.toLocaleString() + " GB", language) },
+    { icon: Cog, label: "GPU", value: s.gpusPending ? `${s.gpus}+${s.gpusPending}` : String(s.gpus), sub: localizeSnapshotText(n.gpus ?? "合計", language) },
+    { icon: Database, label: t("Ceph 儲存", "Ceph storage"), value: s.cephTiB.toFixed(1), sub: localizeSnapshotText(n.cephTiB ?? "TiB", language) },
+    { icon: Box, label: t("虛擬機", "Virtual machines"), value: `${s.vmsRunning}/${s.vmsTotal}`, sub: localizeSnapshotText(n.vms ?? "運行 / 總數", language) },
+    { icon: Layers, label: t("虛擬化平台", "Virtualization platforms"), value: String(s.platforms), sub: localizeSnapshotText(n.platforms ?? "合計", language) },
   ];
   return (
     <div className="monitor-kpi-grid">
@@ -134,6 +169,7 @@ function statusColor(level: string) {
 }
 
 function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
+  const { language, t } = useLocale();
   const accent = c.accent || "var(--brand)";
   return (
     <motion.section
@@ -153,16 +189,16 @@ function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
         </span>
         <div className="min-w-0">
           <h2 className="text-xl font-semibold not-italic sm:text-2xl">
-            {c.name} <span className="text-sm font-normal tabular-nums" style={{ color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>· {c.subtitle}</span>
+            {localizeSnapshotText(c.name, language)} <span className="text-sm font-normal tabular-nums" style={{ color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>· {localizeSnapshotText(c.subtitle, language)}</span>
           </h2>
-          <div className="mt-0.5 text-sm" style={{ color: "var(--text-dim)" }}>{c.stack}</div>
+          <div className="mt-0.5 text-sm" style={{ color: "var(--text-dim)" }}>{localizeSnapshotText(c.stack, language)}</div>
         </div>
         <span className="flex-1" />
         <span
           className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold"
           style={{ color: statusColor(c.statusLevel), background: `color-mix(in srgb, ${statusColor(c.statusLevel)} 14%, transparent)` }}
         >
-          <span className="h-2 w-2 rounded-full" style={{ background: statusColor(c.statusLevel) }} /> {c.status}
+          <span className="h-2 w-2 rounded-full" style={{ background: statusColor(c.statusLevel) }} /> {localizeSnapshotText(c.status, language)}
         </span>
       </div>
 
@@ -172,7 +208,7 @@ function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
           {c.quick.map((q) => (
             <div key={q.l} className="flex flex-col">
               <span className="text-xl font-semibold tabular-nums" style={{ fontFamily: "var(--font-mono)" }}>{q.v}</span>
-              <span className="text-sm" style={{ color: "var(--text-faint)" }}>{q.l}</span>
+              <span className="text-sm" style={{ color: "var(--text-faint)" }}>{localizeSnapshotText(q.l, language)}</span>
             </div>
           ))}
         </div>
@@ -191,7 +227,7 @@ function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-base font-bold tabular-nums" style={{ fontFamily: "var(--font-mono)" }}>{n.name}</div>
-                  {n.role && <div className="text-xs" style={{ color: "var(--text-faint)" }}>{n.role}</div>}
+                  {n.role && <div className="text-xs" style={{ color: "var(--text-faint)" }}>{localizeSnapshotText(n.role, language)}</div>}
                 </div>
                 <span
                   className="h-2.5 w-2.5 rounded-full"
@@ -215,7 +251,7 @@ function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
                           : { color: accent, background: accent + "1f", fontFamily: "var(--font-mono)" }
                       }
                     >
-                      {n.gpu}
+                      {localizeSnapshotText(n.gpu, language)}
                     </span>
                   </div>
                 )}
@@ -232,7 +268,7 @@ function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
               return (
                 <div key={m.label}>
                   <div className="mb-2 flex items-baseline justify-between text-sm">
-                    <span style={{ color: "var(--text-dim)" }}>{m.label}</span>
+                    <span style={{ color: "var(--text-dim)" }}>{localizeSnapshotText(m.label, language)}</span>
                     <span className="font-semibold tabular-nums" style={{ fontFamily: "var(--font-mono)" }}>{m.value}</span>
                   </div>
                   <div className="h-2.5 overflow-hidden rounded-full" style={{ background: "var(--surface-2)" }}>
@@ -245,15 +281,15 @@ function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
         )}
 
         <details className="cluster-details">
-          <summary>服務與虛擬機明細</summary>
+          <summary>{t("服務與虛擬機明細", "Services & VM Details")}</summary>
         {/* services */}
         {c.services && c.services.length > 0 && (
           <>
-            <Divider label="運行中服務" />
+            <Divider label={t("運行中服務", "Running Services")} />
             <div className="flex flex-wrap gap-2">
               {c.services.map((sv) => (
                 <span key={sv} className="chip inline-flex items-center gap-2 px-3.5 py-2 text-sm">
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--good)" }} /> {sv}
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--good)" }} /> {localizeSnapshotText(sv, language)}
                 </span>
               ))}
             </div>
@@ -263,22 +299,22 @@ function ClusterPanel({ c, delay }: { c: Cluster; delay: number }) {
         {/* vms */}
         {c.vms && c.vms.length > 0 && (
           <>
-            <Divider label="承載中的服務 / 工作負載" />
+            <Divider label={t("承載中的服務 / 工作負載", "Hosted Services / Workloads")} />
             <div className="overflow-x-auto rounded-xl" style={{ border: "1px solid var(--border)" }}>
               <table className="w-full min-w-[560px] text-sm">
                 <thead>
                   <tr className="text-left text-sm font-semibold" style={{ background: "var(--surface-2)", color: "var(--text-dim)" }}>
-                    <th className="px-4 py-3">虛擬機</th>
-                    <th className="px-4 py-3">用途</th>
-                    <th className="px-4 py-3">節點</th>
-                    <th className="px-4 py-3">狀態</th>
+                    <th className="px-4 py-3">{t("虛擬機", "Virtual Machine")}</th>
+                    <th className="px-4 py-3">{t("用途", "Purpose")}</th>
+                    <th className="px-4 py-3">{t("節點", "Node")}</th>
+                    <th className="px-4 py-3">{t("狀態", "Status")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {c.vms.map((vm, i) => (
                     <tr key={vm.name} style={i < c.vms!.length - 1 ? { borderBottom: "1px solid var(--border)" } : undefined}>
                       <td className="px-4 py-3 font-medium tabular-nums" style={{ fontFamily: "var(--font-mono)" }}>{vm.name}</td>
-                      <td className="px-4 py-3" style={{ color: "var(--text-dim)" }}>{vm.use}</td>
+                      <td className="px-4 py-3" style={{ color: "var(--text-dim)" }}>{localizeSnapshotText(vm.use, language)}</td>
                       <td className="px-4 py-3 tabular-nums" style={{ fontFamily: "var(--font-mono)", color: "var(--text-faint)" }}>{vm.node}</td>
                       <td className="px-4 py-3">
                         <span

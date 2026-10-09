@@ -13,6 +13,7 @@ import { ResearchAreas } from "./sections/ResearchAreas";
 import { FeaturedProjects } from "./sections/FeaturedProjects";
 import { lab } from "../data/lab";
 import { heroKeywords } from "../lib/constants";
+import { useLocale } from "../lib/locale";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -25,6 +26,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
    version stacked a Suspense spinner, a fake "INITIALIZING SYSTEM"
    sequence, and a reveal delay, which read as a site failing to load. */
 export function HeroPreview() {
+  const { language, t } = useLocale();
   const [introDone, setIntroDone] = useState(false);
   const researchRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +70,7 @@ export function HeroPreview() {
             animate={{ opacity: 0.8, y: 0 }}
             transition={{ duration: 0.4, ease: EASE }}
           >
-            {lab.shortName} · {lab.universityEn}
+            {lab.shortName} · {language === "en" ? lab.universityEn : lab.university}
           </motion.p>
 
           {/* L2 main statement */}
@@ -79,9 +81,9 @@ export function HeroPreview() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15, ease: EASE }}
           >
-            High Performance
+            {t("高效能", "High Performance")}
             <br />
-            <span style={{ color: "#c9b8a0" }}>Computing</span>
+            <span style={{ color: "#c9b8a0" }}>{t("計算", "Computing")}</span>
           </motion.h1>
 
           {/* L3 supporting statement — short, not a grant abstract */}
@@ -91,7 +93,7 @@ export function HeroPreview() {
             animate={{ opacity: 0.75, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
           >
-            We explore the systems behind intelligent computing.
+            {t("探索智慧運算背後的系統。", "We explore the systems behind intelligent computing.")}
           </motion.p>
 
           {/* L4 research keywords — readable, five of them, not background texture */}
@@ -128,14 +130,14 @@ export function HeroPreview() {
               className="group flex items-center gap-3 rounded-full px-7 py-3.5 text-sm font-medium uppercase tracking-[0.12em] transition-transform hover:scale-[1.03]"
               style={{ background: "#c9b8a0", color: "#05070b" }}
             >
-              Explore Research
+              {t("探索研究", "Explore Research")}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </button>
             <span
               className="text-xs uppercase tracking-[0.15em] opacity-45 transition-opacity"
               style={{ opacity: introDone ? 0.45 : 0 }}
             >
-              Scroll to explore ↓
+              {t("向下探索 ↓", "Scroll to explore ↓")}
             </span>
           </motion.div>
         </main>
@@ -147,7 +149,7 @@ export function HeroPreview() {
       <section ref={researchRef} className="relative mx-auto max-w-7xl px-6 py-24 sm:px-10 sm:py-32">
         <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] opacity-50">Research Network</p>
         <h2 className="mb-14 max-w-3xl text-[clamp(1.75rem,4vw,3rem)] font-medium uppercase leading-tight tracking-tight">
-          研究領域關聯
+          {t("研究領域關聯", "Research Connections")}
         </h2>
         <ResearchNetworkGraph />
       </section>
@@ -163,7 +165,7 @@ export function HeroPreview() {
           className="rounded-full border px-6 py-3 text-xs font-medium uppercase tracking-[0.12em] opacity-70 transition-opacity hover:opacity-100"
           style={{ borderColor: "rgba(255,255,255,0.25)" }}
         >
-          ← 這是 Hero Demo 預覽,回真正的首頁
+          {t("← 這是首頁展示預覽，回到正式首頁", "← This is a hero preview. Return to the main site")}
         </Link>
       </div>
 

@@ -1,6 +1,7 @@
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { publications } from "../../data/publications";
 import { professor } from "../../data/lab";
+import { useLocale } from "../../lib/locale";
 
 function citationDetail(p: (typeof publications)[number]) {
   const bits: string[] = [];
@@ -12,6 +13,7 @@ function citationDetail(p: (typeof publications)[number]) {
 }
 
 export function PublicationsPage() {
+  const { t } = useLocale();
   const byYear = publications.reduce<Record<string, typeof publications>>((acc, p) => {
     (acc[p.year] ||= []).push(p);
     return acc;
@@ -21,12 +23,12 @@ export function PublicationsPage() {
   return (
     <PageShell
       eyebrow="Publications"
-      title="論文著作"
-      lede="以下為公開資料庫可查證的代表性論文,並非完整著作列表。完整清單請參考 DBLP。"
+      title={t("論文著作", "Publications")}
+      lede={t("以下為公開資料庫可查證的代表性論文,並非完整著作列表。完整清單請參考 DBLP。", "Selected publications verified through public databases. See DBLP for the complete list.")}
     >
       <section className="mx-auto max-w-7xl px-6 pb-28 sm:px-10 sm:pb-40">
         {publications.length === 0 ? (
-          <EmptyState message="論文資料整理中。" />
+          <EmptyState message={t("論文資料整理中。", "Publication information is being prepared.")} />
         ) : (
           <>
             {years.map((year) => (
@@ -54,7 +56,7 @@ export function PublicationsPage() {
               </div>
             ))}
             <p className="text-sm opacity-60">
-              完整著作列表：
+              {t("完整著作列表：", "Complete publication list:")}
               <a
                 href={professor.dblpUrl}
                 target="_blank"

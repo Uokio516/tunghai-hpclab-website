@@ -34,7 +34,8 @@ export interface ProfessorConfig {
   title: string;
   titleEn: string;
   roles: string[];
-  education: { degree: string; school: string; field: string; year: string }[];
+  education: { degree: string; degreeEn: string; school: string; schoolEn: string; field: string; fieldEn: string; year: string }[];
+  rolesEn: string[];
   orcid: string;
   dblpUrl: string;
   researchGateUrl: string;
@@ -49,10 +50,11 @@ export const professor: ProfessorConfig = {
   titleEn: "Lifetime Distinguished Professor",
   // 東海大學官方簡歷列出 2026/08 起任教務長，原系主任與圖資長任期均至 2026/07。
   roles: ["東海大學教務處 教務長（2026.08 起）", "東海大學資訊工程學系 終身特聘教授"],
+  rolesEn: ["Dean of Academic Affairs, Tunghai University (since August 2026)", "Lifetime Distinguished Professor, Department of Computer Science, Tunghai University"],
   education: [
-    { degree: "博士", school: "國立交通大學(現陽明交通大學)", field: "資訊科學研究所", year: "1996" },
-    { degree: "碩士", school: "國立交通大學(現陽明交通大學)", field: "資訊科學研究所", year: "1992" },
-    { degree: "學士", school: "東海大學", field: "資訊科學系", year: "1990" },
+    { degree: "博士", degreeEn: "Ph.D.", school: "國立交通大學(現陽明交通大學)", schoolEn: "National Chiao Tung University (now National Yang Ming Chiao Tung University)", field: "資訊科學研究所", fieldEn: "Institute of Computer Science", year: "1996" },
+    { degree: "碩士", degreeEn: "M.S.", school: "國立交通大學(現陽明交通大學)", schoolEn: "National Chiao Tung University (now National Yang Ming Chiao Tung University)", field: "資訊科學研究所", fieldEn: "Institute of Computer Science", year: "1992" },
+    { degree: "學士", degreeEn: "B.S.", school: "東海大學", schoolEn: "Tunghai University", field: "資訊科學系", fieldEn: "Department of Computer Science", year: "1990" },
   ],
   orcid: "0000-0002-9579-4426",
   dblpUrl: "https://dblp.org/pid/y/ChaoTungYang",

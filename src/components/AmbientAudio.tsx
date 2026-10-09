@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ChevronUp, Music2, Pause, Play, Volume2, VolumeX, X } from "lucide-react";
+import { useLocale } from "../lib/locale";
 
 // Original, sample-free arrangements. Audio starts only after a user click.
 type Chord = { bass: number; keys: readonly number[]; melody: readonly number[] };
@@ -214,6 +215,7 @@ function arrange(ctx: AudioContext, master: GainNode, track: Track): () => void 
 }
 
 export function AmbientAudio() {
+  const { t, language } = useLocale();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
@@ -263,17 +265,17 @@ export function AmbientAudio() {
           setPlaying(false);
         } else {
           await ctx.resume();
-          if (ctx.state !== "running") throw new Error("音訊尚未啟用，請再按一次播放。");
+          if (ctx.state !== "running") throw new Error(t("音訊尚未啟用，請再按一次播放。", "Audio could not start. Please press play again."));
           setPlaying(true);
         }
         return;
       }
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) throw new Error("此瀏覽器不支援背景音樂。");
+      if (!AudioContextClass) throw new Error(t("此瀏覽器不支援背景音樂。", "This browser does not support background music."));
       const ctx = new AudioContextClass();
       pendingContext = ctx;
       await ctx.resume();
-      if (ctx.state !== "running") { await ctx.close(); throw new Error("音訊尚未啟用，請再按一次播放。"); }
+      if (ctx.state !== "running") { await ctx.close(); throw new Error(t("音訊尚未啟用，請再按一次播放。", "Audio could not start. Please press play again.")); }
       const compressor = ctx.createDynamicsCompressor();
       compressor.threshold.value = -18;
       compressor.ratio.value = 2.5;
@@ -288,7 +290,7 @@ export function AmbientAudio() {
       setPlaying(true);
     } catch (cause) {
       await pendingContext?.close().catch(() => {});
-      setError(cause instanceof Error ? cause.message : "播放失敗，請再試一次。");
+      setError(cause instanceof Error ? cause.message : t("播放失敗，請再試一次。", "Playback failed. Please try again."));
     } finally {
       setBusy(false);
       changingRef.current = false;
@@ -324,33 +326,33 @@ export function AmbientAudio() {
 
   const selectedTrack = TRACKS[trackIndex];
   return createPortal(
-    <div ref={rootRef} className="ambient-audio-root cafe-audio" aria-label="背景音樂控制器">
-      {panelOpen && <section id="cafe-audio-panel" className="cafe-audio-panel" aria-label="音樂與音量設定">
+    <div ref={rootRef} className="ambient-audio-root cafe-audio" aria-label={t("背景音樂控制器", "Background music controls")}>
+      {panelOpen && <section id="cafe-audio-panel" className="cafe-audio-panel" aria-label={t("音樂與音量設定", "Music and volume settings")}>
         <div className="cafe-audio-heading">
           <span className="cafe-audio-art" aria-hidden="true"><Music2 size={20} /></span>
-          <div><small>HPC LAB RADIO</small><strong>{selectedTrack.name}</strong><span>{selectedTrack.mood} · 無人聲</span></div>
-          <button type="button" className="cafe-audio-close" onClick={() => setPanelOpen(false)} aria-label="關閉音樂設定"><X size={18} /></button>
+          <div><small>HPC LAB RADIO</small><strong>{selectedTrack.name}</strong><span>{language === "en" ? ["Soft jazz", "Rainy-day beats", "Afternoon bossa", "Midnight waltz"][trackIndex] : selectedTrack.mood} · {t("無人聲", "Instrumental")}</span></div>
+          <button type="button" className="cafe-audio-close" onClick={() => setPanelOpen(false)} aria-label={t("關閉音樂設定", "Close music settings")}><X size={18} /></button>
         </div>
-        <button type="button" className="cafe-audio-play" onClick={toggle} disabled={busy} aria-label={playing ? "暫停背景音樂" : "播放背景音樂"}>
+        <button type="button" className="cafe-audio-play" onClick={toggle} disabled={busy} aria-label={playing ? t("暫停背景音樂", "Pause background music") : t("播放背景音樂", "Play background music")}>
           {playing ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}
-          <span>{busy ? "載入中…" : playing ? "暫停音樂" : "播放音樂"}</span>
+          <span>{busy ? t("載入中…", "Loading…") : playing ? t("暫停音樂", "Pause music") : t("播放音樂", "Play music")}</span>
         </button>
-        <div className="cafe-audio-track-label">選擇曲目</div>
-        <div className="cafe-audio-tracks" aria-label="選擇背景音樂">
+        <div className="cafe-audio-track-label">{t("選擇曲目", "Choose a track")}</div>
+        <div className="cafe-audio-tracks" aria-label={t("選擇背景音樂", "Choose background music")}>
           {TRACKS.map((track, index) => <button key={track.id} type="button" className="cafe-audio-track" aria-pressed={index === trackIndex} onClick={() => selectTrack(index)}>
-            <strong>{track.name}</strong><small>{track.mood}</small>
+            <strong>{track.name}</strong><small>{language === "en" ? ["Soft jazz", "Rainy-day beats", "Afternoon bossa", "Midnight waltz"][index] : track.mood}</small>
           </button>)}
         </div>
         <div className="cafe-audio-volume-row">
-          <button type="button" className="cafe-audio-mute" onClick={() => changeVolume(volume === 0 ? lastNonZeroVolumeRef.current : 0)} aria-label={volume === 0 ? "取消靜音" : "靜音"}>{volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
-          <label className="cafe-audio-volume"><span>音量</span><input type="range" min="0" max="100" step="1" value={Math.round(volume * 100)} onChange={event => changeVolume(Number(event.target.value) / 100)} aria-label="背景音樂音量" /></label>
+          <button type="button" className="cafe-audio-mute" onClick={() => changeVolume(volume === 0 ? lastNonZeroVolumeRef.current : 0)} aria-label={volume === 0 ? t("取消靜音", "Unmute") : t("靜音", "Mute")}>{volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
+          <label className="cafe-audio-volume"><span>{t("音量", "Volume")}</span><input type="range" min="0" max="100" step="1" value={Math.round(volume * 100)} onChange={event => changeVolume(Number(event.target.value) / 100)} aria-label={t("背景音樂音量", "Background music volume")} /></label>
           <output className="cafe-audio-volume-value">{Math.round(volume * 100)}%</output>
         </div>
       </section>}
       <div className="cafe-audio-dock">
-        <button type="button" className="cafe-audio-dock-play" onClick={toggle} disabled={busy} aria-label={playing ? "暫停背景音樂" : "播放背景音樂"}>{playing ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}</button>
-        <button type="button" className="cafe-audio-dock-open" onClick={() => setPanelOpen(open => !open)} aria-expanded={panelOpen} aria-controls="cafe-audio-panel" aria-label={panelOpen ? "收合音樂設定" : "展開音樂設定"}>
-          <span className="cafe-audio-dock-text"><strong>{selectedTrack.name}</strong><small>{busy ? "載入中…" : volume === 0 ? "已靜音 · 點此調音量" : playing ? "播放中 · 點此選歌" : "背景音樂 · 點此選歌"}</small></span>
+        <button type="button" className="cafe-audio-dock-play" onClick={toggle} disabled={busy} aria-label={playing ? t("暫停背景音樂", "Pause background music") : t("播放背景音樂", "Play background music")}>{playing ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}</button>
+        <button type="button" className="cafe-audio-dock-open" onClick={() => setPanelOpen(open => !open)} aria-expanded={panelOpen} aria-controls="cafe-audio-panel" aria-label={panelOpen ? t("收合音樂設定", "Collapse music settings") : t("展開音樂設定", "Expand music settings")}>
+          <span className="cafe-audio-dock-text"><strong>{selectedTrack.name}</strong><small>{busy ? t("載入中…", "Loading…") : volume === 0 ? t("已靜音 · 點此調音量", "Muted · Adjust volume") : playing ? t("播放中 · 點此選歌", "Playing · Choose a track") : t("背景音樂 · 點此選歌", "Background music · Choose a track")}</small></span>
           {panelOpen ? <ChevronDown size={17} /> : <ChevronUp size={17} />}
         </button>
       </div>

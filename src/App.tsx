@@ -52,6 +52,7 @@ import { WebGLBoundary } from "./components/ui/WebGLBoundary";
 import { ResearchAreaBanner } from "./components/ResearchAreaBanner";
 import { ImmersiveExperience } from "./components/ImmersiveExperience";
 import { AmbientAudio } from "./components/AmbientAudio";
+import { LocaleProvider, useLocale } from "./lib/locale";
 import { PointerAtmosphere } from "./components/PointerAtmosphere";
 
 const VIDEO_URL =
@@ -94,6 +95,7 @@ function HeroChunkFallback() {
 
 export default function App() {
   return (
+    <LocaleProvider>
     <MotionConfig reducedMotion="user">
     <BrowserRouter>
       <ScrollToSection />
@@ -158,6 +160,7 @@ export default function App() {
       </ImmersiveExperience>
     </BrowserRouter>
     </MotionConfig>
+    </LocaleProvider>
   );
 }
 
@@ -345,27 +348,28 @@ function LivePill({ status }: { status: string }) {
 function HeroBody({
   live, compact,
 }: { live: ReturnType<typeof useLiveTelemetry>; compact?: boolean }) {
+  const { language, t } = useLocale();
   return (
     <div className="text-center">
       <div className={`flex justify-center ${compact ? "mb-5" : "mb-7"}`}>
-        <LivePill status={live.gpuOnline != null ? "GPU 監控運行中" : "研究進行中"} />
+        <LivePill status={live.gpuOnline != null ? t("GPU 監控運行中", "GPU monitoring is live") : t("研究進行中", "Research in progress")} />
       </div>
 
       <h1 className={compact ? "mx-auto max-w-md text-4xl leading-[1.15]" : "mx-auto max-w-3xl text-[clamp(2.75rem,9vw,5.5rem)] leading-[1.1]"}>
-        高效能<span style={{ color: "var(--brand-light)" }}>計算</span>實驗室
+        {language === "en" ? <>High Performance <span style={{ color: "var(--brand-light)" }}>Computing</span> Laboratory</> : <>高效能<span style={{ color: "var(--brand-light)" }}>計算</span>實驗室</>}
       </h1>
       <p
         className={`mx-auto mt-4 ${compact ? "max-w-sm text-base" : "max-w-xl text-xl sm:text-2xl"}`}
         style={{ color: "var(--text-dim)", fontFamily: "var(--font-serif)", fontStyle: "italic" }}
       >
-        指導教授　楊朝棟　博士
+        {t("指導教授　楊朝棟　博士", "Principal Investigator · Prof. Chao-Tung Yang")}
         <span className={`ml-2 not-italic ${compact ? "text-sm" : "text-base"}`} style={{ color: "var(--text-faint)", fontFamily: "var(--font-sans)" }}>
-          Prof. Chao-Tung Yang
+          {language === "en" ? "楊朝棟 教授" : "Prof. Chao-Tung Yang"}
         </span>
       </p>
 
       <div className={`flex flex-wrap justify-center gap-2.5 ${compact ? "mt-5" : "mt-8"}`}>
-        {["LLM 微調", "K8s 裸機叢集", "多模態", "CubeCOS", "邊緣運算"].map((tag) => (
+        {(language === "en" ? ["LLM Fine-tuning", "Bare-metal K8s", "Multimodal AI", "CubeCOS", "Edge Computing"] : ["LLM 微調", "K8s 裸機叢集", "多模態", "CubeCOS", "邊緣運算"]).map((tag) => (
           <span key={tag} className={`chip font-medium ${compact ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-base"}`} style={{ color: "var(--text-dim)" }}>
             {tag}
           </span>
@@ -378,14 +382,14 @@ function HeroBody({
           className={`inline-flex items-center gap-2 rounded-full font-semibold transition-transform active:scale-95 ${compact ? "px-6 py-2.5 text-sm" : "px-7 py-3.5 text-lg"}`}
           style={{ background: "var(--text)", color: "var(--bg)" }}
         >
-          聯絡我們 <ArrowUpRight className="h-4 w-4" />
+          {t("聯絡我們", "Contact Us")} <ArrowUpRight className="h-4 w-4" />
         </a>
         <Link
           to="/gpus"
           className={`inline-flex items-center gap-2 rounded-full font-semibold transition-colors ${compact ? "px-6 py-2.5 text-sm" : "px-7 py-3.5 text-lg"}`}
           style={{ border: "1px solid var(--glass-border)" }}
         >
-          查看運算資源
+          {t("查看運算資源", "Explore Computing Resources")}
         </Link>
       </div>
     </div>
@@ -393,18 +397,20 @@ function HeroBody({
 }
 
 function HomeLiveOverview({ live }: { live: ReturnType<typeof useLiveTelemetry> }) {
+  const { t } = useLocale();
   return <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .45, duration: .65 }} className="home-live-overview">
-    <div className="home-live-intro"><span className="home-live-kicker"><span /> LIVE LAB</span><strong>實驗室算力，現在的狀態</strong><p>公開的即時遙測與設備盤點。數值來自實際採樣，未接入的機器保留連線狀態。</p></div>
-    <div className="home-live-numbers" aria-label="算力即時摘要">
-      <div><span>GPU 即時回報</span><strong>{live.gpuOnline ?? "—"}<small> / {live.gpuTotal ?? "—"} 張</small></strong></div>
-      <div><span>實體運算機器</span><strong>{live.nodesOnline ?? "—"}<small> 台</small></strong></div>
-      <div><span>端點可連線</span><strong>{live.endpoints?.up ?? "—"}<small> / {live.endpoints?.total ?? "—"}</small></strong></div>
+    <div className="home-live-intro"><span className="home-live-kicker"><span /> LIVE LAB</span><strong>{t("實驗室算力，現在的狀態", "Lab computing power, right now")}</strong><p>{t("公開的即時遙測與設備盤點。數值來自實際採樣，未接入的機器保留連線狀態。", "Live telemetry and a verified equipment inventory. Values come from real samples; other machines show connectivity status.")}</p></div>
+    <div className="home-live-numbers" aria-label={t("算力即時摘要", "Live computing summary")}>
+      <div><span>{t("GPU 即時回報", "GPUs reporting live")}</span><strong>{live.gpuOnline ?? "—"}<small> / {live.gpuTotal ?? "—"} {t("張", "GPUs")}</small></strong></div>
+      <div><span>{t("實體運算機器", "Physical machines")}</span><strong>{live.nodesOnline ?? "—"}<small> {t("台", "machines")}</small></strong></div>
+      <div><span>{t("端點可連線", "Reachable endpoints")}</span><strong>{live.endpoints?.up ?? "—"}<small> / {live.endpoints?.total ?? "—"}</small></strong></div>
     </div>
-    <div className="home-live-actions"><Link to="/gpus">查看節點監控 <ArrowUpRight size={16} /></Link><Link to="/infrastructure">叢集基礎設施 <ArrowUpRight size={16} /></Link></div>
+    <div className="home-live-actions"><Link to="/gpus">{t("查看節點監控", "View node monitoring")} <ArrowUpRight size={16} /></Link><Link to="/infrastructure">{t("叢集基礎設施", "Cluster infrastructure")} <ArrowUpRight size={16} /></Link></div>
   </motion.div>;
 }
 
 function LiveComputeCore({ live }: { live: ReturnType<typeof useLiveTelemetry> }) {
+  const { t } = useLocale();
   const load = live.busyRatio ?? 0.18;
   const loadLabel = live.busyRatio == null ? "AWAITING LIVE LINK" : `${Math.round(load * 100)}% ACTIVE LOAD`;
   return <motion.div
@@ -414,7 +420,7 @@ function LiveComputeCore({ live }: { live: ReturnType<typeof useLiveTelemetry> }
     transition={{ delay: 0.7, duration: 0.8 }}
     style={{ "--core-load": load } as React.CSSProperties}
     role="img"
-    aria-label={`即時運算核心，${loadLabel}`}
+    aria-label={`${t("即時運算核心", "Live compute core")}，${loadLabel}`}
   >
     <div className="core-orbit core-orbit-a"><i /><i /><i /></div>
     <div className="core-orbit core-orbit-b"><i /><i /></div>
@@ -426,6 +432,7 @@ function LiveComputeCore({ live }: { live: ReturnType<typeof useLiveTelemetry> }
 }
 
 function Home() {
+  const { t } = useLocale();
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [activeResearchId, setActiveResearchId] = useState<string | null>(null);
   const live = useLiveTelemetry();
@@ -482,9 +489,9 @@ function Home() {
             on ultra-wide monitors. */}
         <section id="research" className="home-section research-section relative left-1/2 right-1/2 -mx-[50vw] w-screen py-20 sm:py-28">
           <div className="mx-auto max-w-[1800px] px-5 sm:px-8">
-            <SectionEyebrow>研究領域</SectionEyebrow>
+            <SectionEyebrow>{t("研究領域", "Research Areas")}</SectionEyebrow>
             <h2 className="mt-3 max-w-2xl text-[clamp(1.75rem,4vw,2.75rem)] font-medium leading-tight">
-              六大研究領域，相互連結的技術系統
+              {t("六大研究領域，相互連結的技術系統", "Six connected areas of research")}
             </h2>
 
             <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-stretch">
@@ -514,12 +521,12 @@ function Home() {
         <div className="divider" />
 
         <section className="home-section py-16 sm:py-24">
-          <SectionEyebrow>研究與團隊</SectionEyebrow>
-          <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.75rem)] font-medium">認識我們的工作</h2>
+          <SectionEyebrow>{t("研究與團隊", "Research & Team")}</SectionEyebrow>
+          <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.75rem)] font-medium">{t("認識我們的工作", "Explore our work")}</h2>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <SystemLinkCard to="/projects" title="研究專案" desc={`探索 ${projects.length} 項代表性專案與應用成果。`} />
-            <SystemLinkCard to="/publications" title="論文著作" desc={`瀏覽目前收錄的 ${publications.length} 篇研究論文與發表資訊。`} />
-            <SystemLinkCard to="/people" title="研究成員" desc="認識指導教授、研究團隊與實驗室成員。" />
+            <SystemLinkCard to="/projects" title={t("研究專案", "Projects")} desc={t(`探索 ${projects.length} 項代表性專案與應用成果。`, `Explore ${projects.length} selected research projects and applications.`)} />
+            <SystemLinkCard to="/publications" title={t("論文著作", "Publications")} desc={t(`瀏覽目前收錄的 ${publications.length} 篇研究論文與發表資訊。`, `Browse ${publications.length} research papers and publication records.`)} />
+            <SystemLinkCard to="/people" title={t("研究成員", "People")} desc={t("認識指導教授、研究團隊與實驗室成員。", "Meet the principal investigator and lab members.")} />
           </div>
         </section>
 
@@ -529,10 +536,10 @@ function Home() {
         <section id="contact" className="home-section py-20 sm:py-28">
           <div className="mx-auto max-w-2xl">
             <div className="mb-10 text-center">
-              <SectionEyebrow center>聯絡我們</SectionEyebrow>
-              <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.5rem)] font-medium">有合作或研究興趣嗎？</h2>
+              <SectionEyebrow center>{t("聯絡我們", "Contact Us")}</SectionEyebrow>
+              <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.5rem)] font-medium">{t("有合作或研究興趣嗎？", "Interested in collaborating or joining us?")}</h2>
               <p className="mt-4 text-lg" style={{ color: "var(--text-dim)" }}>
-                歡迎留言與我們聯繫，我們會盡快回覆。
+                {t("歡迎留言與我們聯繫，我們會盡快回覆。", "Leave us a message and we will get back to you.")}
               </p>
             </div>
 
@@ -560,13 +567,13 @@ function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <p className="text-xl font-semibold">留言已送出</p>
-                    <p style={{ color: "var(--text-dim)" }}>感謝您的聯絡，我們將盡快回覆。</p>
+                    <p className="text-xl font-semibold">{t("留言已送出", "Message sent")}</p>
+                    <p style={{ color: "var(--text-dim)" }}>{t("感謝您的聯絡，我們將盡快回覆。", "Thank you for contacting us. We will reply as soon as we can.")}</p>
                     <button
                       onClick={() => setFormStatus("idle")}
                       className="mt-2 text-sm font-semibold underline-offset-4 hover:underline"
                     >
-                      再次留言
+                      {t("再次留言", "Send another message")}
                     </button>
                   </motion.div>
                 ) : (
@@ -578,17 +585,17 @@ function Home() {
                     className="flex flex-col gap-5 text-left"
                     onSubmit={handleSubmit}
                   >
-                    <Field label="姓名" name="name" type="text" required placeholder="您的稱呼" disabled={formStatus === "sending"} />
-                    <Field label="聯絡信箱" name="email" type="email" required placeholder="email@example.com" disabled={formStatus === "sending"} />
+                    <Field label={t("姓名", "Name")} name="name" type="text" required placeholder={t("您的稱呼", "Your name")} disabled={formStatus === "sending"} />
+                    <Field label={t("聯絡信箱", "Email address")} name="email" type="email" required placeholder="email@example.com" disabled={formStatus === "sending"} />
                     <div>
-                      <label htmlFor="contact-message" className="mb-2 block text-sm font-semibold" style={{ color: "var(--text-dim)" }}>留言內容</label>
+                      <label htmlFor="contact-message" className="mb-2 block text-sm font-semibold" style={{ color: "var(--text-dim)" }}>{t("留言內容", "Message")}</label>
                       <textarea
                         id="contact-message"
                         name="message"
                         required
                         rows={4}
                         disabled={formStatus === "sending"}
-                        placeholder="請描述您的需求"
+                        placeholder={t("請描述您的需求", "Tell us what you would like to discuss")}
                         className="w-full resize-none rounded-xl px-4 py-3.5 text-base transition-colors focus:outline-none disabled:opacity-50"
                         style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}
                       />
@@ -596,7 +603,7 @@ function Home() {
 
                     {formStatus === "error" && (
                       <p role="alert" className="text-center text-sm" style={{ color: "var(--critical)" }}>
-                        發送失敗，請稍後再試。
+                        {t("發送失敗，請稍後再試。", "Could not send the message. Please try again later.")}
                       </p>
                     )}
 
@@ -606,7 +613,7 @@ function Home() {
                       className="w-full rounded-full py-4 text-base font-semibold transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                       style={{ background: "var(--brand)", color: "var(--ink)" }}
                     >
-                      {formStatus === "sending" ? "傳送中…" : "傳送留言"}
+                      {formStatus === "sending" ? t("傳送中…", "Sending…") : t("傳送留言", "Send message")}
                     </button>
                   </motion.form>
                 )}
@@ -633,6 +640,7 @@ function SectionEyebrow({ children, center }: { children: React.ReactNode; cente
 }
 
 function SystemLinkCard({ to, title, desc }: { to: string; title: string; desc: string }) {
+  const { t } = useLocale();
   return (
     <Link to={to} className="group">
       <motion.div
@@ -656,7 +664,7 @@ function SystemLinkCard({ to, title, desc }: { to: string; title: string; desc: 
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-40" style={{ background: "var(--good)" }} />
             <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: "var(--good)" }} />
           </span>}
-          {to === "/gpus" ? "即時監控" : to === "/infrastructure" ? "資源盤點" : "瀏覽內容"}
+          {to === "/gpus" ? t("即時監控", "Live monitoring") : to === "/infrastructure" ? t("資源盤點", "Resource inventory") : t("瀏覽內容", "Explore")}
         </div>
       </motion.div>
     </Link>

@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { useMemo } from "react";
 import { researchAreas } from "../data/research";
+import { useLocale } from "../lib/locale";
 
 interface ResearchAreaBannerProps {
   activeId: string | null;
@@ -15,6 +16,7 @@ interface ResearchAreaBannerProps {
    and dim; hovering a node rolls the reel to its strip. */
 
 export function ResearchAreaBanner({ activeId, onActiveChange, onSelect }: ResearchAreaBannerProps) {
+  const { language, t } = useLocale();
   const reduceMotion = useMemo(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches, []);
   const compact = useMemo(() => window.matchMedia("(max-width: 639px)").matches, []);
   const H_INACTIVE = compact ? 46 : 58;
@@ -48,7 +50,7 @@ export function ResearchAreaBanner({ activeId, onActiveChange, onSelect }: Resea
     >
       {/* small persistent hint so the reel reads as interactive */}
       <div className="pointer-events-none absolute left-5 top-4 z-20 text-[10px] font-medium uppercase tracking-[0.2em] opacity-40 sm:left-8">
-        Research · Hover to explore
+        {t("研究領域 · 將滑鼠移上以探索", "Research · Hover to explore")}
       </div>
 
       {/* center focus line — where the active strip lands */}
@@ -87,9 +89,9 @@ export function ResearchAreaBanner({ activeId, onActiveChange, onSelect }: Resea
                   className="text-lg font-medium uppercase leading-tight tracking-tight transition-colors sm:text-xl"
                   style={{ color: isActive ? "var(--brand-light, #c9b8a0)" : "inherit" }}
                 >
-                  {area.titleEn}
+                  {language === "en" ? area.titleEn : area.titleZh}
                 </span>
-                {!isActive && <span className="ml-auto text-xs opacity-50">{area.titleZh}</span>}
+                {!isActive && <span className="ml-auto text-xs opacity-50">{language === "en" ? area.titleZh : area.titleEn}</span>}
               </div>
 
               {isActive && (
@@ -98,8 +100,8 @@ export function ResearchAreaBanner({ activeId, onActiveChange, onSelect }: Resea
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <p className="mt-1 text-sm opacity-60">{area.titleZh}</p>
-                  <p className="mt-3 max-w-md text-sm leading-relaxed opacity-80">{area.descriptionZh}</p>
+                  <p className="mt-1 text-sm opacity-60">{language === "en" ? area.titleZh : area.titleEn}</p>
+                  <p className="mt-3 max-w-md text-sm leading-relaxed opacity-80">{language === "en" ? area.descriptionEn : area.descriptionZh}</p>
                   <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
                     {area.keywords.map((kw) => (
                       <li key={kw} className="text-xs font-medium uppercase tracking-[0.1em]" style={{ color: "var(--brand-light, #c9b8a0)" }}>

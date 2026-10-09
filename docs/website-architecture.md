@@ -1,6 +1,6 @@
 # HPC Lab 網站架構與維護手冊
 
-更新：2026-10-08。接手開發請先看[交接手冊](handoff-2026-10-08.md)；硬體覆蓋現況另見 [exporter-rollout-2026-10-03.md](exporter-rollout-2026-10-03.md)。
+更新：2026-10-10。接手開發請先看[交接手冊](handoff-2026-10-08.md)；硬體覆蓋現況另見 [exporter-rollout-2026-10-03.md](exporter-rollout-2026-10-03.md)。
 
 ## 1. 系統邊界
 
@@ -26,6 +26,7 @@ flowchart LR
 | --- | --- | --- |
 | 路由與首頁 | `src/App.tsx` | 路由表、首頁 Hero、首頁即時摘要與聯絡表單。新增頁面時在路由表與 `src/lib/constants.ts` 的選單同步登記。 |
 | 共用導覽 | `src/components/layout/Navigation.tsx`、`MenuOverlay.tsx`、`Footer.tsx` | 頂部導覽、手機選單、明暗主題及頁尾。全站 bar 由同一元件輸出。 |
+| 多語介面 | `src/lib/locale.tsx`、各頁元件、`src/data/*.ts` | `LocaleProvider` 提供 `zh-TW`／`en` 和 `t(中文,英文)`；導覽列切換後存於瀏覽器 `hpclab-language`，並更新 `<html lang>`。新固定文案應補齊兩種語言；資料模組有 `descriptionEn` 等欄位時同步維護。成員自行填寫的自由文字與論文原題保留原文，研究方向等固定選項只翻譯顯示標籤，不改資料庫值。 |
 | 算力監控 | `src/components/GpuFleet.tsx`、`MonitoringChrome.tsx` | 5 秒輪詢、精簡節點卡片、篩選、詳情側欄、歷史圖表。`?machine=<清冊 ID>` 可直接開啟節點。 |
 | 叢集資訊 | `src/components/Infrastructure.tsx` | 讀取帶日期的叢集快照；不能把快照當作即時監控。 |
 | 靜態內容 | `src/data/*.ts`、`src/components/pages/*.tsx`、`public/images/` | 研究、專案、成員、論文、新聞等資料與頁面。新增內容優先編輯資料模組。教授肖像是 `public/images/professor-yang.jpg`，來源為東海大學官方簡歷，於 `PeoplePage.tsx` 顯示原始長寬比。`/research` 轉至首頁研究區。 |

@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { researchAreas } from "../data/research";
 import { lab } from "../data/lab";
 import { useControllableState } from "../lib/useControllableState";
+import { useLocale } from "../lib/locale";
 
 const RADIUS_PCT = 38;
 
@@ -29,6 +30,7 @@ interface ResearchNetworkGraphProps {
    central lab hub. Shared between the Hero (here) and the future Research
    Network section (Phase 4) so the visualization isn't built twice. */
 export function ResearchNetworkGraph({ compact = false, activeId: activeIdProp, onActiveChange }: ResearchNetworkGraphProps) {
+  const { language, t } = useLocale();
   const [activeId, setActiveId] = useControllableState(activeIdProp, onActiveChange, null as string | null);
   const active = researchAreas.find((a) => a.id === activeId) ?? null;
   const total = researchAreas.length;
@@ -97,7 +99,7 @@ export function ResearchNetworkGraph({ compact = false, activeId: activeIdProp, 
                 className="whitespace-nowrap text-xs font-medium uppercase tracking-[0.1em] sm:text-sm"
                 style={{ color: "#f3f4f6", opacity: isActive ? 1 : 0.85 }}
               >
-                {area.titleEn}
+                {language === "en" ? area.titleEn : area.titleZh}
               </span>
             </Link>
           );
@@ -106,7 +108,7 @@ export function ResearchNetworkGraph({ compact = false, activeId: activeIdProp, 
         {!compact && (
           <div className="pointer-events-none absolute inset-x-0 bottom-[-72px] flex justify-center px-4 text-center">
             <p className="max-w-md text-sm leading-relaxed opacity-75 sm:text-base" style={{ color: "#f3f4f6" }}>
-              {active ? active.descriptionZh : "將滑鼠移到節點上,探索六大研究領域"}
+              {active ? (language === "en" ? active.descriptionEn : active.descriptionZh) : t("將滑鼠移到節點上，探索六大研究領域", "Hover over a node to explore our six research areas")}
             </p>
           </div>
         )}
@@ -123,7 +125,7 @@ export function ResearchNetworkGraph({ compact = false, activeId: activeIdProp, 
           >
             <p className="font-mono text-[10px] opacity-50">{area.index}</p>
             <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "#f3f4f6" }}>
-              {area.titleEn}
+              {language === "en" ? area.titleEn : area.titleZh}
             </p>
           </Link>
         ))}

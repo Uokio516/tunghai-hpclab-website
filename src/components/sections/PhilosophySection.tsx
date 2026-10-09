@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useLocale } from "../../lib/locale";
 
 const LINES = [
   "We do not build technology",
@@ -12,10 +13,12 @@ const LINES = [
    it plays a single time when it enters the viewport and then stays put —
    no replaying as the user scrolls back and forth. */
 export function PhilosophySection() {
+  const { language } = useLocale();
+  const lines = language === "en" ? LINES : ["我們探索技術，", "也思考技術的意義。", "當計算化為理解，", "新的可能便由此展開。"];
   return (
     <section className="relative mx-auto max-w-7xl px-6 py-28 sm:px-10 sm:py-40">
       <h2 className="max-w-4xl text-[clamp(1.75rem,5vw,3.75rem)] font-medium uppercase leading-[1.08] tracking-tight">
-        {LINES.map((line, i) => (
+        {lines.map((line, i) => (
           <motion.span
             key={line}
             className="block"

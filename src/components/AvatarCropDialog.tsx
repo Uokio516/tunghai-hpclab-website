@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { createPortal } from "react-dom";
+import { useLocale } from "../lib/locale";
 
 type Crop = { x: number; y: number; size: number };
 type Dimensions = { width: number; height: number };
@@ -14,6 +15,7 @@ export function AvatarCropDialog({ file, onCancel, onConfirm }: {
   onCancel: () => void;
   onConfirm: (cropped: File) => void;
 }) {
+  const { t } = useLocale();
   const [src, setSrc] = useState("");
   const [dimensions, setDimensions] = useState<Dimensions | null>(null);
   const [crop, setCrop] = useState<Crop | null>(null);
@@ -55,11 +57,11 @@ export function AvatarCropDialog({ file, onCancel, onConfirm }: {
     const width = image.naturalWidth;
     const height = image.naturalHeight;
     if (width < MIN_CROP_SIZE || height < MIN_CROP_SIZE) {
-      setError("照片長寬都需要至少 200 像素，請換一張照片。");
+      setError(t("照片長寬都需要至少 200 像素，請換一張照片。", "The photo must be at least 200 × 200 pixels. Please choose another photo."));
       return;
     }
     if (width * height > 25_000_000) {
-      setError("照片解析度過高，請先縮小至 2500 萬像素以下。");
+      setError(t("照片解析度過高，請先縮小至 2500 萬像素以下。", "The photo is too large. Please reduce it below 25 megapixels."));
       return;
     }
     const size = Math.min(width, height);
@@ -113,15 +115,15 @@ export function AvatarCropDialog({ file, onCancel, onConfirm }: {
       canvas.width = OUTPUT_SIZE;
       canvas.height = OUTPUT_SIZE;
       const context = canvas.getContext("2d");
-      if (!context) throw new Error("此瀏覽器無法裁切照片。");
+      if (!context) throw new Error(t("此瀏覽器無法裁切照片。", "This browser cannot crop photos."));
       context.imageSmoothingQuality = "high";
       context.drawImage(image, crop.x, crop.y, crop.size, crop.size, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
       const blob = await new Promise<Blob>((resolve, reject) =>
-        canvas.toBlob(result => result ? resolve(result) : reject(new Error("裁切失敗，請再試一次。")), "image/webp", 0.86));
+        canvas.toBlob(result => result ? resolve(result) : reject(new Error(t("裁切失敗，請再試一次。", "Cropping failed. Please try again."))), "image/webp", 0.86));
       const isWebp = blob.type === "image/webp";
       onConfirm(new File([blob], isWebp ? "avatar.webp" : "avatar.png", { type: blob.type }));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "裁切失敗，請再試一次。");
+      setError(cause instanceof Error ? cause.message : t("裁切失敗，請再試一次。", "Cropping failed. Please try again."));
       setBusy(false);
     }
   };
@@ -130,12 +132,12 @@ export function AvatarCropDialog({ file, onCancel, onConfirm }: {
     <div className="member-crop-backdrop">
       <div ref={dialogRef} className="member-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="member-crop-title">
         <div className="member-crop-header">
-          <div><h2 id="member-crop-title">調整頭像照片</h2><p>拖動方框選取位置，拖動右下角或使用滑桿調整大小。</p></div>
-          <button ref={closeRef} type="button" className="member-crop-close" onClick={onCancel} disabled={busy} aria-label="取消裁切">✕</button>
+          <div><h2 id="member-crop-title">{t("調整頭像照片", "Adjust your portrait")}</h2><p>{t("拖動方框選取位置，拖動右下角或使用滑桿調整大小。", "Drag the frame to position it. Drag its lower-right corner or use the sliders to resize it.")}</p></div>
+          <button ref={closeRef} type="button" className="member-crop-close" onClick={onCancel} disabled={busy} aria-label={t("取消裁切", "Cancel cropping")}>✕</button>
         </div>
         <div className="member-crop-stage">
           <div className="member-crop-image-wrap">
-            <img ref={imageRef} src={src} alt="待裁切的照片" onLoad={imageLoaded} onError={() => setError("無法讀取這張照片，請選擇其他檔案。")} />
+            <img ref={imageRef} src={src} alt={t("待裁切的照片", "Photo to crop")} onLoad={imageLoaded} onError={() => setError(t("無法讀取這張照片，請選擇其他檔案。", "This photo could not be opened. Please choose another file."))} />
             {crop && dimensions && <div className="member-crop-frame"
               style={{ left: `${crop.x / dimensions.width * 100}%`, top: `${crop.y / dimensions.height * 100}%`,
                 width: `${crop.size / dimensions.width * 100}%`, height: `${crop.size / dimensions.height * 100}%` }}
@@ -150,17 +152,17 @@ export function AvatarCropDialog({ file, onCancel, onConfirm }: {
           </div>
         </div>
         {crop && dimensions && <div className="member-crop-sliders">
-          <label>裁切框大小 <input type="range" min={MIN_CROP_SIZE} max={Math.min(dimensions.width, dimensions.height)} step="1"
+          <label>{t("裁切框大小", "Crop size")} <input type="range" min={MIN_CROP_SIZE} max={Math.min(dimensions.width, dimensions.height)} step="1"
             value={Math.round(crop.size)} onChange={event => changeSize(Number(event.target.value))} /></label>
-          <label>左右位置 <input type="range" min="0" max={Math.max(0, dimensions.width - crop.size)} step="1"
+          <label>{t("左右位置", "Horizontal position")} <input type="range" min="0" max={Math.max(0, dimensions.width - crop.size)} step="1"
             value={Math.round(crop.x)} onChange={event => setCrop(current => current ? { ...current, x: Number(event.target.value) } : current)} /></label>
-          <label>上下位置 <input type="range" min="0" max={Math.max(0, dimensions.height - crop.size)} step="1"
+          <label>{t("上下位置", "Vertical position")} <input type="range" min="0" max={Math.max(0, dimensions.height - crop.size)} step="1"
             value={Math.round(crop.y)} onChange={event => setCrop(current => current ? { ...current, y: Number(event.target.value) } : current)} /></label>
         </div>}
         {error && <p className="member-error" role="alert">{error}</p>}
         <div className="member-crop-actions">
-          <button type="button" className="member-crop-cancel" onClick={onCancel} disabled={busy}>取消</button>
-          <button type="button" className="member-primary" onClick={confirm} disabled={!crop || busy}>{busy ? "裁切中…" : "確認裁切"}</button>
+          <button type="button" className="member-crop-cancel" onClick={onCancel} disabled={busy}>{t("取消", "Cancel")}</button>
+          <button type="button" className="member-primary" onClick={confirm} disabled={!crop || busy}>{busy ? t("裁切中…", "Cropping…") : t("確認裁切", "Save crop")}</button>
         </div>
       </div>
     </div>, document.body,

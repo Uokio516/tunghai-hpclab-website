@@ -3,6 +3,7 @@ export interface NewsItem {
   date: string;
   category: string;
   titleZh: string;
+  titleEn?: string;
 }
 
 // No confirmed news items yet — populate as real announcements come in,

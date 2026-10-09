@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
 import { navItems } from "../../lib/constants";
+import { useLocale } from "../../lib/locale";
 
 interface MenuOverlayProps {
   open: boolean;
@@ -10,6 +11,7 @@ interface MenuOverlayProps {
 }
 
 export function MenuOverlay({ open, onClose }: MenuOverlayProps) {
+  const { language, setLanguage, t } = useLocale();
   const dialog = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -38,7 +40,7 @@ export function MenuOverlay({ open, onClose }: MenuOverlayProps) {
           ref={dialog}
           role="dialog"
           aria-modal="true"
-          aria-label="主選單"
+          aria-label={t("主選單", "Main menu")}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -52,7 +54,7 @@ export function MenuOverlay({ open, onClose }: MenuOverlayProps) {
             onClick={onClose}
             className="fixed right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border"
             style={{ borderColor: "rgba(255,255,255,0.22)", color: "#f3f4f6", background: "rgba(5,7,11,0.82)" }}
-            aria-label="關閉選單"
+            aria-label={t("關閉選單", "Close menu")}
           >
             <X size={19} />
           </button>
@@ -74,14 +76,15 @@ export function MenuOverlay({ open, onClose }: MenuOverlayProps) {
                 >
                   <span className="font-mono text-xs opacity-40">{item.index}</span>
                   <span className="mobile-menu-title font-medium uppercase tracking-tight transition-transform group-hover:translate-x-2">
-                    {item.labelZh}
+                    {language === "en" ? item.labelEn : item.labelZh}
                   </span>
                   <span className="ml-auto hidden text-xs uppercase tracking-[0.15em] opacity-40 sm:inline">
-                    {item.labelEn}
+                    {language === "en" ? item.labelZh : item.labelEn}
                   </span>
                 </Link>
               </motion.div>
             ))}
+            <button type="button" className="mobile-menu-language" onClick={() => setLanguage(language === "en" ? "zh-TW" : "en")}>{t("English version ↗", "繁體中文 ↗")}</button>
           </nav>
         </motion.div>
       )}

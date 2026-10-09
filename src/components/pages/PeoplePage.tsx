@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { people } from "../../data/people";
 import { professor, lab } from "../../data/lab";
-import { memberCaption, type PublicMember } from "../../lib/memberProfiles";
+import { localizedInterest, localizedMemberCaption, type PublicMember } from "../../lib/memberProfiles";
+import { useLocale } from "../../lib/locale";
 
 export function PeoplePage() {
+  const { language, t } = useLocale();
   const pi = people.find((p) => p.role === "pi");
   const [members, setMembers] = useState<PublicMember[]>([]);
   const [loadError, setLoadError] = useState(false);
@@ -14,21 +16,21 @@ export function PeoplePage() {
   const alumni = members.filter(member => member.role === "alumni");
   const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => {
     const badges = member.rgbBadges ?? [];
-    const badgeLabel = (value: string, index: number) => <span key={`${member.id}-${index}`} className="member-ai-button">{value}</span>;
-    const customBadges = badges.map((badge, index) => badge.kind === "custom" ? badgeLabel(badge.value, index) : null);
+    const badgeLabel = (value: string, index: number, custom = false) => <span key={`${member.id}-${index}`} className="member-ai-button">{custom ? value : localizedInterest(value, language)}</span>;
+    const customBadges = badges.map((badge, index) => badge.kind === "custom" ? badgeLabel(badge.value, index, true) : null);
     const firstInterestBadge = badges.findIndex(badge => badge.kind === "interest" && member.interests.slice(0, 3).includes(badge.value));
     return <li key={member.id} className="member-public-card member-public-card-tile" data-has-rgb={badges.length ? "true" : undefined}>
-      <Link to={`/people/${member.id}`} className="member-card-cover" aria-label={`查看${member.displayNameZh}的個人經歷`} data-cursor-hover />
-      <div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={`${member.displayNameZh} 的頭像`} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div>
-      <div className="member-public-summary"><span className="member-public-role">{memberCaption(member)}</span><h3>{member.displayNameZh}</h3>{member.displayNameEn && <p>{member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}
-        {(member.interests.length > 0 || badges.length > 0) && <div className="member-public-tags">{member.interests.slice(0, 3).flatMap(tag => { const index = badges.findIndex(badge => badge.kind === "interest" && badge.value === tag); return index >= 0 ? [badgeLabel(tag, index), ...(index === firstInterestBadge ? customBadges : [])] : [<span key={tag}>{tag}</span>]; })}{firstInterestBadge < 0 && customBadges}</div>}
-        <span className="member-card-more">查看個人經歷 ↗</span>
+      <Link to={`/people/${member.id}`} className="member-card-cover" aria-label={t(`查看${member.displayNameZh}的個人經歷`, `View ${member.displayNameEn || member.displayNameZh}'s profile`)} data-cursor-hover />
+      <div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={t(`${member.displayNameZh} 的頭像`, `Portrait of ${member.displayNameEn || member.displayNameZh}`)} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div>
+      <div className="member-public-summary"><span className="member-public-role">{localizedMemberCaption(member, language)}</span><h3>{language === "en" ? member.displayNameEn || member.displayNameZh : member.displayNameZh}</h3>{member.displayNameEn && <p>{language === "en" ? member.displayNameZh : member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}
+        {(member.interests.length > 0 || badges.length > 0) && <div className="member-public-tags">{member.interests.slice(0, 3).flatMap(tag => { const index = badges.findIndex(badge => badge.kind === "interest" && badge.value === tag); return index >= 0 ? [badgeLabel(tag, index), ...(index === firstInterestBadge ? customBadges : [])] : [<span key={tag}>{localizedInterest(tag, language)}</span>]; })}{firstInterestBadge < 0 && customBadges}</div>}
+        <span className="member-card-more">{t("查看個人經歷 ↗", "View profile ↗")}</span>
       </div>
     </li>;
   })}</ul>;
 
   return (
-    <PageShell eyebrow="People" title="研究成員" lede="由人、想法與實驗構成的研究網絡。">
+    <PageShell eyebrow="People" title={t("研究成員", "People")} lede={t("由人、想法與實驗構成的研究網絡。", "A research community built on people, ideas and experiments.")}>
       <section className="mx-auto max-w-7xl px-6 pb-28 sm:px-10 sm:pb-40">
         {pi && (
           <div className="border-t pt-10" style={{ borderColor: "var(--border)" }}>
@@ -38,16 +40,16 @@ export function PeoplePage() {
             <div className="flex flex-col gap-8 lg:flex-row lg:gap-16">
               <div className="member-pi-identity lg:w-2/5">
                 <figure className="member-pi-portrait">
-                  <img src="/images/professor-yang.jpg" alt="楊朝棟教授肖像" width="1006" height="1130" decoding="async" />
+                  <img src="/images/professor-yang.jpg" alt={t("楊朝棟教授肖像", "Portrait of Prof. Chao-Tung Yang")} width="1006" height="1130" decoding="async" />
                 </figure>
                 <div className="member-pi-name">
                   <h2 className="text-[clamp(1.75rem,4vw,3rem)] font-medium leading-tight tracking-tight">
-                    {pi.nameZh}
+                    {language === "en" ? pi.nameEn : pi.nameZh}
                   </h2>
-                  <p className="mt-2 text-lg uppercase tracking-[0.08em] opacity-70">{pi.nameEn}</p>
-                  <p className="mt-4 text-base opacity-70">{pi.titleZh}</p>
+                  <p className="mt-2 text-lg uppercase tracking-[0.08em] opacity-70">{language === "en" ? pi.nameZh : pi.nameEn}</p>
+                  <p className="mt-4 text-base opacity-70">{t(pi.titleZh, "Lifetime Distinguished Professor / Lab Director")}</p>
                   <p className="mt-1 text-sm opacity-55">
-                    {lab.university} {lab.department}
+                    {language === "en" ? `${lab.universityEn} · ${lab.departmentEn}` : `${lab.university} ${lab.department}`}
                   </p>
                 </div>
               </div>
@@ -55,11 +57,11 @@ export function PeoplePage() {
               <div className="lg:w-3/5">
                 <dl className="space-y-5">
                   <div>
-                    <dt className="mb-2 text-xs font-medium uppercase tracking-[0.15em] opacity-45">學歷</dt>
+                    <dt className="mb-2 text-xs font-medium uppercase tracking-[0.15em] opacity-45">{t("學歷", "Education")}</dt>
                     <dd className="space-y-1">
                       {professor.education.map((e) => (
                         <p key={e.degree} className="text-sm opacity-80">
-                          {e.degree} · {e.school} {e.field}
+                          {language === "en" ? `${e.degreeEn} · ${e.schoolEn}, ${e.fieldEn}` : `${e.degree} · ${e.school} ${e.field}`}
                           <span className="ml-2 font-mono text-xs tabular-nums opacity-55">{e.year}</span>
                         </p>
                       ))}
@@ -67,9 +69,9 @@ export function PeoplePage() {
                   </div>
 
                   <div>
-                    <dt className="mb-2 text-xs font-medium uppercase tracking-[0.15em] opacity-45">現職</dt>
+                    <dt className="mb-2 text-xs font-medium uppercase tracking-[0.15em] opacity-45">{t("現職", "Current Roles")}</dt>
                     <dd className="space-y-1">
-                      {professor.roles.map((r) => (
+                      {(language === "en" ? professor.rolesEn : professor.roles).map((r) => (
                         <p key={r} className="text-sm opacity-80">
                           {r}
                         </p>
@@ -78,7 +80,7 @@ export function PeoplePage() {
                   </div>
 
                   <div>
-                    <dt className="mb-2 text-xs font-medium uppercase tracking-[0.15em] opacity-45">學術檔案</dt>
+                    <dt className="mb-2 text-xs font-medium uppercase tracking-[0.15em] opacity-45">{t("學術檔案", "Academic Profiles")}</dt>
                     <dd className="flex flex-wrap gap-x-5 gap-y-2">
                       <a
                         href={professor.profileUrl}
@@ -88,7 +90,7 @@ export function PeoplePage() {
                         className="text-sm underline underline-offset-4 transition-opacity hover:opacity-70"
                         style={{ color: "var(--brand-light)" }}
                       >
-                        東海大學官方簡歷
+                        {t("東海大學官方簡歷", "Official Tunghai Profile")}
                       </a>
                       <a
                         href={professor.dblpUrl}
@@ -130,12 +132,12 @@ export function PeoplePage() {
 
         <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}>
           <p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">
-            碩一與碩二
+            {t("碩一與碩二", "Master's Students")}
           </p>
-          {current.length ? cards(current) : <EmptyState message={loadError ? "成員名單暫時無法載入。" : "碩一與碩二可登入填寫資料，並自行決定是否公開。"} />}
+          {current.length ? cards(current) : <EmptyState message={loadError ? t("成員名單暫時無法載入。", "The member list is temporarily unavailable.") : t("碩一與碩二可登入填寫資料，並自行決定是否公開。", "Master's students can sign in, complete their profiles and choose whether to publish them.")} />}
         </div>
-        <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}><p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">實驗室畢業學長姊</p>{alumni.length ? cards(alumni) : <EmptyState message="實驗室畢業學長姊可登入填寫資料，並自行決定是否公開。" />}</div>
-        <div className="member-people-footer">已收到實驗室邀請？<Link to="/member/login">登入並更新自己的資料 ↗</Link></div>
+        <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}><p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">{t("實驗室畢業學長姊", "Alumni")}</p>{alumni.length ? cards(alumni) : <EmptyState message={t("實驗室畢業學長姊可登入填寫資料，並自行決定是否公開。", "Alumni can sign in, complete their profiles and choose whether to publish them.")} />}</div>
+        <div className="member-people-footer">{t("已收到實驗室邀請？", "Have a lab invitation?")}<Link to="/member/login">{t("登入並更新自己的資料 ↗", "Sign in and update your profile ↗")}</Link></div>
       </section>
     </PageShell>
   );
