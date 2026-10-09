@@ -8,7 +8,7 @@ type Style = "swing" | "rain" | "bossa" | "waltz";
 type Track = { id: string; name: string; mood: string; bpm: number; style: Style; chords: readonly Chord[] };
 const VOLUME_KEY = "hpclab-cafe-volume";
 const TRACK_KEY = "hpclab-cafe-track";
-const MASTER_LEVEL = 0.82;
+const MASTER_LEVEL = 1.1;
 const TRACKS: readonly Track[] = [
   { id: "cafe-session", name: "Café Session", mood: "柔和爵士", bpm: 76, style: "swing", chords: [
     { bass: 36, keys: [60, 64, 67, 71, 74], melody: [76, 79, 74, 71] },
@@ -226,7 +226,7 @@ export function AmbientAudio() {
   const [volume, setVolume] = useState(() => {
     const saved = localStorage.getItem(VOLUME_KEY);
     const stored = saved === null ? NaN : Number(saved);
-    return Number.isFinite(stored) && stored >= 0 && stored <= 1 ? stored : 0.68;
+    return Number.isFinite(stored) && stored >= 0 && stored <= 1 ? stored : 0.9;
   });
 
   useEffect(() => () => { stopRef.current(); void ctxRef.current?.close(); }, []);
