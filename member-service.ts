@@ -40,6 +40,22 @@ CREATE TABLE IF NOT EXISTS password_resets (
   token_hash TEXT PRIMARY KEY, account_id INTEGER NOT NULL REFERENCES accounts(id),
   expires_at INTEGER NOT NULL
 );`);
+// A separate administrator-owned directory needs no email or member account.
+await db.exec(`CREATE TABLE IF NOT EXISTS directory (
+  id INTEGER PRIMARY KEY, name TEXT NOT NULL, role TEXT NOT NULL,
+  graduation_year TEXT NOT NULL DEFAULT '', study_start TEXT NOT NULL DEFAULT '',
+  study_end TEXT NOT NULL DEFAULT '', updated_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS directory_migrations (id INTEGER PRIMARY KEY);`);
+if (!await db.get("SELECT id FROM directory_migrations WHERE id=1")) {
+  await db.exec(`BEGIN IMMEDIATE;
+    INSERT INTO directory(name,role,graduation_year,updated_at)
+      SELECT COALESCE(json_extract(p.published_json,'$.displayNameZh'),a.name),a.role,
+        COALESCE(json_extract(p.published_json,'$.graduationYear'),''),a.created_at
+      FROM accounts a JOIN profiles p ON p.account_id=a.id WHERE p.published_json IS NOT NULL;
+    INSERT INTO directory_migrations(id) VALUES(1);
+    COMMIT;`);
+}
 // sqlite's single connection does not isolate overlapping async handlers by
 // itself. Serialize the few multi-statement writes before BEGIN/COMMIT.
 let transactionTail = Promise.resolve();
@@ -186,6 +202,40 @@ async function issueSession(res: Response, accountId: number) {
   await db.run("INSERT INTO sessions (token_hash, account_id, expires_at) VALUES (?, ?, ?)", digest(value), accountId, unix() + 7 * 86_400_000);
   setSession(res, value);
 }
+
+const directoryRows = () => db.all("SELECT id,name,role,graduation_year AS graduationYear,study_start AS studyStart,study_end AS studyEnd FROM directory ORDER BY CASE role WHEN 'master1' THEN 0 WHEN 'master2' THEN 1 ELSE 2 END,graduation_year DESC,name,id");
+function safeDirectory(input: any) {
+  if (!input || typeof input.name !== "string" || !input.name.trim() || input.name.trim().length > 40 || !roles.includes(input.role)) return null;
+  const graduationYear = input.graduationYear ?? "";
+  const studyStart = input.studyStart ?? "";
+  const studyEnd = input.studyEnd ?? "";
+  const validMonth = (value: unknown) => typeof value === "string" && (!value || /^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(value));
+  if (typeof graduationYear !== "string" || (graduationYear && !/^(19|20|21)\d{2}$/.test(graduationYear)) || !validMonth(studyStart) || !validMonth(studyEnd)) return null;
+  if (studyEnd && !studyStart || studyStart && studyEnd && studyEnd < studyStart) return null;
+  return { name: input.name.trim(), role: input.role as Role, graduationYear: input.role === "alumni" ? graduationYear : "", studyStart, studyEnd };
+}
+app.get("/directory", wrap(async (_req, res) => res.json({ members: await directoryRows() })));
+app.get("/admin/directory", wrap(async (_req, res) => res.json({ members: await directoryRows() })));
+app.post("/admin/directory", wrap(async (req, res) => {
+  const item = safeDirectory(req.body);
+  if (!item) return res.status(400).json({ error: "名單格式錯誤，請檢查姓名、年份與起訖年月" });
+  const result = await db.run("INSERT INTO directory(name,role,graduation_year,study_start,study_end,updated_at) VALUES(?,?,?,?,?,?)", item.name,item.role,item.graduationYear,item.studyStart,item.studyEnd,unix());
+  res.status(201).json({ id: result.lastID });
+}));
+app.put("/admin/directory/:id", wrap(async (req, res) => {
+  if (!safeId(req.params.id)) return res.status(404).end();
+  const item = safeDirectory(req.body);
+  if (!item) return res.status(400).json({ error: "名單格式錯誤，請檢查姓名、年份與起訖年月" });
+  const result = await db.run("UPDATE directory SET name=?,role=?,graduation_year=?,study_start=?,study_end=?,updated_at=? WHERE id=?",item.name,item.role,item.graduationYear,item.studyStart,item.studyEnd,unix(),req.params.id);
+  if (!result.changes) return res.status(404).json({ error: "找不到名單資料" });
+  res.json({ ok: true });
+}));
+app.delete("/admin/directory/:id", wrap(async (req, res) => {
+  if (!safeId(req.params.id)) return res.status(404).end();
+  const result = await db.run("DELETE FROM directory WHERE id=?",req.params.id);
+  if (!result.changes) return res.status(404).json({ error: "找不到名單資料" });
+  res.json({ ok: true });
+}));
 
 app.post("/admin/invites", wrap(async (req, res) => {
   const entries = Array.isArray(req.body?.entries) ? req.body.entries : [];

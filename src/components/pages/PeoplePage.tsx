@@ -1,33 +1,18 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { people } from "../../data/people";
 import { professor, lab } from "../../data/lab";
-import { localizedInterest, localizedMemberCaption, type PublicMember } from "../../lib/memberProfiles";
+import { directoryRoleLabel, studyPeriod, type DirectoryMember, type DirectoryRole } from "../../lib/memberDirectory";
 import { useLocale } from "../../lib/locale";
 
 export function PeoplePage() {
   const { language, t } = useLocale();
   const pi = people.find((p) => p.role === "pi");
-  const [members, setMembers] = useState<PublicMember[]>([]);
+  const [members, setMembers] = useState<DirectoryMember[]>([]);
   const [loadError, setLoadError] = useState(false);
-  useEffect(() => { const controller = new AbortController(); fetch("/api/members/public", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
-  const current = members.filter(member => member.role === "master1" || member.role === "master2");
-  const alumni = members.filter(member => member.role === "alumni");
-  const cards = (items: PublicMember[]) => <ul className="member-public-grid">{items.map(member => {
-    const badges = member.rgbBadges ?? [];
-    const badgeLabel = (value: string, index: number, custom = false) => <span key={`${member.id}-${index}`} className="member-ai-button">{custom ? value : localizedInterest(value, language)}</span>;
-    const customBadges = badges.map((badge, index) => badge.kind === "custom" ? badgeLabel(badge.value, index, true) : null);
-    const firstInterestBadge = badges.findIndex(badge => badge.kind === "interest" && member.interests.slice(0, 3).includes(badge.value));
-    return <li key={member.id} className="member-public-card member-public-card-tile" data-has-rgb={badges.length ? "true" : undefined}>
-      <Link to={`/people/${member.id}`} className="member-card-cover" aria-label={t(`查看${member.displayNameZh}的個人經歷`, `View ${member.displayNameEn || member.displayNameZh}'s profile`)} data-cursor-hover />
-      <div className="member-public-avatar">{member.avatarUrl ? <img src={member.avatarUrl} alt={t(`${member.displayNameZh} 的頭像`, `Portrait of ${member.displayNameEn || member.displayNameZh}`)} loading="lazy" /> : <span>{member.displayNameZh.slice(0, 1)}</span>}</div>
-      <div className="member-public-summary"><span className="member-public-role">{localizedMemberCaption(member, language)}</span><h3>{language === "en" ? member.displayNameEn || member.displayNameZh : member.displayNameZh}</h3>{member.displayNameEn && <p>{language === "en" ? member.displayNameZh : member.displayNameEn}</p>}{member.bio && <p className="member-public-bio">{member.bio}</p>}
-        {(member.interests.length > 0 || badges.length > 0) && <div className="member-public-tags">{member.interests.slice(0, 3).flatMap(tag => { const index = badges.findIndex(badge => badge.kind === "interest" && badge.value === tag); return index >= 0 ? [badgeLabel(tag, index), ...(index === firstInterestBadge ? customBadges : [])] : [<span key={tag}>{localizedInterest(tag, language)}</span>]; })}{firstInterestBadge < 0 && customBadges}</div>}
-        <span className="member-card-more">{t("查看個人經歷 ↗", "View profile ↗")}</span>
-      </div>
-    </li>;
-  })}</ul>;
+  useEffect(() => { const controller = new AbortController(); fetch("/api/members/directory", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
+  const groups: DirectoryRole[] = ["master1", "master2", "alumni"];
+  const cards = (items: DirectoryMember[]) => <ul className="directory-grid">{items.map(member => <li className="member-panel directory-card" key={member.id}><h3>{member.name}</h3>{member.role === "alumni" && member.graduationYear && <p>{t(`${member.graduationYear} ???`, `Graduated ${member.graduationYear}`)}</p>}{studyPeriod(member,language) && <p className="member-hint">{studyPeriod(member,language)}</p>}</li>)}</ul>;
 
   return (
     <PageShell eyebrow="People" title={t("研究成員", "People")} lede={t("由人、想法與實驗構成的研究網絡。", "A research community built on people, ideas and experiments.")}>
@@ -130,14 +115,7 @@ export function PeoplePage() {
           </div>
         )}
 
-        <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}>
-          <p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">
-            {t("碩一與碩二", "Master's Students")}
-          </p>
-          {current.length ? cards(current) : <EmptyState message={loadError ? t("成員名單暫時無法載入。", "The member list is temporarily unavailable.") : t("碩一與碩二可登入填寫資料，並自行決定是否公開。", "Master's students can sign in, complete their profiles and choose whether to publish them.")} />}
-        </div>
-        <div className="mt-20 border-t pt-10" style={{ borderColor: "var(--border)" }}><p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] opacity-50">{t("實驗室畢業學長姊", "Alumni")}</p>{alumni.length ? cards(alumni) : <EmptyState message={t("實驗室畢業學長姊可登入填寫資料，並自行決定是否公開。", "Alumni can sign in, complete their profiles and choose whether to publish them.")} />}</div>
-        <div className="member-people-footer">{t("已收到實驗室邀請？", "Have a lab invitation?")}<Link to="/member/login">{t("登入並更新自己的資料 ↗", "Sign in and update your profile ↗")}</Link></div>
+        {groups.map(role => <section key={role} className="mt-14 border-t pt-8" style={{ borderColor: "var(--border)" }}><h2 className="mb-6 text-lg font-medium">{directoryRoleLabel(role,language)}</h2>{members.some(member => member.role === role) ? cards(members.filter(member => member.role === role)) : <EmptyState message={loadError ? t("???????????", "The directory is temporarily unavailable.") : t("??????", "Directory updates are in progress.")} />}</section>)}
       </section>
     </PageShell>
   );

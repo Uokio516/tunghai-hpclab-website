@@ -165,7 +165,35 @@ try {
   assert.equal(publishedAlumni.graduationYear, alumniProfile.graduationYear);
   assert.equal(publishedAlumni.graduationTerm, "下");
   assert.deepEqual(publishedAlumni.rgbBadges, [{ kind: "interest", value: "高效能運算" }]);
-  console.log("member publishing: consent, avatar, background, RGB limits, hide/restore, migration, graduation choices passed");
+  // Simulate the first upgrade of an existing service with published members.
+  await stop();
+  const directoryDb = await open({ filename: path.join(dataDir, "members.sqlite"), driver: sqlite3.Database });
+  await directoryDb.run("DELETE FROM directory_migrations");
+  await directoryDb.close();
+  await start();
+  const migrated = (await api("/directory")).data.members;
+  assert.equal(migrated.length, 2, "Published member names migrate without creating new accounts");
+  assert.ok(migrated.every(item => item.studyStart === "" && item.studyEnd === ""), "Unknown study months must not be invented");
+  const directoryEntry = { name: "新名單成員", role: "master1", graduationYear: "", studyStart: "2025-09", studyEnd: "" };
+  const createdId = (await api("/admin/directory", { method: "POST", expected: 201, body: directoryEntry })).data.id;
+  await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, name: " " } });
+  await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, role: "other" } });
+  await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, studyEnd: "2024-09" } });
+  await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, studyStart: "2025-13" } });
+  await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, studyStart: "", studyEnd: "2026-06" } });
+  const updatedEntry = { ...directoryEntry, name: "修改後姓名", role: "alumni", graduationYear: "2026", studyEnd: "2026-06" };
+  await api(`/admin/directory/${createdId}`, { method: "PUT", body: updatedEntry });
+  assert.deepEqual((await api("/directory")).data.members.find(item => item.id === createdId), { id: createdId, ...updatedEntry });
+  assert.deepEqual(Object.keys((await api("/directory")).data.members[0]).sort(), ["id","name","role","graduationYear","studyStart","studyEnd"].sort(), "Public directory only exposes the minimal fields");
+  await stop(); await start();
+  assert.equal((await api("/directory")).data.members.length, 3, "Restart must preserve edits without duplicating migration");
+  for (const item of (await api("/directory")).data.members) await api(`/admin/directory/${item.id}`, { method: "DELETE" });
+  await api(`/admin/directory/${createdId}`, { method: "DELETE", expected: 404 });
+  await stop(); await start();
+  assert.equal((await api("/directory")).data.members.length, 0, "Deleted names must not reappear after restart");
+  assert.equal((await api("/public")).data.members.length, 2, "Old account profiles remain intact");
+  assert.equal((await fetch(`${base}/admin/directory`)).status, 401, "Unauthenticated directory access must fail");
+  console.log("member publishing and directory: migration, CRUD, date validation, persistence, minimal public data and authentication passed");
 } finally {
   await stop();
   const target = path.resolve(dataDir);
