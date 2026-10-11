@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { PageShell } from "../layout/PageShell";
+import { DirectoryGuide } from "../DirectoryGuide";
 import { useLocale } from "../../lib/locale";
 import { directoryRoleLabel, studyPeriod, type DirectoryMember, type DirectoryRole } from "../../lib/memberDirectory";
 
@@ -55,6 +56,7 @@ export function MemberAdminPage() {
     <section className="member-shell member-shell-wide">
       {members === null ? <form onSubmit={login} className="member-panel member-form"><label>{t("網站管理密碼", "Admin password")}<input type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required /></label><button className="member-primary" disabled={busy}>{busy ? t("確認中…", "Checking…") : t("進入管理", "Sign in")}</button>{error && <p className="member-error" role="alert">{error}</p>}</form> : <>
         <div className="member-account-line"><span>{members.length} {t("位成員", "members")}</span><Link to="/people">{t("查看公開名單 ↗", "View public directory ↗")}</Link><button type="button" className="member-primary" disabled={busy} onClick={() => openEditor()}>{t("新增成員", "Add member")}</button></div>
+        <DirectoryGuide />
         <div id="directory-editor">{editing !== null && <form className="member-panel member-form directory-editor" onSubmit={save}>
           <h2>{editing === "new" ? t("新增成員", "Add member") : t("修改成員", "Edit member")}</h2>
           <div className="member-form-grid"><label>{t("姓名", "Name")}<input autoFocus required maxLength={40} value={entry.name} onChange={event => setEntry({ ...entry, name: event.target.value })} /></label><label>{t("名單分類", "Category")}<select value={entry.role} onChange={event => setEntry({ ...entry, role: event.target.value as DirectoryRole, graduationYear: event.target.value === "alumni" ? entry.graduationYear : "" })}>{roles.map(role => <option key={role} value={role}>{directoryRoleLabel(role, language)}</option>)}</select></label>
