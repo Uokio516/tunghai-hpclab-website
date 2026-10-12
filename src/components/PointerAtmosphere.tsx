@@ -98,7 +98,6 @@ export function PointerAtmosphere() {
       }
       if (opacity > .01) {
         const ringColor = light ? colors[0] : "197,168,131";
-        const coreColor = light ? colors[0] : "232,213,183";
         const halo = ctx.createRadialGradient(haloX, haloY, 0, haloX, haloY, 125);
         halo.addColorStop(0, `rgba(${ringColor},${.09 * opacity})`);
         halo.addColorStop(.45, `rgba(${colors[1]},${.035 * opacity})`);
@@ -106,11 +105,6 @@ export function PointerAtmosphere() {
         ctx.fillStyle = halo; ctx.fillRect(haloX - 125, haloY - 125, 250, 250);
         ctx.strokeStyle = `rgba(${ringColor},${.55 * opacity})`; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.arc(haloX, haloY, radius, 0, TAU); ctx.stroke();
-        // Original orbital cursor: the center follows the exact pointer position.
-        dot(x, y, 2.5, coreColor, opacity);
-        ctx.strokeStyle = `rgba(${coreColor},${opacity * .8})`;
-        ctx.beginPath(); ctx.ellipse(x, y, 7, 3, Math.PI / 4, 0, TAU); ctx.stroke();
-        ctx.beginPath(); ctx.ellipse(x, y, 7, 3, -Math.PI / 4, 0, TAU); ctx.stroke();
       }
       const settling = Math.abs(x - haloX) + Math.abs(y - haloY) + Math.abs((hovering ? 24 : 13) - radius) > .1;
       if (charge || bursts.length || trail.length || (active ? settling || opacity < .99 : opacity > .01)) frame = requestAnimationFrame(draw);
