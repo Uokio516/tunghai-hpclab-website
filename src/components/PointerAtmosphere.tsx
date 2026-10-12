@@ -118,7 +118,7 @@ export function PointerAtmosphere() {
     const wake = () => { if (!frame) { previous = performance.now(); frame = requestAnimationFrame(draw); } };
     const reset = () => {
       active = false; opacity = 0; charge = null; combo = 0; lastRelease = -Infinity;
-      trail.length = 0; bursts.length = 0; delete root.dataset.labCursor;
+      trail.length = 0; bursts.length = 0;
       cancelAnimationFrame(frame); frame = 0; ctx.clearRect(0, 0, width, height);
     };
     const resize = () => {
@@ -132,7 +132,7 @@ export function PointerAtmosphere() {
       if (!media.matches || event.pointerType !== "mouse") return;
       if (nativeTarget(event)) { reset(); return; }
       if (!active) { haloX = event.clientX; haloY = event.clientY; }
-      x = event.clientX; y = event.clientY; active = true; root.dataset.labCursor = "on";
+      x = event.clientX; y = event.clientY; active = true;
       hovering = event.target instanceof Element && !!event.target.closest("a,button,[role=button],[data-cursor-hover]");
       const last = trail.at(-1);
       if (!last || Math.hypot(last.x - x, last.y - y) > 5) {
