@@ -60,5 +60,5 @@ export const professor: ProfessorConfig = {
   dblpUrl: "https://dblp.org/pid/y/ChaoTungYang",
   researchGateUrl: "https://www.researchgate.net/profile/Chao-Tung-Yang-2",
   profileUrl: "https://hpc.thu.edu.tw/profile/",
-  scholarUrl: null,
+  scholarUrl: "https://scholar.google.com/citations?user=lTcQAFUAAAAJ&hl=zh-TW",
 };

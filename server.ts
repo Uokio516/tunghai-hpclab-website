@@ -9,6 +9,7 @@ import net from "net";
 import { timingSafeEqual } from "node:crypto";
 import { freshGpuTelemetry, sanitizeGpuTelemetry, type GpuTelemetry } from "./gpu-telemetry";
 import { ExporterCollector, loadExporterTargets } from "./exporter-collector";
+import publicationDefault from "./src/data/publications.default.json";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,6 +66,22 @@ async function startServer() {
   });
 
   app.use(express.json());
+  app.get("/api/publications", async (_req,res) => {
+    try {
+      const base = process.env.MEMBER_SERVICE_URL;
+      const token = process.env.MEMBER_SERVICE_TOKEN;
+      if (!base || !token) throw new Error("Publication service unavailable");
+      const url = new URL(base); url.pathname="/publications"; url.search="";
+      const response = await fetch(url,{ headers:{authorization:`Bearer ${token}`},signal:AbortSignal.timeout(10000) });
+      if (!response.ok) throw new Error("Publication service unavailable");
+      const data = await response.json();
+      if (!Array.isArray(data.publications) || !data.publications.length) throw new Error("Invalid publication cache");
+      res.setHeader("Cache-Control","public, max-age=300");res.json(data);
+    } catch {
+      res.setHeader("Cache-Control","public, max-age=60");
+      res.json({...publicationDefault,syncDelayed:true});
+    }
+  });
 
   // Member accounts, consent and avatars have their own single-writer PVC.
   // Only the website is public; the internal service accepts a private token.

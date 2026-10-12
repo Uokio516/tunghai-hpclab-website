@@ -48,7 +48,7 @@ flowchart LR
 | `/` | 實驗室首頁、真實算力摘要、研究入口 | 監控摘要每 15 秒更新；其餘為內容資料。 |
 | `/gpus` | 節點清單、目前狀態、單機歷史 | 前端每 5 秒取得 API；逾 120 秒採樣不當作即時。 |
 | `/infrastructure` | 叢集與虛擬化資源 | 有 `updatedAt` 的盤點快照。 |
-| `/projects`、`/people`、`/publications`、`/news`、`/contact` | 內容頁 | `src/data/` 或聯絡 API。 |
+| `/projects`、`/people`、`/publications`、`/news`、`/contact` | 內容頁 | 成員讀目錄 API；論文讀 `/api/publications` 的每週同步快取，其餘由 `src/data/` 或聯絡 API 提供。 |
 | `/people/:id` | 公開成員個人頁 | 只從已同意公開的成員 API 載入資料；本人撤回或管理者撤下後不顯示詳情。 |
 | `/join/:invite`、`/member/login`、`/member/me`、`/member/reset/:reset` | 受邀成員啟用、登入、修改資料及重設密碼 | 邀請制；連結由管理者自行發送。 |
 | `/admin/members` | 建立名冊邀請、管理身分及緊急撤下／恢復公開 | 需 `ADMIN_PASSWORD`；管理密碼只在頁面記憶體。 |

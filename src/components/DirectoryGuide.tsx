@@ -13,7 +13,7 @@ export function DirectoryGuide() {
     t("畢業名單按顯示順序連續排列，不依年份分段。數字越小越前，0 排在最後；推估年份請勾選「尚待確認」，核對後取消勾選，此註記只供後台管理。", "Alumni appear in one continuous list by display order. Lower numbers come first and 0 goes last. Mark estimated years as unconfirmed for administration only, and uncheck after verification."),
     t("仍在就學者只填開始年月，結束留空時顯示「至今」。", "For current students, a start date with no end date displays Present."),
     t("畢業成員若填了開始年月但未填結束年月，顯示「結束年月未填」，不會顯示「至今」。", "For alumni with a start date but no end date, the card displays End date not specified instead of Present."),
-    t("選了年份就要選月份；結束年月不能早於開始年月，也不能只填結束年月。", "Each selected year needs a month. An end date requires a start date and cannot precede it."),
+    t("就學日期選了年份就要選月份；畢業成員可以只填已確認的畢業年月，入學未知時留空。畢業年份須與畢業年月一致，結束不能早於已填的開始年月。公開畢業日期同時顯示西元與民國年。", "Study dates require both year and month. Alumni may record a verified graduation date without inventing an unknown start date. Graduation years must agree; end dates cannot precede known start dates. Public Chinese dates display Gregorian and ROC years."),
     t("從碩二改為畢業學長姊時可補畢業年份；改回碩一或碩二會清除畢業年份。", "Changing a student to Alumni enables graduation year selection. Changing back to a student clears the graduation year."),
   ];
   const dataNotes = [

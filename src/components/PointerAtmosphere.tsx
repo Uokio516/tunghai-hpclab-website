@@ -18,6 +18,7 @@ export function PointerAtmosphere() {
     let radius = 13;
     let width = innerWidth, height = innerHeight;
     const stars: { x: number; y: number; life: number }[] = [];
+    const clicks: { x: number; y: number; age: number }[] = [];
 
     const resize = () => {
       width = innerWidth;
@@ -50,6 +51,25 @@ export function PointerAtmosphere() {
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
         context.stroke();
+        // The exact pointer tip stays under the mouse; only the outer halo trails.
+        context.fillStyle = `rgba(232,213,183,${opacity})`;
+        context.beginPath(); context.arc(targetX,targetY,2.5,0,Math.PI*2); context.fill();
+        context.strokeStyle = `rgba(232,213,183,${opacity*.8})`;
+        context.beginPath(); context.ellipse(targetX,targetY,7,3,Math.PI/4,0,Math.PI*2); context.stroke();
+        context.beginPath(); context.ellipse(targetX,targetY,7,3,-Math.PI/4,0,Math.PI*2); context.stroke();
+      }
+      for (let i=clicks.length-1;i>=0;i--) {
+        const click=clicks[i]; click.age+=dt;
+        const progress=click.age/.55;
+        if (progress>=1) { clicks.splice(i,1);continue; }
+        context.strokeStyle=`rgba(232,213,183,${(1-progress)*.65})`;
+        context.lineWidth=1.2;
+        context.beginPath();context.arc(click.x,click.y,8+progress*35,0,Math.PI*2);context.stroke();
+        for(let ray=0;ray<6;ray++) {
+          const angle=ray*Math.PI/3,inner=8+progress*18,outer=inner+5*(1-progress);
+          context.beginPath();context.moveTo(click.x+Math.cos(angle)*inner,click.y+Math.sin(angle)*inner);
+          context.lineTo(click.x+Math.cos(angle)*outer,click.y+Math.sin(angle)*outer);context.stroke();
+        }
       }
       for (let i = stars.length - 1; i >= 0; i--) {
         const star = stars[i];
@@ -71,12 +91,12 @@ export function PointerAtmosphere() {
       const settling = active
         ? Math.abs(targetX - x) + Math.abs(targetY - y) + Math.abs((hovering ? 24 : 13) - radius) > 0.1 || opacity < 0.99
         : opacity > 0.01;
-      if (settling || stars.length) frame = requestAnimationFrame(draw);
+      if (settling || stars.length || clicks.length) frame = requestAnimationFrame(draw);
     };
     const wake = () => {
       if (!frame) { previous = performance.now(); frame = requestAnimationFrame(draw); }
     };
-    const leave = () => { active = false; wake(); };
+    const leave = () => { active = false;delete document.documentElement.dataset.labCursor;wake(); };
     const move = (event: PointerEvent) => {
       if (!media.matches || event.pointerType !== "mouse") return;
       const element = event.target instanceof Element ? event.target : null;
@@ -85,6 +105,7 @@ export function PointerAtmosphere() {
       targetX = event.clientX;
       targetY = event.clientY;
       active = true;
+      document.documentElement.dataset.labCursor="on";
       hovering = !!element?.closest("a,button,[role=button],[data-cursor-hover]");
       const last = stars.at(-1);
       if (!last || Math.hypot(last.x - targetX, last.y - targetY) > 14) {
@@ -93,10 +114,20 @@ export function PointerAtmosphere() {
       }
       wake();
     };
+    const click = (event: PointerEvent) => {
+      if (!media.matches || event.pointerType!=="mouse" || event.button!==0) return;
+      const element=event.target instanceof Element ? event.target : null;
+      if (element?.closest("input,textarea,select,[contenteditable=true],.hero-preview")) return;
+      clicks.push({x:event.clientX,y:event.clientY,age:0});
+      if(clicks.length>6)clicks.shift();
+      wake();
+    };
     const reset = () => {
       active = false;
       opacity = 0;
       stars.length = 0;
+      clicks.length = 0;
+      delete document.documentElement.dataset.labCursor;
       cancelAnimationFrame(frame);
       frame = 0;
       context.clearRect(0, 0, width, height);
@@ -105,6 +136,7 @@ export function PointerAtmosphere() {
     resize();
     window.addEventListener("resize", resize);
     window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("pointerdown", click, { passive: true });
     document.documentElement.addEventListener("pointerleave", leave);
     window.addEventListener("blur", leave);
     document.addEventListener("visibilitychange", visibility);
@@ -113,6 +145,7 @@ export function PointerAtmosphere() {
       reset();
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerdown", click);
       document.documentElement.removeEventListener("pointerleave", leave);
       window.removeEventListener("blur", leave);
       document.removeEventListener("visibilitychange", visibility);
@@ -120,5 +153,5 @@ export function PointerAtmosphere() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} aria-hidden="true" className="pointer-atmosphere" style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 9997 }} />;
+  return <canvas ref={canvasRef} aria-hidden="true" className="pointer-atmosphere" style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 2147483000 }} />;
 }

@@ -10,6 +10,7 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "test:members": "node tools/test-member-publishing.mjs",
+    "test:publications": "tsx tools/test-publication-sync.ts",
     "start": "node server.ts"
   },
   "dependencies": {

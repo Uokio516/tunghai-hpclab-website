@@ -29,7 +29,7 @@ let output = "";
 async function start() {
   service = spawn(process.execPath, ["--import", "tsx", "member-service.ts"], {
     cwd: root, windowsHide: true, stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, PORT: String(port), MEMBER_DATA_DIR: dataDir, MEMBER_SERVICE_TOKEN: token },
+    env: { ...process.env, PORT: String(port), MEMBER_DATA_DIR: dataDir, MEMBER_SERVICE_TOKEN: token, PUBLICATION_SYNC_DISABLED: "true" },
   });
   service.stdout.on("data", chunk => { output += chunk.toString(); });
   service.stderr.on("data", chunk => { output += chunk.toString(); });
@@ -191,7 +191,7 @@ try {
   await api("/admin/directory", { method: "POST", expected: 400, body: { ...updatedEntry, yearEstimated: "true" } });
   await api(`/admin/directory/${createdId}`, { method: "PUT", body: { ...updatedEntry, cohortGroup: 3, displayOrder: 20, yearEstimated: true } });
   assert.equal((await api("/directory")).data.members.find(item => item.id === createdId).cohortGroup, 3);
-  const earlierId = (await api("/admin/directory", {method:"POST",expected:201,body:{...updatedEntry,name:"較早顯示成員",graduationYear:"2003",displayOrder:10}})).data.id;
+  const earlierId = (await api("/admin/directory", {method:"POST",expected:201,body:{...updatedEntry,name:"較早顯示成員",graduationYear:"2003",studyStart:"2001-09",studyEnd:"2003-06",displayOrder:10}})).data.id;
   const orderedIds=(await api("/directory")).data.members.filter(m=>m.role==="alumni").map(m=>m.id);
   assert.ok(orderedIds.indexOf(earlierId)<orderedIds.indexOf(createdId), "Explicit order takes priority over graduation year");
   await api(`/admin/directory/${earlierId}`, {method:"DELETE"});
@@ -209,6 +209,9 @@ try {
   assert.equal(doctoral.find(m=>m.id===phdId).yearEstimated,false);
   assert.equal(doctoral.find(m=>m.id===phdAlumniId).graduationYear,"2026");
   assert.equal(doctoral.find(m=>m.id===phdAlumniId).yearEstimated,true);
+  await api(`/admin/directory/${phdAlumniId}`,{method:"PUT",body:{...directoryEntry,name:"博士畢業測試",role:"phdAlumni",graduationYear:"2026",studyStart:"",studyEnd:"2026-06"}});
+  assert.equal((await api("/directory")).data.members.find(m=>m.id===phdAlumniId).studyEnd,"2026-06","Alumni can record a verified end date with an unknown start date");
+  await api(`/admin/directory/${phdAlumniId}`,{method:"PUT",expected:400,body:{...directoryEntry,name:"博士畢業測試",role:"phdAlumni",graduationYear:"2025",studyStart:"",studyEnd:"2026-06"}});
   await api(`/admin/directory/${phdAlumniId}`,{method:"PUT",body:{...directoryEntry,name:"博士畢業測試",role:"phdAlumni",graduationYear:""}});
   assert.equal((await api("/directory")).data.members.find(m=>m.id===phdAlumniId).graduationYear,"");
   for (const item of (await api("/directory")).data.members) await api(`/admin/directory/${item.id}`, { method: "DELETE" });
@@ -217,6 +220,14 @@ try {
   assert.equal((await api("/directory")).data.members.length, 0, "Deleted names must not reappear after restart");
   assert.equal((await api("/public")).data.members.length, 2, "Old account profiles remain intact");
   assert.equal((await fetch(`${base}/admin/directory`)).status, 401, "Unauthenticated directory access must fail");
+  assert((await api('/publications')).data.publications.length>0);
+  assert.equal((await fetch(`${base}/admin/publications/status`)).status,401);
+  await stop();
+  const publicationDb=await open({filename:path.join(dataDir,'members.sqlite'),driver:sqlite3.Database});
+  const cached=await publicationDb.get('SELECT snapshot_json FROM publication_cache WHERE id=1');
+  const cachedSnapshot=JSON.parse(cached.snapshot_json);cachedSnapshot.publications[0].title='Saved publication survives service restart';
+  await publicationDb.run('UPDATE publication_cache SET snapshot_json=? WHERE id=1',JSON.stringify(cachedSnapshot));await publicationDb.close();
+  await start();assert.equal((await api('/publications')).data.publications[0].title,'Saved publication survives service restart','Persistent bibliography must win over the image seed on restart');
   console.log("member publishing and directory: migration, CRUD, date validation, persistence, minimal public data and authentication passed");
 } finally {
   await stop();

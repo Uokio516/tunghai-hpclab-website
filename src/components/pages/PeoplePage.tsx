@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { people } from "../../data/people";
 import { professor, lab } from "../../data/lab";
-import { isAlumniRole, directoryRoleLabel, studyPeriod, type DirectoryMember, type DirectoryRole } from "../../lib/memberDirectory";
+import { isAlumniRole, directoryRoleLabel, graduationLabel, studyPeriod, type DirectoryMember, type DirectoryRole } from "../../lib/memberDirectory";
 import { useLocale } from "../../lib/locale";
 
 export function PeoplePage() {
@@ -12,7 +12,7 @@ export function PeoplePage() {
   const [loadError, setLoadError] = useState(false);
   useEffect(() => { const controller = new AbortController(); fetch("/api/members/directory", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
   const groups: DirectoryRole[] = ["phd", "master1", "master2", "phdAlumni", "alumni"];
-  const cards = (items: DirectoryMember[]) => <ul className="directory-grid directory-grid-public">{items.map(member => <li className="member-panel directory-card" key={member.id}><h3>{member.name}</h3>{isAlumniRole(member.role) && member.graduationYear && <p>{t(`${member.graduationYear} 年畢業`, `Graduated ${member.graduationYear}`)}</p>}{studyPeriod(member,language) && <p className="member-hint">{studyPeriod(member,language)}</p>}</li>)}</ul>;
+  const cards = (items: DirectoryMember[]) => <ul className="directory-grid directory-grid-public">{items.map(member => <li className="member-panel directory-card" key={member.id}><h3>{member.name}</h3>{isAlumniRole(member.role) && graduationLabel(member,language) && <p>{graduationLabel(member,language)}</p>}{studyPeriod(member,language) && <p className="member-hint">{studyPeriod(member,language)}</p>}</li>)}</ul>;
 
   return (
     <PageShell eyebrow="People" title={t("研究成員", "People")} lede={t("由人、想法與實驗構成的研究網絡。", "A research community built on people, ideas and experiments.")}>

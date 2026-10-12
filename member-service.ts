@@ -6,6 +6,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { graduationTerms, graduationYearOptions } from "./src/lib/memberGraduation";
+import publicationDefault from "./src/data/publications.default.json";
+import { PublicationSync } from "./publication-sync";
+import type { PublicationSnapshot } from "./src/lib/publicationTypes";
 import type { MemberBackground, RgbBadge } from "./src/lib/memberProfiles";
 
 // Invite-only member accounts live in a single-writer service. Public website
@@ -188,6 +191,36 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "32kb" }));
 app.use((req, res, next) => { res.setHeader("Cache-Control", "no-store"); next(); });
 
+// One persistent publication cache shares the existing single-writer PVC.
+// Website replicas read it; none writes a node-specific hostPath.
+await db.exec("CREATE TABLE IF NOT EXISTS publication_cache(id INTEGER PRIMARY KEY CHECK(id=1),snapshot_json TEXT NOT NULL,last_attempt INTEGER NOT NULL,last_error TEXT)");
+const publicationSync = new PublicationSync(publicationDefault as PublicationSnapshot, {
+  async read() {
+    const row = await db.get("SELECT snapshot_json,last_attempt,last_error FROM publication_cache WHERE id=1");
+    if (!row) return undefined;
+    try { return { snapshot: JSON.parse(row.snapshot_json), lastAttempt: row.last_attempt, lastError: row.last_error }; }
+    catch { return undefined; }
+  },
+  async write(snapshot,lastAttempt,lastError) {
+    await transaction(() => db.run("INSERT INTO publication_cache(id,snapshot_json,last_attempt,last_error) VALUES(1,?,?,?) ON CONFLICT(id) DO UPDATE SET snapshot_json=excluded.snapshot_json,last_attempt=excluded.last_attempt,last_error=excluded.last_error",JSON.stringify(snapshot),lastAttempt,lastError));
+  },
+});
+await publicationSync.initialize();
+app.get("/publications", (_req,res) => {
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.json({ ...publicationSync.getSnapshot(), syncDelayed: Boolean(publicationSync.getStatus().lastError) });
+});
+app.get("/admin/publications/status", (_req,res) => res.json(publicationSync.getStatus()));
+app.post("/admin/publications/refresh", (_req,res) => {
+  void publicationSync.refresh(true).catch(() => console.error("Publication cache could not be saved"));
+  res.status(202).json({ ok: true, running: true });
+});
+const checkPublications = () => { void publicationSync.refresh().catch(() => console.error("Publication cache could not be saved")); };
+if (process.env.PUBLICATION_SYNC_DISABLED !== "true") {
+  setTimeout(checkPublications,1000).unref();
+  setInterval(checkPublications,3600_000).unref();
+}
+
 const member = async (req: Request, res: Response, next: NextFunction) => {
   try {
   const raw = req.headers.cookie?.match(/(?:^|;\s*)member_session=([^;]+)/)?.[1];
@@ -223,9 +256,10 @@ function safeDirectory(input: any) {
   if (!Number.isInteger(cohortGroup) || cohortGroup < 0 || cohortGroup > 99) return null;
   const validMonth = (value: unknown) => typeof value === "string" && (!value || /^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(value));
   if (typeof graduationYear !== "string" || (graduationYear && !/^(19|20|21)\d{2}$/.test(graduationYear)) || !validMonth(studyStart) || !validMonth(studyEnd)) return null;
-  if (studyEnd && !studyStart || studyStart && studyEnd && studyEnd < studyStart) return null;
   const graduated = input.role === "alumni" || input.role === "phdAlumni";
-  return { name: input.name.trim(), role: input.role as typeof directoryRoles[number], graduationYear: graduated ? graduationYear : "", studyStart, studyEnd, cohortGroup: graduated ? cohortGroup : 0, displayOrder: graduated ? displayOrder : 0, yearEstimated: graduated && Boolean(graduationYear) && yearEstimated };
+  if (studyEnd && !studyStart && !graduated || studyStart && studyEnd && studyEnd < studyStart) return null;
+  if (graduated && studyEnd && graduationYear && graduationYear !== studyEnd.slice(0,4)) return null;
+  return { name: input.name.trim(), role: input.role as typeof directoryRoles[number], graduationYear: graduated ? graduationYear || studyEnd.slice(0,4) : "", studyStart, studyEnd, cohortGroup: graduated ? cohortGroup : 0, displayOrder: graduated ? displayOrder : 0, yearEstimated: graduated && Boolean(graduationYear) && yearEstimated };
 }
 app.get("/directory", wrap(async (_req, res) => res.json({ members: await directoryRows() })));
 app.get("/admin/directory", wrap(async (_req, res) => res.json({ members: await directoryRows() })));
