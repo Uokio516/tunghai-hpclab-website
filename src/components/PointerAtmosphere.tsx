@@ -19,7 +19,9 @@ export function PointerAtmosphere() {
     let width = innerWidth, height = innerHeight;
     const stars: { x: number; y: number; life: number }[] = [];
     let charge: { x: number; y: number; started: number; pointerId: number } | null = null;
-    const bursts: { x: number; y: number; age: number; power: number; angles: number[] }[] = [];
+    const bursts: { x: number; y: number; age: number; power: number; combo: number; angles: number[] }[] = [];
+    let combo = 0;
+    let lastRelease = 0;
 
     const resize = () => {
       width = innerWidth;
@@ -88,7 +90,8 @@ export function PointerAtmosphere() {
         const progress=burst.age/(0.55+burst.power*0.48);
         if (progress>=1) { bursts.splice(i,1);continue; }
         const travel=1-Math.pow(1-progress,2.4);
-        const spread=38+burst.power*105;
+        const comboBoost=Math.min(burst.combo-1,7);
+        const spread=38+burst.power*105+comboBoost*7;
         const alpha=(1-progress)*(0.55+burst.power*0.42);
         const flash=context.createRadialGradient(burst.x,burst.y,0,burst.x,burst.y,32+spread*travel);
         flash.addColorStop(0,`rgba(248,229,188,${alpha*0.32})`);
@@ -108,6 +111,18 @@ export function PointerAtmosphere() {
           context.fillStyle=index%3===0?`rgba(105,208,226,${alpha})`:index%3===1?`rgba(236,175,204,${alpha})`:`rgba(249,222,165,${alpha})`;
           context.beginPath();context.arc(px,py,(index%4===0?2.5:1.4)*(1-progress*0.55),0,Math.PI*2);context.fill();
         });
+        if (burst.combo > 1 && i === bursts.length - 1) {
+          const labelProgress=Math.min(progress*2.2,1);
+          context.save();
+          context.globalAlpha=(1-progress)*labelProgress;
+          context.textAlign="center";
+          context.font=`700 ${14+Math.min(burst.combo,8)}px IBM Plex Mono, monospace`;
+          context.fillStyle=burst.combo>=5?"#8ed8e7":"#f2d9aa";
+          context.shadowColor=burst.combo>=5?"rgba(80,210,235,.7)":"rgba(242,180,210,.65)";
+          context.shadowBlur=10+comboBoost*2;
+          context.fillText(`${burst.combo}× COMBO`,burst.x,burst.y-30-spread*travel*.28);
+          context.restore();
+        }
       }
       for (let i = stars.length - 1; i >= 0; i--) {
         const star = stars[i];
@@ -163,9 +178,12 @@ export function PointerAtmosphere() {
     };
     const release = (event: PointerEvent) => {
       if (!charge || event.pointerId !== charge.pointerId || event.pointerType !== "mouse") return;
-      const power=Math.min((performance.now()-charge.started)/1200,1);
-      const count=12+Math.round(power*32);
-      bursts.push({x:event.clientX,y:event.clientY,age:0,power,angles:Array.from({length:count},(_,i)=>i*Math.PI*2/count+(i%3)*0.05)});
+      const now=performance.now();
+      combo=now-lastRelease<=900?Math.min(combo+1,8):1;
+      lastRelease=now;
+      const power=Math.min((now-charge.started)/1200,1);
+      const count=12+Math.round(power*32)+Math.max(0,combo-1)*3;
+      bursts.push({x:event.clientX,y:event.clientY,age:0,power,combo,angles:Array.from({length:count},(_,i)=>i*Math.PI*2/count+(i%3)*0.05)});
       if (bursts.length>4) bursts.shift();
       charge=null;
       wake();
@@ -177,6 +195,8 @@ export function PointerAtmosphere() {
       stars.length = 0;
       charge = null;
       bursts.length = 0;
+      combo = 0;
+      lastRelease = 0;
       delete document.documentElement.dataset.labCursor;
       cancelAnimationFrame(frame);
       frame = 0;

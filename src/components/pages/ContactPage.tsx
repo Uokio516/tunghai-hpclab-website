@@ -39,16 +39,6 @@ export function ContactPage() {
 
         <div className="mt-14">
           <Link to="/#contact" className="mr-4 mb-4 inline-flex items-center gap-3 rounded-full px-7 py-3.5 text-sm font-medium transition-transform hover:scale-[1.03]" style={{ background: "var(--brand-light)", color: "var(--brand-contrast)" }}>{t("傳送留言 ↗", "Send a Message ↗")}</Link>
-          <a
-            href={lab.website}
-            target="_blank"
-            rel="noreferrer noopener"
-            data-cursor-hover
-            className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 text-sm font-medium uppercase tracking-[0.12em] transition-transform hover:scale-[1.03]"
-            style={{ background: "var(--brand-light)", color: "var(--brand-contrast)" }}
-          >
-            {t("研究室官方網站 ↗", "Official Lab Website ↗")}
-          </a>
         </div>
       </section>
     </PageShell>
