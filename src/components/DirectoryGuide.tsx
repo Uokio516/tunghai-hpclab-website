@@ -6,13 +6,13 @@ export function DirectoryGuide() {
   const steps = [
     [t("新增姓名", "Add a name"), t("按「新增成員」，填姓名，再選博士班、碩一、碩二或博士／碩士班畢業學長姊。不需要信箱、成員密碼或邀請連結。", "Select Add member, enter a name and choose PhD Students, Master's Year 1, Master's Year 2, PhD Alumni or Master's Alumni. No email, member password or invitation is needed.")],
     [t("選擇年份與月份", "Choose years and months"), t("畢業學長姊可選畢業西元年。就學開始與結束各選年、月，例如 2024 年 9 月到 2026 年 6 月；沒有資料時可留空。", "For alumni, select a graduation year. Select the year and month for study start and end, for example September 2024 to June 2026. Unknown dates may be left blank.")],
-    [t("儲存並查看名單", "Save and view the directory"), t("按「儲存名單」後，研究成員頁立即更新。用上方「查看公開名單」確認結果；公開卡片顯示姓名、畢業年份與就學期間。", "Select Save to update the People page immediately. Use View public directory to check the name cards, graduation years and study periods.")],
+    [t("儲存並查看名單", "Save and view the directory"), t("按「儲存名單」後，研究成員頁立即更新。用上方「查看公開名單」確認結果；公開卡片顯示姓名、畢業年份與就學期間。", "Select Save to update the People page immediately. Use View public directory to check names and graduation dates. Alumni admission dates and study periods remain private to administrators.")],
     [t("修改或刪除", "Edit or delete"), t("在姓名卡片按「修改」可改姓名、分類與日期。按「刪除」並確認後，該筆名單立即移除。允許同名者，操作前請確認所選卡片。", "Select Edit on a name card to change its name, category or dates. Select Delete and confirm to remove the entry immediately. Duplicate names are allowed, so check the selected card first.")],
   ];
   const dateRules = [
     t("畢業名單按顯示順序連續排列，不依年份分段。數字越小越前，0 排在最後；推估年份請勾選「尚待確認」，核對後取消勾選，此註記只供後台管理。", "Alumni appear in one continuous list by display order. Lower numbers come first and 0 goes last. Mark estimated years as unconfirmed for administration only, and uncheck after verification."),
     t("仍在就學者只填開始年月，結束留空時顯示「至今」。", "For current students, a start date with no end date displays Present."),
-    t("畢業成員若填了開始年月但未填結束年月，顯示「結束年月未填」，不會顯示「至今」。", "For alumni with a start date but no end date, the card displays End date not specified instead of Present."),
+    t("畢業成員若填了開始年月但未填結束年月，顯示「結束年月未填」，不會顯示「至今」。", "Alumni admission dates and study periods are hidden from public pages; the original data remains available in admin."),
     t("就學日期選了年份就要選月份；畢業成員可以只填已確認的畢業年月，入學未知時留空。畢業年份須與畢業年月一致，結束不能早於已填的開始年月。公開畢業日期同時顯示西元與民國年。", "Study dates require both year and month. Alumni may record a verified graduation date without inventing an unknown start date. Graduation years must agree; end dates cannot precede known start dates. Public Chinese dates display Gregorian and ROC years."),
     t("從碩二改為畢業學長姊時可補畢業年份；改回碩一或碩二會清除畢業年份。", "Changing a student to Alumni enables graduation year selection. Changing back to a student clears the graduation year."),
   ];

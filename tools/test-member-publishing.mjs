@@ -153,7 +153,7 @@ try {
   })).data.invites[0].invite;
   const alumniActivation = await api("/activate", { method: "POST", expected: 201, body: { invite: alumniInvite, password: "alumni-password-2026" } });
   const alumniCookie = alumniActivation.response.headers.get("set-cookie").split(";")[0];
-  const alumniProfile = { entryYear: "", graduationYear: String(new Date().getFullYear()), graduationTerm: "下", degree: "碩士" };
+  const alumniProfile = { entryYear: "2023", graduationYear: String(new Date().getFullYear()), graduationTerm: "下", degree: "碩士" };
   await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, graduationYear: "待確認" }) });
   await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, graduationTerm: "春" }) });
   await api("/me", { method: "PUT", cookie: alumniCookie, expected: 400, body: profile({ ...alumniProfile, graduationTerm: "" }) });
@@ -164,6 +164,7 @@ try {
   const publishedAlumni = (await api("/public")).data.members.find(member => member.role === "alumni");
   assert.equal(publishedAlumni.graduationYear, alumniProfile.graduationYear);
   assert.equal(publishedAlumni.graduationTerm, "下");
+  assert.equal(publishedAlumni.entryYear,"","Public alumni profiles hide admission years");
   assert.deepEqual(publishedAlumni.rgbBadges, [{ kind: "interest", value: "高效能運算" }]);
   // Simulate the first upgrade of an existing service with published members.
   await stop();
@@ -186,7 +187,7 @@ try {
   await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, cohortGroup: 100 } });
   await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, cohortGroup: "1" } });
   await api(`/admin/directory/${createdId}`, { method: "PUT", body: updatedEntry });
-  assert.deepEqual((await api("/directory")).data.members.find(item => item.id === createdId), { id: createdId, ...updatedEntry, cohortGroup: 0, displayOrder: 0, yearEstimated: false });
+  assert.deepEqual((await api("/directory")).data.members.find(item => item.id === createdId), { id: createdId, ...updatedEntry, studyStart: "", cohortGroup: 0, displayOrder: 0, yearEstimated: false });
   await api("/admin/directory", { method: "POST", expected: 400, body: { ...updatedEntry, displayOrder: -1 } });
   await api("/admin/directory", { method: "POST", expected: 400, body: { ...updatedEntry, yearEstimated: "true" } });
   await api(`/admin/directory/${createdId}`, { method: "PUT", body: { ...updatedEntry, cohortGroup: 3, displayOrder: 20, yearEstimated: true } });
@@ -205,6 +206,9 @@ try {
   const phdAlumniId=(await api("/admin/directory",{method:"POST",expected:201,body:{...directoryEntry,name:"博士畢業測試",role:"phdAlumni",graduationYear:"2026",displayOrder:1,yearEstimated:true}})).data.id;
   await stop();await start();
   const doctoral=(await api("/directory")).data.members;
+  assert.equal(doctoral.find(m=>m.id===phdAlumniId).studyStart,"","Public alumni records hide admission dates");
+  assert.equal((await api("/admin/directory")).data.members.find(m=>m.id===phdAlumniId).studyStart,"2025-09","Admin retains alumni admission dates");
+  assert.equal(doctoral.find(m=>m.id===phdId).studyStart,"2025-09","Current students still display admission dates");
   assert.equal(doctoral.find(m=>m.id===phdId).graduationYear,"");
   assert.equal(doctoral.find(m=>m.id===phdId).yearEstimated,false);
   assert.equal(doctoral.find(m=>m.id===phdAlumniId).graduationYear,"2026");

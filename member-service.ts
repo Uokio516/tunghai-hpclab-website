@@ -141,7 +141,7 @@ function visibleRgbBadges(profile: Profile, accountId: number): RgbBadge[] {
 }
 function publicProfile(profile: Profile, account: { id: number; role: Role }, avatar: string | null, updatedAt: number | null) {
   const { publishConsent: _publishConsent, avatarConsent: _avatarConsent, selfAttested: _selfAttested, ...fields } = profile;
-  return { id: account.id, role: account.role, roleLabel: roleLabel[account.role], ...fields,
+  return { id: account.id, role: account.role, roleLabel: roleLabel[account.role], ...fields, entryYear: account.role === "alumni" ? "" : fields.entryYear,
     rgbBadges: visibleRgbBadges(profile, account.id),
     avatarUrl: avatar && profile.avatarConsent ? `/api/members/avatar/${account.id}?v=${updatedAt ?? 0}` : null };
 }
@@ -261,7 +261,7 @@ function safeDirectory(input: any) {
   if (graduated && studyEnd && graduationYear && graduationYear !== studyEnd.slice(0,4)) return null;
   return { name: input.name.trim(), role: input.role as typeof directoryRoles[number], graduationYear: graduated ? graduationYear || studyEnd.slice(0,4) : "", studyStart, studyEnd, cohortGroup: graduated ? cohortGroup : 0, displayOrder: graduated ? displayOrder : 0, yearEstimated: graduated && Boolean(graduationYear) && yearEstimated };
 }
-app.get("/directory", wrap(async (_req, res) => res.json({ members: await directoryRows() })));
+app.get("/directory", wrap(async (_req, res) => res.json({ members: (await directoryRows()).map(member => ["alumni","phdAlumni"].includes(member.role) ? {...member,studyStart:""} : member) })));
 app.get("/admin/directory", wrap(async (_req, res) => res.json({ members: await directoryRows() })));
 app.post("/admin/directory", wrap(async (req, res) => {
   const item = safeDirectory(req.body);
