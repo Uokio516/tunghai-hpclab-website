@@ -182,10 +182,16 @@ try {
   await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, studyStart: "2025-13" } });
   await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, studyStart: "", studyEnd: "2026-06" } });
   const updatedEntry = { ...directoryEntry, name: "修改後姓名", role: "alumni", graduationYear: "2026", studyEnd: "2026-06" };
+  await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, cohortGroup: -1 } });
+  await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, cohortGroup: 100 } });
+  await api("/admin/directory", { method: "POST", expected: 400, body: { ...directoryEntry, cohortGroup: "1" } });
   await api(`/admin/directory/${createdId}`, { method: "PUT", body: updatedEntry });
-  assert.deepEqual((await api("/directory")).data.members.find(item => item.id === createdId), { id: createdId, ...updatedEntry });
-  assert.deepEqual(Object.keys((await api("/directory")).data.members[0]).sort(), ["id","name","role","graduationYear","studyStart","studyEnd"].sort(), "Public directory only exposes the minimal fields");
+  assert.deepEqual((await api("/directory")).data.members.find(item => item.id === createdId), { id: createdId, ...updatedEntry, cohortGroup: 0 });
+  await api(`/admin/directory/${createdId}`, { method: "PUT", body: { ...updatedEntry, graduationYear: "", cohortGroup: 3 } });
+  assert.equal((await api("/directory")).data.members.find(item => item.id === createdId).cohortGroup, 3);
+  assert.deepEqual(Object.keys((await api("/directory")).data.members[0]).sort(), ["id","name","role","graduationYear","studyStart","studyEnd","cohortGroup"].sort(), "Public directory only exposes the minimal fields");
   await stop(); await start();
+  assert.equal((await api("/directory")).data.members.find(item => item.id === createdId).cohortGroup, 3, "Source groups persist across restart");
   assert.equal((await api("/directory")).data.members.length, 3, "Restart must preserve edits without duplicating migration");
   for (const item of (await api("/directory")).data.members) await api(`/admin/directory/${item.id}`, { method: "DELETE" });
   await api(`/admin/directory/${createdId}`, { method: "DELETE", expected: 404 });

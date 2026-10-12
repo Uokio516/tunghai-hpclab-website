@@ -4,6 +4,8 @@
 
 現行名單由管理者在 `/admin/members` 維護，不需信箱、密碼或邀請。公開 `/people` 分成碩一、碩二、畢業學長姊三組，以姓名卡片顯示畢業年份與就學期間，教授區維持原有資訊。
 
+畢業名單再按已知畢業年份由新到舊分段；年份未知時使用 `cohortGroup` 保存原始名單段落，依編號顯示「歷屆分組 01・年份待確認」。分組不代表已確認的畢業屆別。後台新增／修改畢業成員時可選分組；補上年份後，公開頁優先按年份分段。沒有年份與分組者另列「其他畢業成員・年份待確認」。資料庫以向後相容方式新增 `cohort_group` 欄位，既有資料預設為 0（未分組）。
+
 ## 操作流程
 
 1. 用網站 `ADMIN_PASSWORD` 登入 `/admin/members`。
@@ -18,7 +20,7 @@
 - SQLite `directory` 位於既有成員服務 PVC 的 `members.sqlite`，新增名單不建立帳號。
 - 第一次啟動由既有已公開 profiles 帶入姓名、分類與畢業年份；沒有精確月份時留空。`directory_migrations` 確保只執行一次，刪除的名字不會在重啟後重現。
 - 舊 accounts、profiles、照片保留；舊登入 API 仍可使用，但修改個人資料不會覆寫管理者名單。舊 `/people/:id` 轉至 `/people`。
-- `GET /api/members/directory` 只輸出 `id/name/role/graduationYear/studyStart/studyEnd`。
+- `GET /api/members/directory` 只輸出 `id/name/role/graduationYear/studyStart/studyEnd/cohortGroup`。
 - 管理操作使用 `/api/members/admin/directory` 的 GET/POST，以及 `/:id` 的 PUT/DELETE；網站代理仍檢查 `ADMIN_PASSWORD`，成員服務仍檢查內部 token。
 - 前端模組：`MemberAdminPage.tsx`、`PeoplePage.tsx`、`src/lib/memberDirectory.ts`；樣式在 `src/styles/members.css`。
 

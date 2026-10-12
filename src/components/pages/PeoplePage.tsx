@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PageShell, EmptyState } from "../layout/PageShell";
 import { people } from "../../data/people";
 import { professor, lab } from "../../data/lab";
-import { directoryRoleLabel, studyPeriod, type DirectoryMember, type DirectoryRole } from "../../lib/memberDirectory";
+import { alumniSections, directoryRoleLabel, studyPeriod, type DirectoryMember, type DirectoryRole } from "../../lib/memberDirectory";
 import { useLocale } from "../../lib/locale";
 
 export function PeoplePage() {
@@ -115,7 +115,7 @@ export function PeoplePage() {
           </div>
         )}
 
-        {groups.map(role => <section key={role} className="mt-14 border-t pt-8" style={{ borderColor: "var(--border)" }}><h2 className="mb-6 text-lg font-medium">{directoryRoleLabel(role,language)}</h2>{members.some(member => member.role === role) ? cards(members.filter(member => member.role === role)) : <EmptyState message={loadError ? t("名單暫時無法載入，請稍後再試。", "The directory is temporarily unavailable.") : t("成員名單整理中。", "Directory updates are in progress.")} />}</section>)}
+        {groups.map(role => <section key={role} className="mt-14 border-t pt-8" style={{ borderColor: "var(--border)" }}><h2 className="mb-6 text-lg font-medium">{directoryRoleLabel(role,language)}</h2>{members.some(member => member.role === role) ? role === "alumni" ? <><p className="member-hint">{t("年份待確認的分組依原始名單段落整理，不代表已確認的畢業屆別。", "Groups with unconfirmed years follow the original directory sections, not verified graduation classes.")}</p>{alumniSections(members,language).map(group => <section className="alumni-section" key={group.key}><div className="alumni-section-heading"><h3>{group.title}</h3><span>{group.members.length} {t("位", "members")}</span></div>{cards(group.members)}</section>)}</> : cards(members.filter(member => member.role === role)) : <EmptyState message={loadError ? t("名單暫時無法載入，請稍後再試。", "The directory is temporarily unavailable.") : t("成員名單整理中。", "Directory updates are in progress.")} />}</section>)}
       </section>
     </PageShell>
   );

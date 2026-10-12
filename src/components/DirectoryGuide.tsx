@@ -10,6 +10,7 @@ export function DirectoryGuide() {
     [t("修改或刪除", "Edit or delete"), t("在姓名卡片按「修改」可改姓名、分類與日期。按「刪除」並確認後，該筆名單立即移除。允許同名者，操作前請確認所選卡片。", "Select Edit on a name card to change its name, category or dates. Select Delete and confirm to remove the entry immediately. Duplicate names are allowed, so check the selected card first.")],
   ];
   const dateRules = [
+    t("畢業名單優先按畢業年分段；年份未知時，可選原始名單分組。分組編號不代表已確認的屆別，補上年份後會自動歸入該年。", "Alumni are grouped by graduation year first. For unknown years, select an original directory group. Group numbers do not imply verified classes; a specified year takes priority."),
     t("仍在就學者只填開始年月，結束留空時顯示「至今」。", "For current students, a start date with no end date displays Present."),
     t("畢業成員若填了開始年月但未填結束年月，顯示「結束年月未填」，不會顯示「至今」。", "For alumni with a start date but no end date, the card displays End date not specified instead of Present."),
     t("選了年份就要選月份；結束年月不能早於開始年月，也不能只填結束年月。", "Each selected year needs a month. An end date requires a start date and cannot precede it."),
@@ -19,7 +20,7 @@ export function DirectoryGuide() {
     t("名單由管理者維護，新增姓名不會建立登入帳號。舊帳號、個人資料及照片保留；成員修改舊個人資料不會覆寫這份名單。", "The directory is administrator-owned. Adding a name does not create an account. Existing accounts, profiles and photos are retained; edits to legacy profiles do not overwrite this directory."),
     t("第一次更新只帶入已公開成員的姓名、分類與畢業年份，未知月份留空；暫停公開的資料不會自動重新刊登。遷移只執行一次，刪除的姓名不會因重啟重現。", "The first upgrade imports names, roles and graduation years from published profiles once. Unknown months remain blank and paused profiles stay unpublished. Deleted names do not return after a restart."),
     t("名單存於成員服務 PVC 的 members.sqlite，使用 directory 資料表；directory_migrations 記錄一次性遷移。", "The directory table is stored in members.sqlite on the member service PVC. The directory_migrations table records the one-time migration."),
-    t("公開讀取：GET /api/members/directory，只輸出 id、name、role、graduationYear、studyStart、studyEnd。舊 /people/:id 網址轉至 /people。", "Public endpoint: GET /api/members/directory, exposing only id, name, role, graduationYear, studyStart and studyEnd. Legacy /people/:id URLs redirect to /people."),
+    t("公開讀取：GET /api/members/directory，只輸出 id、name、role、graduationYear、studyStart、studyEnd、cohortGroup。舊 /people/:id 網址轉至 /people。", "Public endpoint: GET /api/members/directory, exposing only id, name, role, graduationYear, studyStart, studyEnd and cohortGroup. Legacy /people/:id URLs redirect to /people."),
     t("管理 API：/api/members/admin/directory 使用 GET／POST，/:id 使用 PUT／DELETE。網站驗證 ADMIN_PASSWORD，成員服務驗證內部 token。管理密碼只保存在本次頁面記憶體。", "Admin API: GET/POST on /api/members/admin/directory and PUT/DELETE on /:id. The website checks ADMIN_PASSWORD and the member service checks its internal token. The admin password stays in page memory."),
     t("維護入口：MemberAdminPage.tsx、PeoplePage.tsx、DirectoryGuide.tsx、src/lib/memberDirectory.ts；樣式在 src/styles/members.css，後端在 member-service.ts。", "Maintenance files: MemberAdminPage.tsx, PeoplePage.tsx, DirectoryGuide.tsx and src/lib/memberDirectory.ts. Styles live in src/styles/members.css and the backend in member-service.ts."),
   ];
