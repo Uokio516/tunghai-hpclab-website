@@ -10,7 +10,7 @@ export function DirectoryGuide() {
     [t("修改或刪除", "Edit or delete"), t("在姓名卡片按「修改」可改姓名、分類與日期。按「刪除」並確認後，該筆名單立即移除。允許同名者，操作前請確認所選卡片。", "Select Edit on a name card to change its name, category or dates. Select Delete and confirm to remove the entry immediately. Duplicate names are allowed, so check the selected card first.")],
   ];
   const dateRules = [
-    t("畢業名單按顯示順序連續排列，不依年份分段。數字越小越前，0 排在最後；推估年份請勾選「尚待確認」，核對後取消勾選。", "Alumni appear in one continuous list by display order. Lower numbers come first and 0 goes last. Mark estimated years as unconfirmed and uncheck after verification."),
+    t("畢業名單按顯示順序連續排列，不依年份分段。數字越小越前，0 排在最後；推估年份請勾選「尚待確認」，核對後取消勾選，此註記只供後台管理。", "Alumni appear in one continuous list by display order. Lower numbers come first and 0 goes last. Mark estimated years as unconfirmed for administration only, and uncheck after verification."),
     t("仍在就學者只填開始年月，結束留空時顯示「至今」。", "For current students, a start date with no end date displays Present."),
     t("畢業成員若填了開始年月但未填結束年月，顯示「結束年月未填」，不會顯示「至今」。", "For alumni with a start date but no end date, the card displays End date not specified instead of Present."),
     t("選了年份就要選月份；結束年月不能早於開始年月，也不能只填結束年月。", "Each selected year needs a month. An end date requires a start date and cannot precede it."),
