@@ -408,23 +408,39 @@ function HomeLiveOverview({ live }: { live: ReturnType<typeof useLiveTelemetry> 
 
 function LiveComputeCore({ live }: { live: ReturnType<typeof useLiveTelemetry> }) {
   const { t } = useLocale();
+  const [motionEnabled, setMotionEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem("hpclab-core-motion");
+      if (saved === "on" || saved === "off") return saved === "on";
+    } catch { /* Storage may be unavailable in private browsing. */ }
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+  const toggleMotion = () => {
+    const enabled = !motionEnabled;
+    setMotionEnabled(enabled);
+    try { localStorage.setItem("hpclab-core-motion", enabled ? "on" : "off"); } catch { /* The control still works without persistence. */ }
+  };
   const load = live.busyRatio ?? 0.18;
   const loadLabel = live.busyRatio == null ? "AWAITING LIVE LINK" : `${Math.round(load * 100)}% ACTIVE LOAD`;
   return <motion.div
     className="live-compute-core"
+    data-motion={motionEnabled ? "on" : "off"}
     initial={{ opacity: 0, scale: 0.8 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ delay: 0.7, duration: 0.8 }}
     style={{ "--core-load": load } as React.CSSProperties}
-    role="img"
-    aria-label={`${t("即時運算核心", "Live compute core")}，${loadLabel}`}
   >
+    <div role="img" aria-label={`${t("即時運算核心", "Live compute core")}，${loadLabel}`}>
     <div className="core-orbit core-orbit-a"><i /><i /><i /></div>
     <div className="core-orbit core-orbit-b"><i /><i /></div>
     <div className="core-reactor"><span /></div>
     <div className="core-readout core-readout-left"><small>COMPUTE FABRIC</small><strong>{live.nodesOnline ?? "—"} NODES</strong></div>
     <div className="core-readout core-readout-right"><small>GPU TELEMETRY</small><strong>{live.gpuOnline ?? "—"} ONLINE</strong></div>
     <div className="core-load-label">{loadLabel}</div>
+    </div>
+    <button type="button" className="core-motion-control" onClick={toggleMotion} aria-pressed={motionEnabled}>
+      {motionEnabled ? t("暫停球體動畫", "Pause animation") : t("播放球體動畫", "Play animation")}
+    </button>
   </motion.div>;
 }
 
