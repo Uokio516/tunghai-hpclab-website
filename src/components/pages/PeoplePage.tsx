@@ -12,7 +12,7 @@ export function PeoplePage() {
   const [loadError, setLoadError] = useState(false);
   useEffect(() => { const controller = new AbortController(); fetch("/api/members/directory", { cache: "no-store", signal: controller.signal }).then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(data => setMembers(data.members ?? [])).catch(error => { if (error.name !== "AbortError") setLoadError(true); }); return () => controller.abort(); }, []);
   const groups: DirectoryRole[] = ["master1", "master2", "alumni"];
-  const cards = (items: DirectoryMember[]) => <ul className="directory-grid">{items.map(member => <li className="member-panel directory-card" key={member.id}><h3>{member.name}</h3>{member.role === "alumni" && member.graduationYear && <p>{t(`${member.graduationYear} ???`, `Graduated ${member.graduationYear}`)}</p>}{studyPeriod(member,language) && <p className="member-hint">{studyPeriod(member,language)}</p>}</li>)}</ul>;
+  const cards = (items: DirectoryMember[]) => <ul className="directory-grid">{items.map(member => <li className="member-panel directory-card" key={member.id}><h3>{member.name}</h3>{member.role === "alumni" && member.graduationYear && <p>{t(`${member.graduationYear} 年畢業`, `Graduated ${member.graduationYear}`)}</p>}{studyPeriod(member,language) && <p className="member-hint">{studyPeriod(member,language)}</p>}</li>)}</ul>;
 
   return (
     <PageShell eyebrow="People" title={t("研究成員", "People")} lede={t("由人、想法與實驗構成的研究網絡。", "A research community built on people, ideas and experiments.")}>
@@ -115,7 +115,7 @@ export function PeoplePage() {
           </div>
         )}
 
-        {groups.map(role => <section key={role} className="mt-14 border-t pt-8" style={{ borderColor: "var(--border)" }}><h2 className="mb-6 text-lg font-medium">{directoryRoleLabel(role,language)}</h2>{members.some(member => member.role === role) ? cards(members.filter(member => member.role === role)) : <EmptyState message={loadError ? t("???????????", "The directory is temporarily unavailable.") : t("??????", "Directory updates are in progress.")} />}</section>)}
+        {groups.map(role => <section key={role} className="mt-14 border-t pt-8" style={{ borderColor: "var(--border)" }}><h2 className="mb-6 text-lg font-medium">{directoryRoleLabel(role,language)}</h2>{members.some(member => member.role === role) ? cards(members.filter(member => member.role === role)) : <EmptyState message={loadError ? t("名單暫時無法載入，請稍後再試。", "The directory is temporarily unavailable.") : t("成員名單整理中。", "Directory updates are in progress.")} />}</section>)}
       </section>
     </PageShell>
   );
