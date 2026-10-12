@@ -629,7 +629,6 @@ h3 {
 .project-showcase-card { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 22px; background: var(--surface); }
 .project-showcase-image { position: relative; height: clamp(220px, 26vw, 330px); display: grid; place-items: center; background: #171819; overflow: hidden; }
 .project-showcase-image img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.project-showcase-image figcaption { position: absolute; left: 14px; bottom: 13px; padding: 6px 10px; border: 1px solid rgba(255,255,255,.25); border-radius: 7px; background: rgba(5,5,5,.78); color: white; font-size: 11px; }
 .project-showcase-copy { padding: 25px clamp(20px, 2.5vw, 34px) 30px; }
 .project-showcase-number { color: var(--brand-light); font: 600 12px/1.2 ui-monospace, monospace; letter-spacing: .08em; }
 .project-showcase-copy h3 { margin: 15px 0 0; font-size: clamp(21px, 2.1vw, 27px); font-weight: 600; line-height: 1.35; }

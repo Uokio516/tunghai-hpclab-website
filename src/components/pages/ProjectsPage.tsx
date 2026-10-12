@@ -6,7 +6,7 @@ import { useLocale } from "../../lib/locale";
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   const { language, t } = useLocale();
   return <motion.article className="project-showcase-card" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.15 }} transition={{ duration: 0.45, delay: Math.min(index, 4) * 0.06 }}>
-    <figure className="project-showcase-image"><img src={project.image} alt={language === "en" ? project.imageAltEn : project.imageAltZh} loading={index ? "lazy" : "eager"} decoding="async" />{project.imageKind === "recreated" && <figcaption>{t("依提供畫面重製示意", "Recreated from a supplied screen")}</figcaption>}</figure>
+    <figure className="project-showcase-image"><img src={project.image} alt={language === "en" ? project.imageAltEn : project.imageAltZh} loading={index ? "lazy" : "eager"} decoding="async" /></figure>
     <div className="project-showcase-copy">
       <p className="project-showcase-number">{String(index + 1).padStart(2, "0")} / {project.group === "research" ? t("研究系統", "Research system") : t("運算平台", "Computing platform")}</p>
       <h3>{language === "en" ? project.titleEn : project.titleZh}</h3>
@@ -25,7 +25,7 @@ export function ProjectsPage() {
     <div className="project-showcase-wrap">
       <section aria-labelledby="research-systems-title"><div className="project-showcase-section-head"><span>01</span><h2 id="research-systems-title">{t("研究系統", "Research systems")}</h2><p>{t("應用、分析與資料", "Applications, analysis and data")}</p></div><div className="project-showcase-grid">{research.map((project, i) => <ProjectCard key={project.id} project={project} index={i} />)}</div></section>
       <section aria-labelledby="compute-platforms-title"><div className="project-showcase-section-head"><span>02</span><h2 id="compute-platforms-title">{t("運算平台", "Computing platforms")}</h2><p>{t("支撐研究的基礎設施", "Infrastructure supporting research")}</p></div><div className="project-showcase-grid">{platforms.map((project, i) => <ProjectCard key={project.id} project={project} index={research.length + i} />)}</div></section>
-      <p className="project-showcase-note">{t("畫面為系統展示截圖或依提供畫面重製的示意圖；實際服務狀態請以各系統目前公告為準。", "Images are system screenshots or reconstructions from supplied screens. Check each service for its current availability.")}</p>
+      <p className="project-showcase-note">{t("畫面供專案展示，並非即時影像或即時數據。", "Images showcase the projects and do not show live video or data.")}</p>
     </div>
   </PageShell>;
 }
