@@ -65,11 +65,38 @@ export function PointerAtmosphere() {
         ctx.beginPath(); ctx.arc(x, y, 22 + power * 5, -Math.PI / 2, -Math.PI / 2 + TAU * power); ctx.stroke();
       }
       for (let i = bursts.length - 1; i >= 0; i--) {
-        const burst = bursts[i], progress = (now - burst.started) / (620 + burst.power * 430);
+        const burst = bursts[i], maximum = burst.combo === 8;
+        const progress = (now - burst.started) / (maximum ? 1150 : 620 + burst.power * 430);
         if (progress >= 1) { bursts.splice(i, 1); continue; }
         const travel = 1 - (1 - progress) ** 3, alpha = (1 - progress) ** 1.5;
         const accent = colors[burst.combo >= 5 ? 2 : burst.combo >= 3 ? 1 : 0];
         glow(burst.x, burst.y, 22 + travel * 65, accent, alpha * (.12 + burst.power * .14));
+        if (maximum) {
+          glow(burst.x, burst.y, 35 + travel * 100, colors[0], alpha * .23);
+          // Three separated arcs unwind together, leaving the centre open.
+          for (let arc = 0; arc < 3; arc++) {
+            const angle = arc * TAU / 3 + progress * 2.4;
+            ctx.strokeStyle = `rgba(${colors[arc]},${alpha * .85})`;
+            ctx.lineWidth = 2.2 * (1 - progress) + .4;
+            ctx.beginPath();
+            ctx.arc(burst.x, burst.y, 18 + travel * (65 + burst.power * 35), angle, angle + TAU / 5);
+            ctx.stroke();
+          }
+          for (let star = 0; star < 9; star++) {
+            const angle = star * TAU / 9 + .2;
+            const distance = 18 + travel * (105 + burst.power * 45);
+            const sx = burst.x + Math.cos(angle) * distance, sy = burst.y + Math.sin(angle) * distance;
+            const size = (4 + star % 3 * 2) * Math.sin(Math.PI * Math.min(progress * 2, 1)) + 1;
+            ctx.fillStyle = `rgba(${colors[star % 3]},${alpha})`;
+            ctx.beginPath();
+            for (let tip = 0; tip < 8; tip++) {
+              const a = tip * TAU / 8, r = tip % 2 ? size * .24 : size;
+              const px = sx + Math.cos(a) * r, py = sy + Math.sin(a) * r;
+              if (tip === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.closePath(); ctx.fill();
+          }
+        }
         // A shockwave is reserved for charged releases; clicks produce star streaks.
         if (burst.power > .3) {
           ctx.strokeStyle = `rgba(${accent},${alpha * .45})`; ctx.lineWidth = 1;
@@ -87,14 +114,20 @@ export function PointerAtmosphere() {
       }
       const latest = bursts.at(-1);
       if (latest && latest.combo > 1) {
-        const age = now - latest.started, alpha = Math.min(age / 70, 1) * Math.max(0, 1 - age / 700);
+        const maximum = latest.combo === 8;
+        const age = now - latest.started, alpha = Math.min(age / 70, 1) * Math.max(0, 1 - age / (maximum ? 1100 : 700));
         const bx = Math.max(42, Math.min(width - 42, latest.x));
         const by = latest.y < 70 ? latest.y + 42 : latest.y - 35;
         ctx.fillStyle = light ? `rgba(245,240,230,${alpha * .95})` : `rgba(18,21,26,${alpha * .9})`;
         ctx.beginPath(); ctx.roundRect(bx - 37, by - 12, 74, 24, 12); ctx.fill();
+        if (maximum) {
+          const border = ctx.createLinearGradient(bx - 37, by, bx + 37, by);
+          colors.forEach((color, i) => border.addColorStop(i / 2, `rgba(${color},${alpha})`));
+          ctx.strokeStyle = border; ctx.lineWidth = 1.3; ctx.stroke();
+        }
         ctx.fillStyle = `rgba(${colors[latest.combo >= 5 ? 2 : 0]},${alpha})`;
         ctx.font = "600 10px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText(`COMBO ×${latest.combo}`, bx, by);
+        ctx.fillText(maximum ? "MAX ×8" : `COMBO ×${latest.combo}`, bx, by);
       }
       if (opacity > .01) {
         const ringColor = light ? colors[0] : "197,168,131";
@@ -143,11 +176,15 @@ export function PointerAtmosphere() {
       if (!media.matches || nativeTarget(event)) { reset(); return; }
       const now = performance.now();
       combo = now - lastRelease <= 900 ? Math.min(combo + 1, 8) : 1; lastRelease = now;
+      // Repeated clicks at the cap replace the previous finale instead of stacking it.
+      if (combo === 8) {
+        for (let i = bursts.length - 1; i >= 0; i--) if (bursts[i].combo === 8) bursts.splice(i, 1);
+      }
       const power = Math.min((now - charge.started) / 1200, 1), count = 12 + Math.round(power * 28) + (combo - 1) * 3;
       bursts.push({ x: event.clientX, y: event.clientY, started: now, power, combo,
         sparks: Array.from({ length: count }, (_, i) => ({
           angle: i * TAU / count + Math.random() * .15,
-          reach: (26 + power * 125 + (combo - 1) * 9) * (.4 + Math.random() * .6),
+          reach: (26 + power * 125 + (combo - 1) * 9 + (combo === 8 ? 35 : 0)) * (.4 + Math.random() * .6),
           size: .8 + Math.random() * 1.2, color: i % 3,
         })),
       });
