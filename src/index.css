@@ -359,19 +359,16 @@ body {
 .core-reactor::before { inset:15%; background:radial-gradient(circle,#fff 0 8%,#e8d5b7 12%,rgba(167,139,113,.5) 34%,transparent 70%); animation:core-breathe calc(2.7s - var(--core-load) * 1.3s) ease-in-out infinite; }
 .core-reactor::after { inset:-35%; border:1px dashed rgba(201,184,160,.2); animation:core-spin 10s linear infinite; }
 .core-reactor span { position:absolute; inset:42%; border-radius:50%; background:#fff; box-shadow:0 0 18px 6px #e8d5b7; }
-.core-orbit { position:absolute; left:50%; top:50%; border:1px solid rgba(201,184,160,.19); border-radius:50%; transform:translate(-50%,-50%) rotateX(68deg); animation:core-orbit-spin-a 11s linear infinite; }
+.core-orbit { position:absolute; left:50%; top:50%; border:1px solid rgba(201,184,160,.19); border-radius:50%; transform:translate(-50%,-50%) rotateX(68deg); animation:core-spin 11s linear infinite; }
 .core-orbit-a { width:15rem; height:15rem; }
-.core-orbit-b { width:10.5rem; height:10.5rem; transform:translate(-50%,-50%) rotateY(68deg); animation-name:core-orbit-spin-b; animation-duration:7s; animation-direction:reverse; }
+.core-orbit-b { width:10.5rem; height:10.5rem; transform:translate(-50%,-50%) rotateY(68deg); animation-duration:7s; animation-direction:reverse; }
 .core-orbit i { position:absolute; width:.36rem; height:.36rem; border-radius:50%; background:#e8d5b7; box-shadow:0 0 12px #e8d5b7; }
 .core-orbit i:nth-child(1){left:14%;top:15%}.core-orbit i:nth-child(2){right:5%;top:52%}.core-orbit i:nth-child(3){left:40%;bottom:-2%}
 .core-readout { position:absolute; top:45%; color:var(--text-dim); font-family:var(--font-mono); text-align:left; }
 .core-readout-left { left:0 }.core-readout-right { right:0; text-align:right }
 .core-readout small,.core-readout strong { display:block }.core-readout small { font-size:.55rem; letter-spacing:.14em }.core-readout strong { margin-top:.3rem; color:var(--brand-light); font-size:.72rem; letter-spacing:.08em }
 .core-load-label { position:absolute; left:50%; bottom:.1rem; transform:translateX(-50%); color:var(--text-faint); font:500 .55rem var(--font-mono); letter-spacing:.14em; white-space:nowrap; }
-/* Keep translation and tilt in each frame; avoid independent rotate compositing. */
-@keyframes core-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
-@keyframes core-orbit-spin-a { from { transform:translate(-50%,-50%) rotateX(68deg) rotateZ(0deg); } to { transform:translate(-50%,-50%) rotateX(68deg) rotateZ(360deg); } }
-@keyframes core-orbit-spin-b { from { transform:translate(-50%,-50%) rotateY(68deg) rotateZ(0deg); } to { transform:translate(-50%,-50%) rotateY(68deg) rotateZ(360deg); } }
+@keyframes core-spin { to { rotate:360deg; } }
 @keyframes core-breathe { 50% { transform:scale(var(--energy)); opacity:.72; } }
 
 .webgl-fallback { min-height:24rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:2rem; border:1px solid var(--border); border-radius:2rem; text-align:center; background:radial-gradient(circle at 50% 35%,var(--brand-soft),transparent 45%); }
