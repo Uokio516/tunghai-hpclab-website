@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
+import { AmbientShips } from "../lib/ambientShips";
 
 type Spark = { angle: number; reach: number; size: number; color: number };
-type Burst = { x: number; y: number; started: number; power: number; combo: number; sparks: Spark[] };
+type Burst = { x: number; y: number; started: number; power: number; combo: number; score?: number; sparks: Spark[] };
 const TAU = Math.PI * 2;
 const NATIVE_CURSOR = "input,textarea,select,[contenteditable]:not([contenteditable=false]),.hero-preview";
 
@@ -21,6 +22,8 @@ export function PointerAtmosphere() {
     let charge: { started: number; pointerId: number } | null = null;
     const trail: { x: number; y: number; started: number }[] = [];
     const bursts: Burst[] = [];
+    const ships = new AmbientShips();
+    let focused = true;
     const dot = (px: number, py: number, size: number, color: string, alpha: number) => {
       ctx.fillStyle = `rgba(${color},${alpha})`;
       ctx.beginPath(); ctx.arc(px, py, size, 0, TAU); ctx.fill();
@@ -41,6 +44,7 @@ export function PointerAtmosphere() {
       opacity += ((active ? 1 : 0) - opacity) * ease;
       const colors = light ? ["133,91,43", "24,122,139", "127,83,150"] : ["241,213,166", "111,211,225", "201,159,242"];
       ctx.clearRect(0, 0, width, height);
+      if (media.matches && focused && !document.hidden) ships.draw(ctx, now, dt, width, height, light);
       while (trail.length && now - trail[0].started > 360) trail.shift();
       trail.forEach((point, i) => {
         const life = 1 - (now - point.started) / 360;
@@ -86,7 +90,7 @@ export function PointerAtmosphere() {
         });
       }
       const latest = bursts.at(-1);
-      if (latest && latest.combo > 1) {
+      if (latest && (latest.combo > 1 || latest.score)) {
         const age = now - latest.started, alpha = Math.min(age / 70, 1) * Math.max(0, 1 - age / 700);
         const bx = Math.max(42, Math.min(width - 42, latest.x));
         const by = latest.y < 70 ? latest.y + 42 : latest.y - 35;
@@ -94,7 +98,7 @@ export function PointerAtmosphere() {
         ctx.beginPath(); ctx.roundRect(bx - 37, by - 12, 74, 24, 12); ctx.fill();
         ctx.fillStyle = `rgba(${colors[latest.combo >= 5 ? 2 : 0]},${alpha})`;
         ctx.font = "600 10px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText(`COMBO ×${latest.combo}`, bx, by);
+        ctx.fillText(latest.score ? `HIT · ${latest.score}` : `COMBO ×${latest.combo}`, bx, by);
       }
       if (opacity > .01) {
         if (!charge) {
@@ -109,12 +113,13 @@ export function PointerAtmosphere() {
         ctx.lineWidth = 1.5; ctx.stroke(); ctx.fill();
       }
       const settling = Math.abs(x - haloX) + Math.abs(y - haloY) + Math.abs((hovering ? 19 : 12) - radius) > .1;
-      if (charge || bursts.length || trail.length || (active ? settling || opacity < .99 : opacity > .01)) frame = requestAnimationFrame(draw);
+      if (ships.flying || charge || bursts.length || trail.length || (active ? settling || opacity < .99 : opacity > .01)) frame = requestAnimationFrame(draw);
     };
     const wake = () => { if (!frame) { previous = performance.now(); frame = requestAnimationFrame(draw); } };
     const reset = () => {
       active = false; opacity = 0; charge = null; combo = 0; lastRelease = -Infinity;
       trail.length = 0; bursts.length = 0; delete root.dataset.labCursor;
+      ships.clear();
       cancelAnimationFrame(frame); frame = 0; ctx.clearRect(0, 0, width, height);
     };
     const resize = () => {
@@ -138,7 +143,15 @@ export function PointerAtmosphere() {
     };
     const press = (event: PointerEvent) => {
       if (!media.matches || event.pointerType !== "mouse" || event.button !== 0 || nativeTarget(event)) return;
-      move(event); charge = { started: performance.now(), pointerId: event.pointerId }; wake();
+      move(event);
+      const hit = ships.hit(event.clientX, event.clientY);
+      if (hit) {
+        charge = null;
+        bursts.push({ x: hit.x, y: hit.y, started: performance.now(), power: 1, combo: 1, score: hit.score,
+          sparks: Array.from({ length: 48 }, (_, i) => ({ angle: i * TAU / 48, reach: 50 + Math.random() * 100, size: 1 + Math.random() * 1.7, color: i % 3 })) });
+        if (bursts.length > 4) bursts.shift();
+      } else charge = { started: performance.now(), pointerId: event.pointerId };
+      wake();
     };
     const release = (event: PointerEvent) => {
       if (!charge || event.pointerId !== charge.pointerId || event.button !== 0) return;
@@ -158,6 +171,11 @@ export function PointerAtmosphere() {
     };
     const cancel = (event: PointerEvent) => { if (charge?.pointerId === event.pointerId) reset(); };
     const visibility = () => { if (document.hidden) reset(); };
+    const blur = () => { focused = false; reset(); };
+    const focus = () => { focused = true; };
+    const flightTimer = window.setInterval(() => {
+      if (media.matches && focused && !document.hidden && ships.allowed() && !document.activeElement?.matches(NATIVE_CURSOR)) wake();
+    }, 1500);
     const themeObserver = new MutationObserver(() => { light = root.dataset.theme === "light"; if (active) wake(); });
     themeObserver.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
     resize();
@@ -167,18 +185,20 @@ export function PointerAtmosphere() {
     window.addEventListener("pointerup", release, { passive: true });
     window.addEventListener("pointercancel", cancel, { passive: true });
     root.addEventListener("pointerleave", reset);
-    window.addEventListener("blur", reset);
+    window.addEventListener("blur", blur);
+    window.addEventListener("focus", focus);
     document.addEventListener("visibilitychange", visibility);
     media.addEventListener("change", reset);
     return () => {
-      reset(); themeObserver.disconnect();
+      reset(); themeObserver.disconnect(); clearInterval(flightTimer);
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerdown", press);
       window.removeEventListener("pointerup", release);
       window.removeEventListener("pointercancel", cancel);
       root.removeEventListener("pointerleave", reset);
-      window.removeEventListener("blur", reset);
+      window.removeEventListener("blur", blur);
+      window.removeEventListener("focus", focus);
       document.removeEventListener("visibilitychange", visibility);
       media.removeEventListener("change", reset);
     };
