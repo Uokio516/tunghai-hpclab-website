@@ -2,6 +2,8 @@
 
 更新：2026-10-11。**成員名單目前由管理者直接維護姓名與就學年月**，請先看[現行名單流程](member-directory.md)。既有邀請與個人資料模組保留作相容用途，不再作為公開名單來源。接手開發另見[交接手冊](handoff-2026-10-08.md)；硬體覆蓋現況另見 [exporter-rollout-2026-10-03.md](exporter-rollout-2026-10-03.md)。
 
+`/projects` 的八個展示項目集中在 `src/data/projects.ts`，頁面結構在 `src/components/pages/ProjectsPage.tsx`，樣式在 `src/index.css`，圖片在 `public/images/projects/`。網球分析與 TrackGuard 圖片依使用者截圖重製，頁面有示意標籤；其餘圖片是海報整理過的系統截圖。新增項目時請填寫中英文標題、說明、圖片替代文字與來源類型，並避免把截圖數值誤寫成即時狀態。A1 海報原稿另存於桌面 `HPC-Lab-Posters/Source/`，不在網站部署映像中。
+
 ## 1. 系統邊界
 
 ```mermaid

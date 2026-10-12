@@ -6,8 +6,8 @@ import { useLocale } from "../../lib/locale";
 
 const FEATURED = projects.filter((p) => p.featured).slice(0, 3);
 
-/* Homepage-scale teaser (3 of the 5 real projects) — full list with real
-   descriptions/notes lives at /projects. Same numbered-row language as
+/* Homepage-scale teaser; full list with images and descriptions lives at
+   /projects. Same numbered-row language as
    ResearchAreas rather than a card grid, so the page reads as one system. */
 export function FeaturedProjects() {
   const { language, t } = useLocale();
@@ -43,7 +43,7 @@ export function FeaturedProjects() {
             transition={{ duration: 0.55, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-baseline sm:gap-8">
-              <span className="font-mono text-xs tabular-nums opacity-45 sm:w-14">{project.year}</span>
+              <span className="font-mono text-xs tabular-nums opacity-45 sm:w-14">{String(i + 1).padStart(2, "0")}</span>
               <div className="flex-1">
                 <h3 className="text-xl font-medium uppercase leading-tight tracking-tight sm:text-2xl">
                   {language === "en" ? project.titleEn : project.titleZh}
