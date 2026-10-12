@@ -15,7 +15,7 @@ export function PointerAtmosphere() {
     const media = matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
     const root = document.documentElement;
     let width = innerWidth, height = innerHeight, frame = 0, previous = 0;
-    let active = false, hovering = false, opacity = 0, radius = 12;
+    let active = false, hovering = false, opacity = 0, radius = 13;
     let x = 0, y = 0, haloX = 0, haloY = 0, combo = 0, lastRelease = -Infinity;
     let light = root.dataset.theme === "light";
     let charge: { started: number; pointerId: number } | null = null;
@@ -35,9 +35,9 @@ export function PointerAtmosphere() {
       frame = 0;
       const dt = Math.min((now - previous) / 1000 || .016, .05);
       previous = now;
-      const ease = 1 - Math.exp(-20 * dt);
+      const ease = 1 - Math.exp(-12 * dt);
       haloX += (x - haloX) * ease; haloY += (y - haloY) * ease;
-      radius += ((hovering ? 19 : 12) - radius) * ease;
+      radius += ((hovering ? 24 : 13) - radius) * ease;
       opacity += ((active ? 1 : 0) - opacity) * ease;
       const colors = light ? ["133,91,43", "24,122,139", "127,83,150"] : ["241,213,166", "111,211,225", "201,159,242"];
       ctx.clearRect(0, 0, width, height);
@@ -97,18 +97,22 @@ export function PointerAtmosphere() {
         ctx.fillText(`COMBO ×${latest.combo}`, bx, by);
       }
       if (opacity > .01) {
-        if (!charge) {
-          ctx.strokeStyle = `rgba(${colors[hovering ? 1 : 0]},${opacity * .45})`; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.arc(haloX, haloY, radius, 0, TAU); ctx.stroke();
-        }
-        // The diamond stays exactly under the mouse, with contrasting edges.
-        ctx.beginPath(); ctx.moveTo(x, y - 5); ctx.lineTo(x + 3.5, y);
-        ctx.lineTo(x, y + 5); ctx.lineTo(x - 3.5, y); ctx.closePath();
-        ctx.fillStyle = `rgba(${colors[0]},${opacity})`;
-        ctx.strokeStyle = light ? `rgba(255,255,255,${opacity})` : `rgba(15,16,20,${opacity})`;
-        ctx.lineWidth = 1.5; ctx.stroke(); ctx.fill();
+        const ringColor = light ? colors[0] : "197,168,131";
+        const coreColor = light ? colors[0] : "232,213,183";
+        const halo = ctx.createRadialGradient(haloX, haloY, 0, haloX, haloY, 125);
+        halo.addColorStop(0, `rgba(${ringColor},${.09 * opacity})`);
+        halo.addColorStop(.45, `rgba(${colors[1]},${.035 * opacity})`);
+        halo.addColorStop(1, `rgba(${colors[1]},0)`);
+        ctx.fillStyle = halo; ctx.fillRect(haloX - 125, haloY - 125, 250, 250);
+        ctx.strokeStyle = `rgba(${ringColor},${.55 * opacity})`; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(haloX, haloY, radius, 0, TAU); ctx.stroke();
+        // Original orbital cursor: the center follows the exact pointer position.
+        dot(x, y, 2.5, coreColor, opacity);
+        ctx.strokeStyle = `rgba(${coreColor},${opacity * .8})`;
+        ctx.beginPath(); ctx.ellipse(x, y, 7, 3, Math.PI / 4, 0, TAU); ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(x, y, 7, 3, -Math.PI / 4, 0, TAU); ctx.stroke();
       }
-      const settling = Math.abs(x - haloX) + Math.abs(y - haloY) + Math.abs((hovering ? 19 : 12) - radius) > .1;
+      const settling = Math.abs(x - haloX) + Math.abs(y - haloY) + Math.abs((hovering ? 24 : 13) - radius) > .1;
       if (charge || bursts.length || trail.length || (active ? settling || opacity < .99 : opacity > .01)) frame = requestAnimationFrame(draw);
     };
     const wake = () => { if (!frame) { previous = performance.now(); frame = requestAnimationFrame(draw); } };
