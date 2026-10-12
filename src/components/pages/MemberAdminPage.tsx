@@ -1,10 +1,11 @@
+import { GraduationDate } from "../GraduationDate";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { PageShell } from "../layout/PageShell";
 import { DirectoryGuide } from "../DirectoryGuide";
 import { PublicationSyncAdmin } from "../PublicationSyncAdmin";
 import { useLocale } from "../../lib/locale";
-import { isAlumniRole, directoryRoleLabel, graduationLabel, studyPeriod, type DirectoryMember, type DirectoryRole } from "../../lib/memberDirectory";
+import { isAlumniRole, directoryRoleLabel, studyPeriod, type DirectoryMember, type DirectoryRole } from "../../lib/memberDirectory";
 
 type Entry = Omit<DirectoryMember, "id">;
 const blank = (): Entry => ({ name: "", role: "master1", graduationYear: "", studyStart: "", studyEnd: "", cohortGroup: 0, displayOrder: 0, yearEstimated: false });
@@ -70,7 +71,7 @@ export function MemberAdminPage() {
           <div className="member-review-actions"><button className="member-primary" disabled={busy}>{busy ? t("儲存中…", "Saving…") : t("儲存名單", "Save")}</button><button type="button" disabled={busy} onClick={() => { setEditing(null); setError(""); }}>{t("取消", "Cancel")}</button></div>
         </form>}</div>
         {error && <p className="member-error" role="alert">{error}</p>}{notice && <p className="member-success" role="status">{notice}</p>}
-        {roles.map(role => <section className="directory-group" key={role}><div className="member-admin-heading"><h2>{directoryRoleLabel(role, language)}</h2><span>{members.filter(member => member.role === role).length}</span></div><div className="directory-grid">{members.filter(member => member.role === role).map(member => <article className="member-panel directory-card" key={member.id}><h3>{member.name}</h3>{isAlumniRole(role) && graduationLabel(member,language) && <p>{graduationLabel(member,language)}</p>}{studyPeriod(member,language) && <p className="member-hint">{studyPeriod(member,language)}</p>}<div className="member-review-actions"><button type="button" disabled={busy} onClick={() => openEditor(member)}>{t("修改", "Edit")}</button><button type="button" disabled={busy} onClick={() => remove(member)}>{t("刪除", "Delete")}</button></div></article>)}</div>{!members.some(member => member.role === role) && <p className="member-hint">{t("目前沒有名單。", "No members yet.")}</p>}</section>)}
+        {roles.map(role => <section className="directory-group" key={role}><div className="member-admin-heading"><h2>{directoryRoleLabel(role, language)}</h2><span>{members.filter(member => member.role === role).length}</span></div><div className="directory-grid">{members.filter(member => member.role === role).map(member => <article className="member-panel directory-card" key={member.id}><h3>{member.name}</h3>{isAlumniRole(role) && <GraduationDate member={member} language={language} />}{studyPeriod(member,language) && <p className="member-hint">{studyPeriod(member,language)}</p>}<div className="member-review-actions"><button type="button" disabled={busy} onClick={() => openEditor(member)}>{t("修改", "Edit")}</button><button type="button" disabled={busy} onClick={() => remove(member)}>{t("刪除", "Delete")}</button></div></article>)}</div>{!members.some(member => member.role === role) && <p className="member-hint">{t("目前沒有名單。", "No members yet.")}</p>}</section>)}
       </>}
     </section>
   </PageShell>;
