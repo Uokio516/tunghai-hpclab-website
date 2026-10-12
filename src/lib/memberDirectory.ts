@@ -3,7 +3,7 @@ export type DirectoryRole = "phd" | "master1" | "master2" | "phdAlumni" | "alumn
 export const isAlumniRole = (role: DirectoryRole) => role === "alumni" || role === "phdAlumni";
 export type DirectoryMember = { id: number; name: string; role: DirectoryRole; graduationYear: string; studyStart: string; studyEnd: string; cohortGroup?: number; displayOrder?: number; yearEstimated?: boolean };
 export function directoryRoleLabel(role: DirectoryRole, language: Language) {
-  return ({ phd: ["博士班", "PhD Students"], master1: ["碩一", "Master's Year 1"], master2: ["碩二", "Master's Year 2"], phdAlumni: ["博士班畢業學長姊", "PhD Alumni"], alumni: ["碩士班畢業學長姊", "Master's Alumni"] })[role][language === "en" ? 1 : 0];
+  return ({ phd: ["博士班（工業工程系）", "PhD Students (Industrial Engineering)"], master1: ["碩一", "Master's Year 1"], master2: ["碩二", "Master's Year 2"], phdAlumni: ["博士班（已畢業）", "PhD Alumni"], alumni: ["碩士班（已畢業）", "Master's Alumni"] })[role][language === "en" ? 1 : 0];
 }
 export function studyPeriod(member: Pick<DirectoryMember, "studyStart" | "studyEnd" | "role">, language: Language) {
   if (!member.studyStart) return "";
