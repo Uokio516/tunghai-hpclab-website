@@ -209,9 +209,10 @@ async function issueSession(res: Response, accountId: number) {
   setSession(res, value);
 }
 
-const directoryRows = async () => (await db.all("SELECT id,name,role,graduation_year AS graduationYear,study_start AS studyStart,study_end AS studyEnd,cohort_group AS cohortGroup,display_order AS displayOrder,year_estimated AS yearEstimated FROM directory ORDER BY CASE role WHEN 'master1' THEN 0 WHEN 'master2' THEN 1 ELSE 2 END,CASE WHEN role='alumni' AND display_order=0 THEN 1 ELSE 0 END,CASE WHEN role='alumni' THEN display_order ELSE 0 END,CASE WHEN role<>'alumni' THEN name ELSE '' END,id")).map(item => ({...item,yearEstimated: Boolean(item.yearEstimated)}));
+const directoryRoles = ["phd", "master1", "master2", "phdAlumni", "alumni"] as const;
+const directoryRows = async () => (await db.all("SELECT id,name,role,graduation_year AS graduationYear,study_start AS studyStart,study_end AS studyEnd,cohort_group AS cohortGroup,display_order AS displayOrder,year_estimated AS yearEstimated FROM directory ORDER BY CASE role WHEN 'phd' THEN 0 WHEN 'master1' THEN 1 WHEN 'master2' THEN 2 WHEN 'phdAlumni' THEN 3 ELSE 4 END,CASE WHEN role IN ('alumni','phdAlumni') AND display_order=0 THEN 1 ELSE 0 END,CASE WHEN role IN ('alumni','phdAlumni') THEN display_order ELSE 0 END,CASE WHEN role NOT IN ('alumni','phdAlumni') THEN name ELSE '' END,id")).map(item => ({...item,yearEstimated: Boolean(item.yearEstimated)}));
 function safeDirectory(input: any) {
-  if (!input || typeof input.name !== "string" || !input.name.trim() || input.name.trim().length > 40 || !roles.includes(input.role)) return null;
+  if (!input || typeof input.name !== "string" || !input.name.trim() || input.name.trim().length > 40 || !directoryRoles.includes(input.role)) return null;
   const graduationYear = input.graduationYear ?? "";
   const studyStart = input.studyStart ?? "";
   const studyEnd = input.studyEnd ?? "";
@@ -223,7 +224,8 @@ function safeDirectory(input: any) {
   const validMonth = (value: unknown) => typeof value === "string" && (!value || /^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(value));
   if (typeof graduationYear !== "string" || (graduationYear && !/^(19|20|21)\d{2}$/.test(graduationYear)) || !validMonth(studyStart) || !validMonth(studyEnd)) return null;
   if (studyEnd && !studyStart || studyStart && studyEnd && studyEnd < studyStart) return null;
-  return { name: input.name.trim(), role: input.role as Role, graduationYear: input.role === "alumni" ? graduationYear : "", studyStart, studyEnd, cohortGroup: input.role === "alumni" ? cohortGroup : 0, displayOrder: input.role === "alumni" ? displayOrder : 0, yearEstimated: input.role === "alumni" && Boolean(graduationYear) && yearEstimated };
+  const graduated = input.role === "alumni" || input.role === "phdAlumni";
+  return { name: input.name.trim(), role: input.role as typeof directoryRoles[number], graduationYear: graduated ? graduationYear : "", studyStart, studyEnd, cohortGroup: graduated ? cohortGroup : 0, displayOrder: graduated ? displayOrder : 0, yearEstimated: graduated && Boolean(graduationYear) && yearEstimated };
 }
 app.get("/directory", wrap(async (_req, res) => res.json({ members: await directoryRows() })));
 app.get("/admin/directory", wrap(async (_req, res) => res.json({ members: await directoryRows() })));

@@ -201,6 +201,16 @@ try {
   assert.equal((await api("/directory")).data.members.find(item => item.id === createdId).displayOrder, 20);
   assert.equal((await api("/directory")).data.members.find(item => item.id === createdId).yearEstimated, true);
   assert.equal((await api("/directory")).data.members.length, 3, "Restart must preserve edits without duplicating migration");
+  const phdId=(await api("/admin/directory",{method:"POST",expected:201,body:{...directoryEntry,name:"博士在學測試",role:"phd",graduationYear:"2026",yearEstimated:true}})).data.id;
+  const phdAlumniId=(await api("/admin/directory",{method:"POST",expected:201,body:{...directoryEntry,name:"博士畢業測試",role:"phdAlumni",graduationYear:"2026",displayOrder:1,yearEstimated:true}})).data.id;
+  await stop();await start();
+  const doctoral=(await api("/directory")).data.members;
+  assert.equal(doctoral.find(m=>m.id===phdId).graduationYear,"");
+  assert.equal(doctoral.find(m=>m.id===phdId).yearEstimated,false);
+  assert.equal(doctoral.find(m=>m.id===phdAlumniId).graduationYear,"2026");
+  assert.equal(doctoral.find(m=>m.id===phdAlumniId).yearEstimated,true);
+  await api(`/admin/directory/${phdAlumniId}`,{method:"PUT",body:{...directoryEntry,name:"博士畢業測試",role:"phdAlumni",graduationYear:""}});
+  assert.equal((await api("/directory")).data.members.find(m=>m.id===phdAlumniId).graduationYear,"");
   for (const item of (await api("/directory")).data.members) await api(`/admin/directory/${item.id}`, { method: "DELETE" });
   await api(`/admin/directory/${createdId}`, { method: "DELETE", expected: 404 });
   await stop(); await start();

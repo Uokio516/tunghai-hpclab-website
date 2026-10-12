@@ -4,7 +4,7 @@ import { useLocale } from "../lib/locale";
 export function DirectoryGuide() {
   const { t } = useLocale();
   const steps = [
-    [t("新增姓名", "Add a name"), t("按「新增成員」，填姓名，再選碩一、碩二或畢業學長姊。不需要信箱、成員密碼或邀請連結。", "Select Add member, enter a name and choose Master's Year 1, Master's Year 2 or Alumni. No email, member password or invitation is needed.")],
+    [t("新增姓名", "Add a name"), t("按「新增成員」，填姓名，再選博士班、碩一、碩二或博士／碩士班畢業學長姊。不需要信箱、成員密碼或邀請連結。", "Select Add member, enter a name and choose PhD Students, Master's Year 1, Master's Year 2, PhD Alumni or Master's Alumni. No email, member password or invitation is needed.")],
     [t("選擇年份與月份", "Choose years and months"), t("畢業學長姊可選畢業西元年。就學開始與結束各選年、月，例如 2024 年 9 月到 2026 年 6 月；沒有資料時可留空。", "For alumni, select a graduation year. Select the year and month for study start and end, for example September 2024 to June 2026. Unknown dates may be left blank.")],
     [t("儲存並查看名單", "Save and view the directory"), t("按「儲存名單」後，研究成員頁立即更新。用上方「查看公開名單」確認結果；公開卡片顯示姓名、畢業年份與就學期間。", "Select Save to update the People page immediately. Use View public directory to check the name cards, graduation years and study periods.")],
     [t("修改或刪除", "Edit or delete"), t("在姓名卡片按「修改」可改姓名、分類與日期。按「刪除」並確認後，該筆名單立即移除。允許同名者，操作前請確認所選卡片。", "Select Edit on a name card to change its name, category or dates. Select Delete and confirm to remove the entry immediately. Duplicate names are allowed, so check the selected card first.")],
