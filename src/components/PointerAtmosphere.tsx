@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 type Spark = { angle: number; reach: number; size: number; color: number };
 type Burst = { x: number; y: number; started: number; power: number; combo: number; sparks: Spark[] };
 const TAU = Math.PI * 2;
-const NATIVE_CURSOR = "input,textarea,select,[contenteditable]:not([contenteditable=false]),.hero-preview";
+const NATIVE_CURSOR = "input,textarea,select,[contenteditable]:not([contenteditable=false]),.hero-preview,[data-game-board]";
 
 /** Bounded star particles; the canvas stops drawing when the pointer rests. */
 export function PointerAtmosphere() {

@@ -42,7 +42,7 @@ export function Navigation() {
             <small className="nav-university mt-1 text-[10px] uppercase tracking-[0.15em] opacity-50">Tunghai University</small>
           </span>
         </Link>
-        <nav className="ml-auto hidden items-center gap-1 xl:flex" aria-label={t("主要導覽", "Main navigation")}>
+        <nav className="site-desktop-nav ml-auto hidden items-center gap-1 min-[1440px]:flex" aria-label={t("主要導覽", "Main navigation")}>
           {navItems
             .map((item) => (
               <NavLink

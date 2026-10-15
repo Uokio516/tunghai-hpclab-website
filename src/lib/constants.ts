@@ -18,4 +18,5 @@ export const navItems: NavItem[] = [
   { index: "06", labelZh: "聯絡我們", labelEn: "CONTACT", to: "/contact" },
   { index: "07", labelZh: "算力監控", labelEn: "GPU MONITOR", to: "/gpus" },
   { index: "08", labelZh: "叢集資訊", labelEn: "CLUSTERS", to: "/infrastructure" },
+  { index: "09", labelZh: "遊戲", labelEn: "GAMES", to: "/games" },
 ];

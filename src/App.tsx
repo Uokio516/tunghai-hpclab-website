@@ -18,6 +18,7 @@ const HeroPreview = lazy(() =>
 const ProjectsPage = lazy(() =>
   import("./components/pages/ProjectsPage").then((m) => ({ default: m.ProjectsPage }))
 );
+const GamesPage = lazy(() => import("./components/pages/GamesPage").then((m) => ({ default: m.GamesPage })));
 const PeoplePage = lazy(() =>
   import("./components/pages/PeoplePage").then((m) => ({ default: m.PeoplePage }))
 );
@@ -139,6 +140,7 @@ export default function App() {
             lazy chunk, so none of them pull Three.js in. */}
         <Route path="/research" element={<Navigate to="/#research" replace />} />
         <Route path="/projects" element={<DarkRoute><ProjectsPage /></DarkRoute>} />
+        <Route path="/games" element={<DarkRoute><GamesPage /></DarkRoute>} />
         <Route path="/people" element={<DarkRoute><PeoplePage /></DarkRoute>} />
         <Route path="/people/:id" element={<Navigate to="/people" replace />} />
         <Route path="/join/:invite" element={<DarkRoute><MemberJoinPage /></DarkRoute>} />
