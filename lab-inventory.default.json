@@ -8,8 +8,8 @@
     "vramGB": 433,
     "cpuThreads": 904,
     "ramGB": 3824,
-    "hidden": 32,
-    "edgeDevices": 2
+    "hidden": 34,
+    "edgeDevices": 0
   },
   "gpuModels": [
     {
@@ -1961,9 +1961,9 @@
       "ports": [
         22
       ],
-      "include": true,
-      "excludeReason": null,
-      "countsForCapacity": true,
+      "include": false,
+      "excludeReason": "retired",
+      "countsForCapacity": false,
       "edge": true
     },
     {
@@ -2014,9 +2014,9 @@
       "ports": [
         22
       ],
-      "include": true,
-      "excludeReason": null,
-      "countsForCapacity": true,
+      "include": false,
+      "excludeReason": "retired",
+      "countsForCapacity": false,
       "edge": true
     },
     {

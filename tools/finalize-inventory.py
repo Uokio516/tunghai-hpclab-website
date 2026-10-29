@@ -33,6 +33,11 @@ CLUSTER_TYPES = {"Server"}
 CONFIRMED_PRESENT = {
     "140.128.103.163",   # vendor-loaned RTX 5090 (成大); confirmed by PK 2026-10-29
 }
+# Machines the lab has taken off the page for good, whatever the probe says.
+RETIRED = {
+    "172.24.12.69",      # Jetson Xavier NX; removed by PK 2026-10-29
+    "172.24.12.78",      # Jetson Orin Nano; removed by PK 2026-10-29
+}
 
 def main():
     inv = json.load(io.open(INV, encoding="utf-8"))
@@ -69,9 +74,9 @@ def main():
             "ports": (r or {}).get("ports", []),
             # No IP recorded at all means the sheet never had one; those boxes are
             # the ones that were moved and re-cabled, so they stay hidden too.
-            "include": reachable,
-            "excludeReason": None if reachable else ("relocated" if ip else "no-address"),
-            "countsForCapacity": reachable and not m["virtual"] and bool(real_gpus or m["cpuThreads"]),
+            "include": reachable and ip not in RETIRED,
+            "excludeReason": "retired" if ip in RETIRED else None if reachable else ("relocated" if ip else "no-address"),
+            "countsForCapacity": reachable and ip not in RETIRED and not m["virtual"] and bool(real_gpus or m["cpuThreads"]),
             "edge": m["type"] == "Edge",
         })
 

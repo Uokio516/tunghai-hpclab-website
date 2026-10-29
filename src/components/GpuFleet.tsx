@@ -117,8 +117,7 @@ export function GpuFleet() {
     return () => { alive = false; clearInterval(timer); clearInterval(clock); document.removeEventListener("visibilitychange", onVisibility); };
   }, []);
 
-  // Offline Jetsons are left out entirely; they reappear once the probe reaches them again.
-  const hosts = useMemo(() => [...(data?.machines ?? []), ...(data?.inventory?.machines ?? [])].filter(host => !(host.edge && host.online === false)), [data]);
+  const hosts = useMemo(() => [...(data?.machines ?? []), ...(data?.inventory?.machines ?? [])], [data]);
   const selected = hosts.find(host => host.id === selectedId) ?? null;
   const filtered = hosts.filter(host => {
     const needle = query.trim().toLocaleLowerCase();
