@@ -96,6 +96,10 @@ OVERRIDES = {
                      "gpus": [{"model": "Jetson Orin Nano (1024-core Ampere)", "vramGB": 8, "class": "edge", "passthrough": False}]},
     "172.24.12.69": {"cpu": "NVIDIA Carmel 6C", "cpuThreads": 6, "ramGB": 8,
                      "gpus": [{"model": "Jetson Xavier NX (384-core Volta)", "vramGB": 8, "class": "edge", "passthrough": False}]},
+    # Readdressed to pk-3060 below, but that node is a Ryzen 7950X (read from /proc/cpuinfo
+    # 2026-10-29), not the i9-14900K this row lists. Kept on this row so inventory IDs stay stable.
+    "140.128.103.173": {"label": "pk-3060", "cpu": "AMD 7950X", "cpuThreads": 32, "ramGB": 128, "os": "Ubuntu 24.04"},
+    "140.128.103.174": {"os": "Ubuntu 24.04"},   # A100 reinstalled 2026-10-28
 }
 VIRTUAL_TYPES = {"VM", "Virtual"}
 
@@ -108,7 +112,7 @@ READDRESSED = {
 # Nodes that exist in the cluster but were never entered in the spreadsheet.
 EXTRAS = [
     {"ip": "172.24.12.85", "label": "pk-5090", "owner": "PK", "type": "Server",
-     "location": "ST429", "section": "ST429", "cpu": "20T", "cpuThreads": 20, "ramGB": 32,
+     "location": "ST429", "section": "ST429", "cpu": "Ultra 7 265K", "cpuThreads": 20, "ramGB": 32,
      "os": "Ubuntu 24.04", "asset": "", "row": None, "powerW": None,
      "gpus": [{"model": "RTX 5090", "vramGB": 32, "class": "consumer", "passthrough": False}]},
 ]

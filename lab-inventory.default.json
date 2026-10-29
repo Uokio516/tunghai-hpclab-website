@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-02",
+  "updatedAt": "2026-10-29",
   "probedAt": "2026-10-02T15:32:33+08:00",
   "source": "inventory",
   "totals": {
@@ -191,7 +191,7 @@
       "label": "PK",
       "owner": "WJ",
       "type": "Rack 1U",
-      "os": "Ubuntu 22",
+      "os": "Ubuntu 24.04",
       "location": "LIB Server Room",
       "group": "lib",
       "groupName": "圖書館機房",
@@ -1730,14 +1730,14 @@
     {
       "id": "inv-58",
       "ip": "172.24.13.84",
-      "label": "PK",
+      "label": "pk-3060",
       "owner": "PK",
       "type": "Tower PC",
-      "os": "Ubuntu 22",
+      "os": "Ubuntu 24.04",
       "location": "ST430",
       "group": "st430",
       "groupName": "ST430 機房",
-      "cpu": "i9-14900K",
+      "cpu": "AMD 7950X",
       "cpuThreads": 32,
       "ramGB": 128,
       "gpus": [
@@ -2116,7 +2116,7 @@
       "location": "ST429",
       "group": "st429",
       "groupName": "ST429 研究室",
-      "cpu": "20T",
+      "cpu": "Ultra 7 265K",
       "cpuThreads": 20,
       "ramGB": 32,
       "gpus": [
