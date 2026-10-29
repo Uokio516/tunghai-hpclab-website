@@ -24,11 +24,12 @@ type Host = {
 };
 type Fleet = {
   updatedAt: string; prometheusStatus?: string;
+  gpuModels?: { model: string; count: number; vramGB: number | null }[];
   summary: { machinesTracked: number; gpusTotal: number; gpusOnline: number; gpusBusy: number;
     vramTotalGB: number; cpuThreadsTotal: number; ramTotalGB: number; edgeDevices: number;
     hostsUp: number; hostsTotal: number };
   machines: Host[];
-  inventory?: { machines: Host[] } | null;
+  inventory?: { updatedAt?: string; machines: Host[] } | null;
 };
 type Sample = { at: number; online: number | null; gpuUtil: number | null; cpuPercent: number | null; ramPercent: number | null };
 type History = { startedAt: number | null; points: Sample[] };
@@ -37,6 +38,8 @@ const GB = 1024 ** 3;
 const fresh = (stamp: string | null | undefined, now: number) => !!stamp && Number.isFinite(Date.parse(stamp)) && now - Date.parse(stamp) >= -30_000 && now - Date.parse(stamp) < 120_000;
 const fmt = (value: number | null | undefined) => value == null ? "—" : `${Math.round(value)}%`;
 const dateTime = (value: string | number | null | undefined, language: Language = "zh-TW") => value ? new Date(value).toLocaleString(language, { hour12: false }) : language === "en" ? "No record" : "尚無紀錄";
+const modelKey = (model: string) => model.toUpperCase().replace(/^(?:NVIDIA)?(?:GEFORCE)?/, "").replace(/[^A-Z0-9]/g, "").replace(/TIS$/, "TISUPER");
+const modelPriority = ["RTX 5090", "RTX 5080", "RTX 5070 Ti", "RTX 4090", "RTX 4080", "RTX 4070 Ti"];
 function inventoryText(value: string | null | undefined, language: Language) {
   if (!value || language !== "en") return value || "";
   return value
@@ -105,6 +108,26 @@ export function GpuFleet() {
   }, []);
 
   const hosts = useMemo(() => [...(data?.machines ?? []), ...(data?.inventory?.machines ?? [])], [data]);
+  const reportingByModel = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const host of hosts) {
+      if (host.online !== true || host.virtual || host.edge) continue;
+      for (const gpu of host.gpus) {
+        if (gpu.class === "display-only" || gpu.class === "edge" || gpu.utilAvailable === false || gpu.util == null || !fresh(gpu.sampledAt, now)) continue;
+        const key = modelKey(gpu.model || gpu.name || "");
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+    }
+    return counts;
+  }, [hosts, now]);
+  const modelRows = useMemo(() => [...(data?.gpuModels ?? [])].sort((a, b) => {
+    const rank = (model: string) => {
+      const name = modelKey(model);
+      const index = modelPriority.findIndex(prefix => name.startsWith(modelKey(prefix)));
+      return index < 0 ? modelPriority.length : index;
+    };
+    return rank(a.model) - rank(b.model) || b.count - a.count || a.model.localeCompare(b.model, language);
+  }), [data?.gpuModels, language]);
   const selected = hosts.find(host => host.id === selectedId) ?? null;
   const filtered = hosts.filter(host => {
     const needle = query.trim().toLocaleLowerCase();
@@ -136,6 +159,15 @@ export function GpuFleet() {
         <Summary icon={Activity} label={t("正在運算", "Computing now")} value={`${data.summary.gpusBusy ?? 0} ${t("張 GPU", "GPUs")}`} detail={t("使用率達 20%", "At least 20% utilization")} />
         <Summary icon={HardDrive} label={t("系統記憶體", "System memory")} value={`${((data.summary.ramTotalGB ?? 0) / 1024).toFixed(1)} TB`} detail={`${data.summary.cpuThreadsTotal ?? 0} ${t("條 CPU 執行緒", "CPU threads")}`} />
       </div>
+
+      {!!modelRows.length && <section className="fleet-models" aria-labelledby="fleet-models-heading">
+        <div className="fleet-models-head"><div><p className="monitor-eyebrow">GPU INVENTORY</p><h2 id="fleet-models-heading">{t("GPU 型號統計", "GPU inventory by model")}</h2></div><p>{t("盤點數量包含暫時離線的設備；有效回報只計入近兩分鐘有使用率採樣的 GPU。", "Inventory includes temporarily offline equipment. Reporting counts GPUs with utilization sampled in the last two minutes.")}</p></div>
+        <div className="fleet-models-scroll"><table><thead><tr><th scope="col">{t("型號", "Model")}</th><th scope="col">{t("盤點數量", "Inventory")}</th><th scope="col">{t("單卡顯存", "VRAM / GPU")}</th><th scope="col">{t("顯存合計", "Total VRAM")}</th><th scope="col">{t("有效回報", "Reporting")}</th></tr></thead>
+          <tbody>{modelRows.map(row => <tr key={row.model}><th scope="row">{row.model}</th><td><strong>{row.count}</strong> {t("張", "GPUs")}</td><td>{row.vramGB == null ? "—" : `${row.vramGB} GB`}</td><td>{row.vramGB == null ? "—" : `${row.vramGB * row.count} GB`}</td><td><span className="fleet-reporting" data-active={!!reportingByModel.get(modelKey(row.model))}>{reportingByModel.get(modelKey(row.model)) ?? 0} / {row.count}</span></td></tr>)}</tbody>
+          <tfoot><tr><th scope="row">{t("合計", "Total")}</th><td>{data.summary.gpusTotal} {t("張", "GPUs")}</td><td>—</td><td>{data.summary.vramTotalGB} GB</td><td>{modelRows.reduce((sum, row) => sum + (reportingByModel.get(modelKey(row.model)) ?? 0), 0)} / {data.summary.gpusTotal}</td></tr></tfoot>
+        </table></div>
+        <p className="fleet-models-note">{t("數量來自已核對的設備清冊；點選下方節點可看每張卡的即時使用率與歷史。", "Counts come from the verified equipment inventory. Select a node below for each GPU's live utilization and history.")}</p>
+      </section>}
 
       <section className="fleet-overview" aria-labelledby="fleet-heading">
         <div className="fleet-headline"><div><p className="monitor-eyebrow">Node Overview</p><h2 id="fleet-heading">{t("節點總覽", "Node Overview")} <span>{filtered.length} / {hosts.length}</span></h2></div><p>{t("GPU 與 CPU 數值只顯示有效採樣；「連線正常」僅代表端點可連通。", "GPU and CPU values require valid samples. Reachable means only that the endpoint responded.")}</p></div>

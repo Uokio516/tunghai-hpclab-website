@@ -59,3 +59,7 @@ GPU 叢集的 `pk-3060`、`pk-5090` 主機使用 [gpu-cluster-node-exporter.yaml
 GPU VM 的 `capacityHostId` 對應實體主機，VM 自己只顯示 CPU／RAM；總算力沿用清冊，不把 VM 資源再加一次。無法拉取的筆電改用 HTTPS push，兩個 exporter 只綁 loopback，token 僅存遠端受限檔案與網站 Kubernetes Secret。
 
 A100 MIG 與 Jetson 的專用採集方式見 [SPECIALIZED.md](SPECIALIZED.md)。工具已備妥不代表該機器已安裝；仍需實際管理權限與採樣驗證。
+
+## pk-5090 監控轉接（2026-10-29）
+
+cc3 上的節點與 GPU 監控轉接服務，現在直接從內部網路讀取 pk-5090 的 exporter（分別為 9100、9835），對網站提供的轉接埠仍為 9300、9301，並沿用原有存取限制與 systemd 防護。原本的 Kubernetes port-forward 服務保留作備援，目前未被轉接服務使用。設定覆寫檔位於 cc3 的 `/etc/systemd/system/hpclab-node-relay.service.d/override.conf` 與 `/etc/systemd/system/hpclab-gpu-relay.service.d/override.conf`。若 pk-5090 位址變更，須更新兩個 `--source` 並重新啟動轉接服務；先從 cc3 確認兩個轉接埠的 `/metrics` 回應，再檢查網站 `/api/gpus`。
