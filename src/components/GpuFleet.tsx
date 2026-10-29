@@ -51,6 +51,19 @@ function inventoryText(value: string | null | undefined, language: Language) {
     .replaceAll("伺服器", "server");
 }
 
+// Single-card compute order, fastest first. Cards not listed sort after these, and
+// machines without a compute GPU go last.
+const GPU_RANK = [/RTX\s*5090/i, /A100/i, /RTX\s*4090(?!\s*Laptop)/i, /RTX\s*5080/i, /RTX\s*5070\s*Ti/i,
+  /RTX\s*4070\s*Ti\s*SUPER/i, /RTX\s*4090\s*Laptop/i, /RTX\s*3080/i, /RTX\s*4080\s*Laptop/i,
+  /RTX\s*4060\s*Ti/i, /RTX\s*2080\s*Ti/i, /RTX\s*3060/i, /RTX\s*2060/i];
+function gpuRank(host: Host) {
+  const ranks = host.gpus.filter(g => g.class !== "display-only").map(g => {
+    const i = GPU_RANK.findIndex(re => re.test(g.model || g.name || ""));
+    return i < 0 ? GPU_RANK.length : i;
+  });
+  return ranks.length ? Math.min(...ranks) : GPU_RANK.length + 1;
+}
+
 function gpuLoad(host: Host, now: number): number | null {
   const live = host.gpus.filter(g => g.class !== "display-only" && g.utilAvailable !== false && fresh(g.sampledAt, now) && g.util != null).map(g => (g.util ?? 0) * 100);
   return live.length ? live.reduce((a, b) => a + b, 0) / live.length : null;
@@ -104,7 +117,8 @@ export function GpuFleet() {
     return () => { alive = false; clearInterval(timer); clearInterval(clock); document.removeEventListener("visibilitychange", onVisibility); };
   }, []);
 
-  const hosts = useMemo(() => [...(data?.machines ?? []), ...(data?.inventory?.machines ?? [])], [data]);
+  // Offline Jetsons are left out entirely; they reappear once the probe reaches them again.
+  const hosts = useMemo(() => [...(data?.machines ?? []), ...(data?.inventory?.machines ?? [])].filter(host => !(host.edge && host.online === false)), [data]);
   const selected = hosts.find(host => host.id === selectedId) ?? null;
   const filtered = hosts.filter(host => {
     const needle = query.trim().toLocaleLowerCase();
@@ -115,9 +129,9 @@ export function GpuFleet() {
     if (filter === "unmonitored") return state(host).key === "reachable";
     return true;
   }).sort((a, b) => {
+    const rank = gpuRank(a) - gpuRank(b);
+    if (rank) return rank;
     if ((a.id === "inv-72") !== (b.id === "inv-72")) return a.id === "inv-72" ? -1 : 1;
-    const is5090 = (host: Host) => host.gpus.some(gpu => gpu.class !== "display-only" && /RTX\s*5090/i.test(gpu.model || gpu.name || ""));
-    if (is5090(a) !== is5090(b)) return is5090(a) ? -1 : 1;
     const severity = (host: Host) => ({ offline: 0, warning: 1, unknown: 2, live: 3, reachable: 4 })[state(host).key] ?? 5;
     return severity(a) - severity(b) || a.label.localeCompare(b.label, language, { numeric: true });
   });
