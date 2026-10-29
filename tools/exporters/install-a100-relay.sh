@@ -6,6 +6,12 @@ A=/opt/hpclab-exporters/access.sh
 cp -n "$A" "$A.bak-20261029"
 sed -i 's/9100\\,9835\\,9300\\,9301/9100\\,9835\\,9300\\,9301\\,9302\\,9303/g' "$A"
 grep -q '9302' "$A"
+# relay_metrics.py whitelists its listen ports; without this the units exit with
+# "unexpected relay port".
+R=/opt/hpclab-exporters/relay_metrics.py
+cp -n "$R" "$R.bak-20261029"
+sed -i 's/if args.listen_port not in (9300, 9301):/if args.listen_port not in (9300, 9301, 9302, 9303):/' "$R"
+grep -q '9302, 9303' "$R"
 
 unit() { # name kind listen-port source-port
 cat > "/etc/systemd/system/$1.service" <<EOF

@@ -12,6 +12,19 @@ CONF
 sysctl -p /etc/sysctl.d/90-hpclab-arp.conf
 for i in enp1s0 enp2s0; do sysctl -w net.ipv4.conf.$i.arp_ignore=1 net.ipv4.conf.$i.arp_announce=2; done
 # Refresh the router's entry for 172.24.13.244 from the right NIC.
-if command -v arping >/dev/null; then arping -c 3 -U -I enp1s0 -s 172.24.13.244 172.24.13.254 || true; fi
+# arping is not installed on cc3, and until the router hears a gratuitous ARP it keeps the
+# stale enp2s0 MAC, so the sysctl alone did not fix it (2026-10-29). Announce our own
+# address/MAC only.
+python3 - <<'PY'
+import socket, struct, time
+IF = "enp1s0"; IP = socket.inet_aton("172.24.13.244")
+mac = bytes.fromhex(open(f"/sys/class/net/{IF}/address").read().strip().replace(":", ""))
+s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW); s.bind((IF, 0))
+bc = b"\xff" * 6
+for op in (1, 2):
+    arp = struct.pack("!HHBBH", 1, 0x0800, 6, 4, op) + mac + IP + (b"\x00" * 6 if op == 1 else bc) + IP
+    for _ in range(3):
+        s.send(bc + mac + b"\x08\x06" + arp); time.sleep(0.3)
+PY
 sleep 3
 for p in 9100 9835; do echo "pk-5090:$p $(curl --noproxy '*' -s -m 8 -o /dev/null -w '%{http_code}' http://172.24.12.85:$p/metrics)"; done
