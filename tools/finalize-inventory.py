@@ -28,6 +28,11 @@ GROUPS = {
 # ST430 holds both the cluster hardware and members' workstations; split them so
 # the page can show "叢集實體節點" apart from "個人工作站".
 CLUSTER_TYPES = {"Server"}
+# Machines the lab confirmed are still on site even though the probe gets no answer
+# (e.g. firewalled). They are shown and counted like reachable ones.
+CONFIRMED_PRESENT = {
+    "140.128.103.163",   # vendor-loaned RTX 5090 (成大); confirmed by PK 2026-10-29
+}
 
 def main():
     inv = json.load(io.open(INV, encoding="utf-8"))
@@ -38,7 +43,7 @@ def main():
     for i, m in enumerate(inv["machines"], 1):
         ip = m.get("ip")
         r = hosts.get(ip) if ip else None
-        reachable = bool(r and r["reachable"])
+        reachable = bool(r and r["reachable"]) or ip in CONFIRMED_PRESENT
         gid, gname = GROUPS.get(m["location"], ("other", m["location"] or "其他"))
         if gid == "st430" and m["type"] in CLUSTER_TYPES:
             gid, gname = "cluster", "叢集實體節點"

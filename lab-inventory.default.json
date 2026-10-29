@@ -3,12 +3,12 @@
   "probedAt": "2026-10-02T15:32:33+08:00",
   "source": "inventory",
   "totals": {
-    "machines": 29,
-    "gpus": 22,
-    "vramGB": 401,
-    "cpuThreads": 880,
-    "ramGB": 3568,
-    "hidden": 33,
+    "machines": 30,
+    "gpus": 23,
+    "vramGB": 433,
+    "cpuThreads": 904,
+    "ramGB": 3824,
+    "hidden": 32,
     "edgeDevices": 2
   },
   "gpuModels": [
@@ -20,7 +20,7 @@
     },
     {
       "model": "RTX 5090",
-      "count": 4,
+      "count": 5,
       "vramGB": 32,
       "class": "consumer"
     },
@@ -114,11 +114,11 @@
         }
       ],
       "virtual": false,
-      "reachable": false,
+      "reachable": true,
       "ports": [],
-      "include": false,
-      "excludeReason": "relocated",
-      "countsForCapacity": false,
+      "include": true,
+      "excludeReason": null,
+      "countsForCapacity": true,
       "edge": false
     },
     {

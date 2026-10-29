@@ -21,7 +21,7 @@ spec:
               - matchExpressions:
                   - key: kubernetes.io/hostname
                     operator: In
-                    values: [pk-gpu-pve3, pk-3060, pk-5090]
+                    values: [pk-gpu-pve3, pk-3060, pk-5090, lib-a100-cc1]
       runtimeClassName: nvidia
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
