@@ -216,13 +216,13 @@
       "machineId": "inv-04",
       "capacityHostId": "inv-04",
       "kind": "node",
-      "url": "http://172.24.13.244:9302/metrics"
+      "url": "http://140.128.103.174:9100/metrics"
     },
     {
       "machineId": "inv-04",
       "capacityHostId": "inv-04",
       "kind": "nvidia",
-      "url": "http://172.24.13.244:9303/metrics"
+      "url": "http://140.128.103.174:9835/metrics"
     }
   ]
 }
